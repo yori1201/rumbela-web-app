@@ -1,0 +1,130 @@
+== SEMUA requestAccessToken ==
+ }
+          renderDriveUI();
+        }
+      });
+      return true;
+    }
+    function gdLogin(){
+      if (!gdEnsureClient()){
+        toast("Library Google belum termuat — periksa koneksi internet, lalu coba lagi.");
+        return;
+      }
+      gd.errorMsg = "";
+      gd.status = "connecting";
+      renderDriveUI();
+      try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+      catch (e){ gd.status = "out"; gd.errorMsg = "Login Google gagal dibuka. Coba lagi."; renderDri
+------------------------------------------------------------
+omise.resolve();
+      gd.saveTimer = null;
+      if (gd.savingNow){ gd.dirtyAgain = true; return Promise.resolve(); }
+      /* Token hampir kedaluwarsa: perbarui dulu secara senyap. */
+      if (Date.now() > gd.expiresAt - 60000 && gd.tokenClient && !gd.refreshing){
+        gd.refreshing = true; gd.refreshOnly = true;
+        try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+        catch (e){ gd.refreshing = false; gd.refreshOnly = false; }
+        return Promise.resolve()
+------------------------------------------------------------
+        gd.email = saved.email || "";
+        gd.loadRetries = 0; gd.errorDetail = ""; gd.apiDisabled = false;
+        gd.status = "loading";
+        renderDriveUI();
+        gdSyncFromDrive();
+        return;
+      }
+      if (saved) gdClearSession();
+      if (gdEnsureClient() && !gd.token){
+        gd.silent = true;
+        try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+        catch (e){ gd.silent = false; }
+      }
+    });
+    
+------------------------------------------------------------
+
+== gdReadSession ==
+function gdReadSession(){
+      try {
+        var s = JSON.parse(localStorage.getItem(GD_SESSION_KEY) || "null");
+        if (s && s.token && s.expiresAt) return s;
+      } catch (e) {}
+      return null;
+    }
+    function gdClearSession(){
+      try { localStorage.removeItem(GD_SESSION_KEY); } catch (e) {}
+    }
+
+    function gdPad(n){ return String(n).padStart(2, "0"); }
+    function gdTimeStr(d){ return gdPad(d.getHours()) + ":" + gdPad(d.getMinutes()) + ":" + gdPad(d.getSeconds()); }
+    function gdStateString(){ try { return JSON.stringify(state); } catch (e) { return ""; } }
+    function gdHash(str){
+      var h = 0;
+      for (var i = 0; i < str.length; i++){ h = ((h << 5) - h + str.charCodeAt(i)) | 0; }
+      return str.length + ":" + h;
+    }
+
+    /* ---------- Status & UI ---------- */
+    function gdStatusInfo(){
+      var who = gd.email ? " sebagai " + gd.email : "";
+      s
+
+== AKHIR SCRIPT (init sequence, 2500 char terakhir) ==
+ain){ gd.dirtyAgain = false; gdScheduleSave(600); }
+        else gdCheck();
+      }).catch(function(err){
+        gd.savingNow = false;
+        if (err && err.status === 401){
+          gd.token = null; gdClearSession(); gd.ready = false; gd.status = "out";
+          gd.errorMsg = "Sesi Google berakhir — klik Login Google untuk menyambung lagi.";
+        } else {
+          gd.status = "error";
+          gd.errorMsg = "Gagal menyimpan ke Drive. Periksa koneksi, lalu klik Simpan sekarang.";
+          gd.errorDetail = err && err.detail ? err.detail : "";
+        }
+        renderDriveUI();
+      });
+    }
+
+    /* ---------- Inisialisasi ---------- */
+    renderDriveUI();
+    if (typeof renderAll === "function"){
+      var gdOrigRenderAll = renderAll;
+      renderAll = function(){ gdOrigRenderAll(); gdCheck(); };
+    }
+    setInterval(gdCheck, 1000);
+    /* Setiap interaksi yang mungkin mengubah data langsung memicu
+       pemeriksaan simpan otomatis, tanpa menunggu polling berkala —
+       jeda kecil supaya handler asli elemennya sempat mengubah state. */
+    ["input", "change", "click"].forEach(function(ev){
+      document.addEventListener(ev, function(){ setTimeout(gdCheck, 60); }, true);
+    });
+    /* Saat halaman dibuka: pulihkan sesi login tersimpan di perangkat ini.
+       - Token tersimpan yang masih berlaku (dengan sisa waktu cukup) langsung
+         dipakai: status Terhubung tampil dan database dimuat dari Drive,
+         tanpa pengguna menekan tombol Login.
+       - Token tersimpan yang sudah kedaluwarsa dibuang, lalu dicoba perbarui
+         secara diam-diam lewat sesi Google yang masih aktif di browser ini
+         (izin sudah pernah diberikan, jadi token baru didapat tanpa popup).
+         Kegagalan diabaikan diam-diam — status tetap "Belum login" dan
+         tombol Login muncul seperti biasa. */
+    window.addEventListener("load", function(){
+      var saved = gdReadSession();
+      if (saved && saved.expiresAt > Date.now() + 30000){
+        gd.token = saved.token;
+        gd.expiresAt = saved.expiresAt;
+        gd.email = saved.email || "";
+        gd.loadRetries = 0; gd.errorDetail = ""; gd.apiDisabled = false;
+        gd.status = "loading";
+        renderDriveUI();
+        gdSyncFromDrive();
+        return;
+      }
+      if (saved) gdClearSession();
+      if (gdEnsureClient() && !gd.token){
+        gd.silent = true;
+        try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+        catch (e){ gd.silent = false; }
+      }
+    });
+    

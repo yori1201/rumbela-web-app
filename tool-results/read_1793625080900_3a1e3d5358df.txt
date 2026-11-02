@@ -1,0 +1,895 @@
+     1→     1→"use client";
+     2→     2→
+     3→     3→/* Engine generator soal Matematika otomatis per jenjang (SD/SMP/SMA),
+     4→     4→   kelas & topik. Semua soal dihitung ulang setiap kali dibuat, jawaban
+     5→     5→   selalu bilangan bulat / pecahan sederhana agar rapi untuk lembar kerja. */
+     6→     6→
+     7→     7→export interface GenSoal {
+     8→     8→  q: string;
+     9→     9→  a: string;
+    10→    10→}
+    11→    11→
+    12→    12→export interface TopikDef {
+    13→    13→  id: string;
+    14→    14→  label: string;
+    15→    15→  gen: (lv: number, R: () => number) => GenSoal;
+    16→    16→}
+    17→    17→
+    18→    18→/** bilangan bulat acak a..s.d. b (inklusif) */
+    19→    19→const ri = (R: () => number, a: number, b: number): number =>
+    20→    20→  a + Math.floor(R() * (b - a + 1));
+    21→    21→const pick = <T,>(R: () => number, arr: T[]): T => arr[Math.floor(R() * arr.length)];
+    22→    22→/** skala rentang berdasarkan tingkat kesulitan: 1=mudah 2=sedang 3=sulit */
+    23→    23→const S = (lv: number, base: number, inc: number) => Math.round(base * (1 + (lv - 1) * inc));
+    24→    24→
+    25→    25→const GCD = (a: number, b: number): number => (b === 0 ? Math.abs(a) : GCD(b, a % b));
+    26→    26→const LCM = (a: number, b: number): number => (a * b) / GCD(a, b);
+    27→    27→const simp = (p: number, q: number): string => {
+    28→    28→  const g = GCD(p, q) || 1;
+    29→    29→  let pp = p / g, qq = q / g;
+    30→    30→  if (qq < 0) { pp = -pp; qq = -qq; }
+    31→    31→  return qq === 1 ? `${pp}` : `${pp}/${qq}`;
+    32→    32→};
+    33→    33→/** desimal gaya Indonesia: 3,5 */
+    34→    34→const idn = (n: number): string => n.toString().replace(".", ",");
+    35→    35→
+    36→    36→/* ================= SD ================= */
+    37→    37→
+    38→    38→const tambah20: TopikDef = {
+    39→    39→  id: "sd-tambah-20", label: "Penjumlahan (sampai 20)",
+    40→    40→  gen: (lv, R) => {
+    41→    41→    const m = S(lv, 10, 0.5);
+    42→    42→    const a = ri(R, 1, m), b = ri(R, 1, 20 - a);
+    43→    43→    return { q: `${a} + ${b} = …`, a: `${a + b}` };
+    44→    44→  },
+    45→    45→};
+    46→    46→const kurang20: TopikDef = {
+    47→    47→  id: "sd-kurang-20", label: "Pengurangan (sampai 20)",
+    48→    48→  gen: (lv, R) => {
+    49→    49→    const m = S(lv, 12, 0.4);
+    50→    50→    const a = ri(R, 2, 20), b = ri(R, 1, Math.min(a - 1, m));
+    51→    51→    return { q: `${a} − ${b} = …`, a: `${a - b}` };
+    52→    52→  },
+    53→    53→};
+    54→    54→const campur20: TopikDef = {
+    55→    55→  id: "sd-campur-20", label: "Penjumlahan & pengurangan kecil",
+    56→    56→  gen: (_lv, R) => {
+    57→    57→    const a = ri(R, 2, 10), b = ri(R, 1, 9), c = ri(R, 1, a + b - 1);
+    58→    58→    return R() < 0.5
+    59→    59→      ? { q: `${a} + ${b} − ${c} = …`, a: `${a + b - c}` }
+    60→    60→      : { q: `${a + b} − ${b} + ${c} = …`, a: `${a + c}` };
+    61→    61→  },
+    62→    62→};
+    63→    63→const tambah100: TopikDef = {
+    64→    64→  id: "sd-tambah-100", label: "Penjumlahan (sampai 100)",
+    65→    65→  gen: (lv, R) => {
+    66→    66→    const m = S(lv, 50, 0.3);
+    67→    67→    const a = ri(R, 10, m), b = ri(R, 10, Math.min(99, 100 - a));
+    68→    68→    return { q: `${a} + ${b} = …`, a: `${a + b}` };
+    69→    69→  },
+    70→    70→};
+    71→    71→const kurang100: TopikDef = {
+    72→    72→  id: "sd-kurang-100", label: "Pengurangan (sampai 100)",
+    73→    73→  gen: (lv, R) => {
+    74→    74→    const m = S(lv, 60, 0.3);
+    75→    75→    const a = ri(R, Math.max(20, m), 99), b = ri(R, 5, m);
+    76→    76→    return { q: `${a} − ${b} = …`, a: `${a - b}` };
+    77→    77→  },
+    78→    78→};
+    79→    79→const kaliDasar: TopikDef = {
+    80→    80→  id: "sd-kali-dasar", label: "Perkalian dasar 1–10",
+    81→    81→  gen: (lv, R) => {
+    82→    82→    const a = ri(R, 2, S(lv, 7, 0.2)), b = ri(R, 2, S(lv, 8, 0.2));
+    83→    83→    return { q: `${a} × ${b} = …`, a: `${a * b}` };
+    84→    84→  },
+    85→    85→};
+    86→    86→const kaliBag: TopikDef = {
+    87→    87→  id: "sd-kali-bagi", label: "Perkalian & pembagian",
+    88→    88→  gen: (lv, R) => {
+    89→    89→    const a = ri(R, 2, S(lv, 9, 0.2)), b = ri(R, 2, 9);
+    90→    90→    if (R() < 0.5) return { q: `${a} × ${b} = …`, a: `${a * b}` };
+    91→    91→    return { q: `${a * b} : ${b} = …`, a: `${a}` };
+    92→    92→  },
+    93→    93→};
+    94→    94→const tambah1000: TopikDef = {
+    95→    95→  id: "sd-tambah-1000", label: "Penjumlahan (sampai 1.000)",
+    96→    96→  gen: (lv, R) => {
+    97→    97→    const m = S(lv, 450, 0.35);
+    98→    98→    const a = ri(R, 100, m), b = ri(R, 100, Math.min(999, 1000 - a));
+    99→    99→    return { q: `${a} + ${b} = …`, a: `${a + b}` };
+   100→   100→  },
+   101→   101→};
+   102→   102→const kurang1000: TopikDef = {
+   103→   103→  id: "sd-kurang-1000", label: "Pengurangan (sampai 1.000)",
+   104→   104→  gen: (lv, R) => {
+   105→   105→    const m = S(lv, 500, 0.35);
+   106→   106→    const a = ri(R, Math.max(300, m), 999), b = ri(R, 100, m);
+   107→   107→    return { q: `${a} − ${b} = …`, a: `${a - b}` };
+   108→   108→  },
+   109→   109→};
+   110→   110→const operasiCampur: TopikDef = {
+   111→   111→  id: "sd-operasi-campur", label: "Operasi hitung campuran",
+   112→   112→  gen: (lv, R) => {
+   113→   113→    const m = S(lv, 9, 0.3);
+   114→   114→    const a = ri(R, 2, m), b = ri(R, 2, m), c = ri(R, 2, m);
+   115→   115→    const t = pick(R, [
+   116→   116→      { q: `${a} + ${b} × ${c} = …`, a: a + b * c },
+   117→   117→      { q: `(${a} + ${b}) × ${c} = …`, a: (a + b) * c },
+   118→   118→      { q: `${a} × ${b} − ${c} = …`, a: a * b - c },
+   119→   119→      { q: `${a * b} : ${a} + ${c} = …`, a: b + c },
+   120→   120→    ]);
+   121→   121→    return { q: t.q, a: `${t.a}` };
+   122→   122→  },
+   123→   123→};
+   124→   124→const kali2digit: TopikDef = {
+   125→   125→  id: "sd-kali-2digit", label: "Perkalian 2 digit × 1 digit",
+   126→   126→  gen: (lv, R) => {
+   127→   127→    const a = ri(R, 11, S(lv, 49, 0.6)), b = ri(R, 3, 9);
+   128→   128→    return { q: `${a} × ${b} = …`, a: `${a * b}` };
+   129→   129→  },
+   130→   130→};
+   131→   131→const bagiSisa: TopikDef = {
+   132→   132→  id: "sd-bagi-sisa", label: "Pembagian dengan sisa",
+   133→   133→  gen: (_lv, R) => {
+   134→   134→    const b = ri(R, 3, 9), h = ri(R, 2, 12), s = ri(R, 1, b - 1);
+   135→   135→    return { q: `${b * h + s} : ${b} = … sisa …`, a: `${h} sisa ${s}` };
+   136→   136→  },
+   137→   137→};
+   138→   138→const pecahanSenilai: TopikDef = {
+   139→   139→  id: "sd-pecahan-senilai", label: "Pecahan senilai",
+   140→   140→  gen: (_lv, R) => {
+   141→   141→    const q = ri(R, 2, 9), p = ri(R, 1, q - 1), k = ri(R, 2, 4);
+   142→   142→    return { q: `${p}/${q} = ${p * k}/…`, a: `${q * k}` };
+   143→   143→  },
+   144→   144→};
+   145→   145→const desimalTambah: TopikDef = {
+   146→   146→  id: "sd-desimal-tambah", label: "Penjumlahan desimal",
+   147→   147→  gen: (lv, R) => {
+   148→   148→    const m = S(lv, 9, 0.4);
+   149→   149→    const a = ri(R, 10, m * 10) / 10, b = ri(R, 10, m * 10) / 10;
+   150→   150→    return { q: `${idn(a)} + ${idn(b)} = …`, a: idn(Math.round((a + b) * 10) / 10) };
+   151→   151→  },
+   152→   152→};
+   153→   153→const kpkfpbMudah: TopikDef = {
+   154→   154→  id: "sd-kpkfpb-1", label: "KPK & FPB (angka kecil)",
+   155→   155→  gen: (_lv, R) => {
+   156→   156→    const pairs = [[4, 6], [6, 8], [4, 8], [6, 9], [5, 10], [4, 10], [6, 10], [8, 12], [9, 12]];
+   157→   157→    const [a, b] = pick(R, pairs);
+   158→   158→    if (R() < 0.5) return { q: `KPK dari ${a} dan ${b} adalah …`, a: `${LCM(a, b)}` };
+   159→   159→    return { q: `FPB dari ${a} dan ${b} adalah …`, a: `${GCD(a, b)}` };
+   160→   160→  },
+   161→   161→};
+   162→   162→const persen: TopikDef = {
+   163→   163→  id: "sd-persen", label: "Persen",
+   164→   164→  gen: (lv, R) => {
+   165→   165→    const p = pick(R, [10, 20, 25, 50, 75]);
+   166→   166→    const base = pick(R, [40, 60, 80, 120, 200]) * (lv === 3 ? 2 : 1);
+   167→   167→    return { q: `${p}% dari ${base} = …`, a: `${(p * base) / 100}` };
+   168→   168→  },
+   169→   169→};
+   170→   170→const kpkfpb: TopikDef = {
+   171→   171→  id: "sd-kpkfpb-2", label: "KPK & FPB (angka lebih besar)",
+   172→   172→  gen: (lv, R) => {
+   173→   173→    const m = S(lv, 15, 0.5);
+   174→   174→    const a = ri(R, 8, m), b = ri(R, 8, m);
+   175→   175→    if (a === b) return { q: `KPK dari ${a} dan ${b} adalah …`, a: `${a}` };
+   176→   176→    if (R() < 0.5) return { q: `KPK dari ${a} dan ${b} adalah …`, a: `${LCM(a, b)}` };
+   177→   177→    return { q: `FPB dari ${a} dan ${b} adalah …`, a: `${GCD(a, b)}` };
+   178→   178→  },
+   179→   179→};
+   180→   180→const desimalKali: TopikDef = {
+   181→   181→  id: "sd-desimal-kali", label: "Perkalian desimal",
+   182→   182→  gen: (lv, R) => {
+   183→   183→    if (R() < 0.5) {
+   184→   184→      const a = ri(R, 2, S(lv, 9, 0.3)), b = ri(R, 2, 9);
+   185→   185→      return { q: `${idn(a / 10)} × ${b} = …`, a: idn((a * b) / 10) };
+   186→   186→    }
+   187→   187→    const a = ri(R, 15, 49) / 10, b = ri(R, 2, 4);
+   188→   188→    return { q: `${idn(a)} × ${b} = …`, a: idn(a * b) };
+   189→   189→  },
+   190→   190→};
+   191→   191→const cacahCampur: TopikDef = {
+   192→   192→  id: "sd-cacah-campur", label: "Operasi bilangan cacah",
+   193→   193→  gen: (lv, R) => {
+   194→   194→    const m = S(lv, 12, 0.3);
+   195→   195→    const a = ri(R, 3, m), b = ri(R, 3, m), c = ri(R, 2, 9);
+   196→   196→    return { q: `${a} × ${b} + ${c} × ${b} = …`, a: `${(a + c) * b}` };
+   197→   197→  },
+   198→   198→};
+   199→   199→
+   200→   200→/* ================= SMP ================= */
+   201→   201→
+   202→   202→const bilBulat: TopikDef = {
+   203→   203→  id: "smp-bulat", label: "Operasi bilangan bulat",
+   204→   204→  gen: (lv, R) => {
+   205→   205→    const m = S(lv, 15, 0.5);
+   206→   206→    const a = ri(R, -m, m), b = ri(R, 2, m), c = ri(R, 2, m);
+   207→   207→    const t = pick(R, [
+   208→   208→      { q: `${a} + ${b} − ${c} = …`, a: a + b - c },
+   209→   209→      { q: `${a} − ${b} × ${c} = …`, a: a - b * c },
+   210→   210→      { q: `(${a}) × (${b}) + ${c} = …`, a: a * b + c },
+   211→   211→      { q: `${a * b} : ${b === 0 ? 1 : b} + ${c} = …`, a: a + c },
+   212→   212→    ]);
+   213→   213→    return { q: t.q, a: `${t.a}` };
+   214→   214→  },
+   215→   215→};
+   216→   216→const pecahan7: TopikDef = {
+   217→   217→  id: "smp-pecahan", label: "Operasi pecahan",
+   218→   218→  gen: (_lv, R) => {
+   219→   219→    const b = ri(R, 3, 9), d = ri(R, 3, 9);
+   220→   220→    const p = ri(R, 1, b - 1), r = ri(R, 1, d - 1);
+   221→   221→    if (R() < 0.5) {
+   222→   222→      const pn = p * d + r * b, pd = b * d;
+   223→   223→      return { q: `${p}/${b} + ${r}/${d} = …`, a: simp(pn, pd) };
+   224→   224→    }
+   225→   225→    const pn = p * d - r * b, pd = b * d;
+   226→   226→    return { q: `${p}/${b} − ${r}/${d} = …`, a: simp(pn, pd) };
+   227→   227→  },
+   228→   228→};
+   229→   229→const aljabarSederhana: TopikDef = {
+   230→   230→  id: "smp-aljabar", label: "Aljabar dasar (menyederhanakan)",
+   231→   231→  gen: (_lv, R) => {
+   232→   232→    const a = ri(R, 2, 9), b = ri(R, 2, 9), c = ri(R, 1, 9);
+   233→   233→    const t = pick(R, [
+   234→   234→      { q: `${a}x + ${b}x − ${c}x = …`, a: `${a + b - c}x` },
+   235→   235→      { q: `${a}(x + ${b}) = …`, a: `${a}x + ${a * b}` },
+   236→   236→      { q: `${a}x + ${b} − ${a}x + ${c} = …`, a: `${b + c}` },
+   237→   237→    ]);
+   238→   238→    return { q: `Sederhanakan: ${t.q}`, a: t.a };
+   239→   239→  },
+   240→   240→};
+   241→   241→const plsv: TopikDef = {
+   242→   242→  id: "smp-plsv", label: "Persamaan linear satu variabel",
+   243→   243→  gen: (lv, R) => {
+   244→   244→    const x = ri(R, 2, S(lv, 12, 0.5)), a = ri(R, 2, 9), b = ri(R, 1, 15);
+   245→   245→    return { q: `${a}x + ${b} = ${a * x + b}  →  x = …`, a: `${x}` };
+   246→   246→  },
+   247→   247→};
+   248→   248→const spldv: TopikDef = {
+   249→   249→  id: "smp-spldv", label: "SPLDV (sistem persamaan)",
+   250→   250→  gen: (_lv, R) => {
+   251→   251→    const x = ri(R, 1, 9), y = ri(R, 1, 9);
+   252→   252→    const a = ri(R, 1, 4), b = ri(R, 1, 4);
+   253→   253→    return {
+   254→   254→      q: `${a}x + ${b}y = ${a * x + b * y} ;  ${a}x − ${b}y = ${a * x - b * y}  →  x = …`,
+   255→   255→      a: `${x}`,
+   256→   256→    };
+   257→   257→  },
+   258→   258→};
+   259→   259→const pythagoras: TopikDef = {
+   260→   260→  id: "smp-pythagoras", label: "Teorema Pythagoras",
+   261→   261→  gen: (lv, R) => {
+   262→   262→    const trip = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [7, 24, 25]];
+   263→   263→    const [a, b, c] = pick(R, trip);
+   264→   264→    const k = lv === 1 ? 1 : lv === 2 ? 2 : 3;
+   265→   265→    if (R() < 0.5) return { q: `Segitiga siku-siku, a = ${a * k} cm dan b = ${b * k} cm. Sisi miring c = … cm`, a: `${c * k}` };
+   266→   266→    return { q: `Segitiga siku-siku, sisi miring c = ${c * k} cm dan a = ${a * k} cm. Sisi b = … cm`, a: `${b * k}` };
+   267→   267→  },
+   268→   268→};
+   269→   269→const plsvKurung: TopikDef = {
+   270→   270→  id: "smp-plsv-kurung", label: "PLSV dengan kurung",
+   271→   271→  gen: (_lv, R) => {
+   272→   272→    const x = ri(R, 2, 10), a = ri(R, 2, 6), b = ri(R, 1, 9), c = ri(R, 1, 9);
+   273→   273→    return { q: `${a}(x + ${b}) − ${c} = ${a * x + a * b - c}  →  x = …`, a: `${x}` };
+   274→   274→  },
+   275→   275→};
+   276→   276→const eksponen9: TopikDef = {
+   277→   277→  id: "smp-eksponen", label: "Eksponen & pangkat",
+   278→   278→  gen: (_lv, R) => {
+   279→   279→    const b = pick(R, [2, 3, 5]), m = ri(R, 2, 4), n = ri(R, 2, 4);
+   280→   280→    const t = pick(R, [
+   281→   281→      { q: `${b}^${m} × ${b}^${n} = ${b}^…`, a: `${m + n}` },
+   282→   282→      { q: `${b}^${m + n} : ${b}^${n} = ${b}^…`, a: `${m}` },
+   283→   283→      { q: `${b}^${m} = …`, a: `${Math.pow(b, m)}` },
+   284→   284→    ]);
+   285→   285→    return { q: t.q, a: t.a };
+   286→   286→  },
+   287→   287→};
+   288→   288→const akar9: TopikDef = {
+   289→   289→  id: "smp-akar", label: "Akar kuadrat & kubik",
+   290→   290→  gen: (_lv, R) => {
+   291→   291→    const k = ri(R, 2, 15), k3 = ri(R, 2, 6);
+   292→   292→    if (R() < 0.6) return { q: `√${k * k} = …`, a: `${k}` };
+   293→   293→    return { q: `³√${k3 * k3 * k3} = …`, a: `${k3}` };
+   294→   294→  },
+   295→   295→};
+   296→   296→const pkFaktor: TopikDef = {
+   297→   297→  id: "smp-pk", label: "Persamaan kuadrat (faktorisasi)",
+   298→   298→  gen: (_lv, R) => {
+   299→   299→    const p = ri(R, 1, 9), q = ri(R, 1, 9);
+   300→   300→    const [r1, r2] = R() < 0.5 ? [p, q] : [-p, -q];
+   301→   301→    const b = -(r1 + r2), c = r1 * r2;
+   302→   302→    const bS = b === 0 ? "" : `${b > 0 ? " + " : " − "}${Math.abs(b)}x`;
+   303→   303→    return {
+   304→   304→      q: `x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)} = 0. Akar-akarnya x = … atau x = …`,
+   305→   305→      a: `${r1} dan ${r2}`,
+   306→   306→    };
+   307→   307→  },
+   308→   308→};
+   309→   309→const polaBarisan: TopikDef = {
+   310→   310→  id: "smp-pola", label: "Pola & barisan bilangan",
+   311→   311→  gen: (_lv, R) => {
+   312→   312→    const a = ri(R, 2, 9), d = ri(R, 2, 8), n = ri(R, 6, 12);
+   313→   313→    return {
+   314→   314→      q: `Barisan: ${a}, ${a + d}, ${a + 2 * d}, …  Suku ke-${n} = …`,
+   315→   315→      a: `${a + (n - 1) * d}`,
+   316→   316→    };
+   317→   317→  },
+   318→   318→};
+   319→   319→
+   320→   320→/* ================= SMA ================= */
+   321→   321→
+   322→   322→const eksLog: TopikDef = {
+   323→   323→  id: "sma-ekslog", label: "Eksponen & logaritma",
+   324→   324→  gen: (_lv, R) => {
+   325→   325→    const b = pick(R, [2, 3, 5]), m = ri(R, 2, 5);
+   326→   326→    if (R() < 0.4) return { q: `${b}^x = ${Math.pow(b, m)}  →  x = …`, a: `${m}` };
+   327→   327→    return { q: `²log ${Math.pow(2, m)} = …`, a: `${m}` };
+   328→   328→  },
+   329→   329→};
+   330→   330→const pk10: TopikDef = {
+   331→   331→  id: "sma-pk", label: "Persamaan kuadrat",
+   332→   332→  gen: (_lv, R) => {
+   333→   333→    const p = ri(R, 2, 12), q = ri(R, 1, 12);
+   334→   334→    const [r1, r2] = R() < 0.5 ? [p, -q] : [-p, -q];
+   335→   335→    const b = -(r1 + r2), c = r1 * r2;
+   336→   336→    const bS = b === 0 ? "" : `${b > 0 ? " + " : " − "}${Math.abs(b)}x`;
+   337→   337→    return {
+   338→   338→      q: `x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)} = 0. Nilai x₁ · x₂ = …`,
+   339→   339→      a: `${c}`,
+   340→   340→    };
+   341→   341→  },
+   342→   342→};
+   343→   343→const barisanArit: TopikDef = {
+   344→   344→  id: "sma-barisan", label: "Barisan & deret aritmetika",
+   345→   345→  gen: (lv, R) => {
+   346→   346→    const a = ri(R, 3, 15), d = ri(R, 2, 9), n = ri(R, S(lv, 10, 0.5), S(lv, 25, 0.5));
+   347→   347→    return { q: `Barisan aritmetika ${a}, ${a + d}, ${a + 2 * d}, …  Suku ke-${n} (Un) = …`, a: `${a + (n - 1) * d}` };
+   348→   348→  },
+   349→   349→};
+   350→   350→const fungsiKuadrat: TopikDef = {
+   351→   351→  id: "sma-fk", label: "Fungsi kuadrat",
+   352→   352→  gen: (_lv, R) => {
+   353→   353→    const p = ri(R, 1, 9), q = ri(R, 1, 9), r1 = p, r2 = -q;
+   354→   354→    const b = -(r1 + r2), c = r1 * r2;
+   355→   355→    const bS = b === 0 ? "" : `${b > 0 ? " + " : " − "}${Math.abs(b)}x`;
+   356→   356→    const ask = R() < 0.5;
+   357→   357→    return ask
+   358→   358→      ? { q: `f(x) = x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)}. Titik potong sumbu-x: x = … atau x = …`, a: `${r1} dan ${r2}` }
+   359→   359→      : { q: `f(x) = x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)}. Sumbu simetri x = −b/2a = …`, a: idn(b / 2) };
+   360→   360→  },
+   361→   361→};
+   362→   362→const geometri11: TopikDef = {
+   363→   363→  id: "sma-geometri", label: "Barisan & deret geometri",
+   364→   364→  gen: (_lv, R) => {
+   365→   365→    const a = ri(R, 2, 6), r = pick(R, [2, 3]), n = ri(R, 5, 9);
+   366→   366→    return {
+   367→   367→      q: `Barisan geometri ${a}, ${a * r}, ${a * r * r}, …  Suku ke-${n} = …`,
+   368→   368→      a: `${a * Math.pow(r, n - 1)}`,
+   369→   369→    };
+   370→   370→  },
+   371→   371→};
+   372→   372→const polinom11: TopikDef = {
+   373→   373→  id: "sma-polinom", label: "Polinomial (nilai fungsi)",
+   374→   374→  gen: (_lv, R) => {
+   375→   375→    const a = ri(R, 1, 3), b = ri(R, -5, 5), c = ri(R, -9, 9), x = ri(R, 2, 5);
+   376→   376→    const v = a * x * x * x + b * x * x + c * x + 7;
+   377→   377→    const bS = b === 0 ? "" : ` ${b > 0 ? "+" : "−"} ${Math.abs(b)}x²`;
+   378→   378→    const cS = c === 0 ? "" : ` ${c > 0 ? "+" : "−"} ${Math.abs(c)}x`;
+   379→   379→    return { q: `f(x) = ${a}x³${bS}${cS} + 7. Nilai f(${x}) = …`, a: `${v}` };
+   380→   380→  },
+   381→   381→};
+   382→   382→const turunan12: TopikDef = {
+   383→   383→  id: "sma-turunan", label: "Turunan fungsi",
+   384→   384→  gen: (_lv, R) => {
+   385→   385→    const a = ri(R, 2, 6), b = ri(R, 2, 9), x = ri(R, 2, 6);
+   386→   386→    if (R() < 0.5) return { q: `f(x) = ${a}x² − ${b}x + 3. f′(${x}) = …`, a: `${2 * a * x - b}` };
+   387→   387→    return { q: `f(x) = ${a}x³. f′(x) = …`, a: `${3 * a}x²` };
+   388→   388→  },
+   389→   389→};
+   390→   390→const integral12: TopikDef = {
+   391→   391→  id: "sma-integral", label: "Integral tentu",
+   392→   392→  gen: (_lv, R) => {
+   393→   393→    const a = ri(R, 2, 6), b = ri(R, 2, 5), u = ri(R, 2, 4);
+   394→   394→    return { q: `∫(${a}x + ${b}) dx dari x = 0 sampai x = ${u} = …`, a: `${(a * u * u) / 2 + b * u}` };
+   395→   395→  },
+   396→   396→};
+   397→   397→const limit12: TopikDef = {
+   398→   398→  id: "sma-limit", label: "Limit fungsi",
+   399→   399→  gen: (_lv, R) => {
+   400→   400→    const k = ri(R, 2, 7);
+   401→   401→    return { q: `lim x→${k}  (x² − ${k * k})/(x − ${k}) = …`, a: `${2 * k}` };
+   402→   402→  },
+   403→   403→};
+   404→   404→
+   405→   405→/* ================= Calistung Ceria (SD kelas 1–3) ================= */
+   406→   406→
+   407→   407→const dots = (n: number): string => Array.from({ length: n }, () => "●").join(" ");
+   408→   408→const dots5 = (n: number): string =>
+   409→   409→  Array.from({ length: Math.ceil(n / 5) }, (_, i) => dots(Math.min(5, n - i * 5))).join("  ");
+   410→   410→
+   411→   411→const SUKU2: string[][] = [
+   412→   412→  ["bu", "ku"], ["ma", "ta"], ["ka", "ki"], ["me", "ja"], ["bo", "la"], ["sa", "pi"],
+   413→   413→  ["ku", "da"], ["i", "kan"], ["ba", "ju"], ["ro", "da"], ["na", "si"], ["du", "ku"],
+   414→   414→];
+   415→   415→const SUKU3: string[][] = [
+   416→   416→  ["ke", "re", "ta"], ["se", "pe", "da"], ["pe", "ra", "hu"], ["le", "ma", "ri"],
+   417→   417→  ["ke", "la", "pa"], ["ka", "me", "ra"],
+   418→   418→];
+   419→   419→const KATA_HILANG: [string, string][] = [
+   420→   420→  ["buku", "benda untuk membaca"], ["meja", "tempat menulis"], ["bola", "mainan berbentuk bulat"],
+   421→   421→  ["sapi", "hewan penghasil susu"], ["kuda", "hewan yang bisa dikendarai"], ["ikan", "hewan yang hidup di air"],
+   422→   422→  ["baju", "dipakai di badan"], ["nasi", "makanan dari padi"], ["roti", "makanan panggang"],
+   423→   423→  ["jeruk", "buah berwarna oranye"], ["gajah", "hewan bertaring panjang"], ["bunga", "tumbuhan yang indah"],
+   424→   424→];
+   425→   425→const BENTUK_BENDA: [string, string][] = [
+   426→   426→  ["uang koin", "bulat"], ["roda sepeda", "bulat"], ["papan catur", "kotak"],
+   427→   427→  ["jendela", "kotak"], ["atap rumah", "segitiga"], ["potongan pizza", "segitiga"],
+   428→   428→];
+   429→   429→const LAWAN_KATA: [string, string][] = [
+   430→   430→  ["besar", "kecil"], ["panjang", "pendek"], ["tinggi", "rendah"], ["terang", "gelap"],
+   431→   431→  ["cepat", "lambat"], ["panas", "dingin"], ["basah", "kering"], ["kuat", "lemah"],
+   432→   432→  ["berat", "ringan"], ["pagi", "malam"],
+   433→   433→];
+   434→   434→const PERSAMAAN_KATA: [string, string][] = [
+   435→   435→  ["pintar", "cerdas"], ["senang", "gembira"], ["cantik", "indah"],
+   436→   436→  ["kaya", "makmur"], ["kuat", "perkasa"], ["cepat", "gesit"],
+   437→   437→];
+   438→   438→
+   439→   439→const lingkariHuruf: TopikDef = {
+   440→   440→  id: "cal-lingkari-huruf", label: "Mengenal huruf (lingkari)",
+   441→   441→  gen: (_lv, R) => {
+   442→   442→    const target = pick(R, ["b", "d", "p", "q", "c", "e", "a", "m", "n", "u", "g", "s"]);
+   443→   443→    const pengisi = "aceghkmnpqrsuvwdtzblfijo".split("").filter((x) => x !== target);
+   444→   444→    const huruf: string[] = [];
+   445→   445→    for (let i = 0; i < 8; i++) huruf.push(i < 3 ? target : pick(R, pengisi));
+   446→   446→    for (let i = huruf.length - 1; i > 0; i--) {
+   447→   447→      const j = Math.floor(R() * (i + 1));
+   448→   448→      [huruf[i], huruf[j]] = [huruf[j], huruf[i]];
+   449→   449→    }
+   450→   450→    const tampil = huruf.map((h) => (R() < 0.5 ? h : h.toUpperCase())).join("  ");
+   451→   451→    return { q: `Lingkari semua huruf ${target.toUpperCase()} pada baris ini!  ${tampil}`, a: `3 huruf ${target.toUpperCase()}` };
+   452→   452→  },
+   453→   453→};
+   454→   454→const sukuKata2: TopikDef = {
+   455→   455→  id: "cal-suku-kata", label: "Merangkai suku kata",
+   456→   456→  gen: (lv, R) => {
+   457→   457→    const s = lv >= 2 ? pick(R, SUKU3) : pick(R, SUKU2);
+   458→   458→    const acak = [...s];
+   459→   459→    for (let i = acak.length - 1; i > 0; i--) {
+   460→   460→      const j = Math.floor(R() * (i + 1));
+   461→   461→      [acak[i], acak[j]] = [acak[j], acak[i]];
+   462→   462→    }
+   463→   463→    if (acak.join("") === s.join("")) [acak[0], acak[acak.length - 1]] = [acak[acak.length - 1], acak[0]];
+   464→   464→    return { q: `Rangkai suku kata menjadi kata: ${acak.join(" - ")} = …`, a: s.join("") };
+   465→   465→  },
+   466→   466→};
+   467→   467→const kataHilang: TopikDef = {
+   468→   468→  id: "cal-kata-hilang", label: "Huruf yang hilang",
+   469→   469→  gen: (lv, R) => {
+   470→   470→    const [kata, petunjuk] = pick(R, KATA_HILANG);
+   471→   471→    const i = Math.max(1, Math.min(kata.length - 2, ri(R, 1, kata.length - 2) + (lv === 3 ? 1 : 0)));
+   472→   472→    const tampil = kata.slice(0, i) + "_" + kata.slice(i + 1);
+   473→   473→    return { q: `Huruf apa yang hilang?  ${tampil}  (petunjuk: ${petunjuk})`, a: kata[i] };
+   474→   474→  },
+   475→   475→};
+   476→   476→const hitungBintang: TopikDef = {
+   477→   477→  id: "cal-hitung", label: "Berhitung (hitung bintang)",
+   478→   478→  gen: (lv, R) => {
+   479→   479→    const n = ri(R, 1, S(lv, 12, 0.6));
+   480→   480→    return { q: `Hitung bintang di bawah ini!  ${dots5(n)}`, a: `${n}` };
+   481→   481→  },
+   482→   482→};
+   483→   483→const tambahGambar: TopikDef = {
+   484→   484→  id: "cal-tambah-gambar", label: "Menjumlah gambar",
+   485→   485→  gen: (lv, R) => {
+   486→   486→    const m = S(lv, 6, 0.5);
+   487→   487→    const a = ri(R, 1, m), b = ri(R, 1, Math.max(1, m - a + 1));
+   488→   488→    return { q: `${dots(a)}  +  ${dots(b)}  = … bintang`, a: `${a + b}` };
+   489→   489→  },
+   490→   490→};
+   491→   491→const lanjutHitung: TopikDef = {
+   492→   492→  id: "cal-lanjut-hitung", label: "Berhitung lompat (lanjutkan)",
+   493→   493→  gen: (lv, R) => {
+   494→   494→    const s = lv === 3 ? pick(R, [3, 4, 25, 50]) : pick(R, [2, 5, 10]);
+   495→   495→    const a = s * ri(R, 1, 4);
+   496→   496→    return { q: `Lanjutkan barisan: ${a}, ${a + s}, ${a + 2 * s}, ${a + 3 * s}, …, …`, a: `${a + 4 * s}, ${a + 5 * s}` };
+   497→   497→  },
+   498→   498→};
+   499→   499→const operasi100Ceria: TopikDef = {
+   500→   500→  id: "cal-operasi-100", label: "Tambah & kurang (sampai 100)",
+   501→   501→  gen: (lv, R) => {
+   502→   502→    const m = S(lv, 45, 0.3);
+   503→   503→    if (R() < 0.5) {
+   504→   504→      const a = ri(R, 10, m), b = ri(R, 10, 100 - a);
+   505→   505→      return { q: `${a} + ${b} = …`, a: `${a + b}` };
+   506→   506→    }
+   507→   507→    const a = ri(R, Math.max(20, m), 99), b = ri(R, 5, m);
+   508→   508→    return { q: `${a} − ${b} = …`, a: `${a - b}` };
+   509→   509→  },
+   510→   510→};
+   511→   511→const bentukBenda: TopikDef = {
+   512→   512→  id: "cal-bentuk", label: "Mengenal bentuk",
+   513→   513→  gen: (_lv, R) => {
+   514→   514→    const [benda, bentuk] = pick(R, BENTUK_BENDA);
+   515→   515→    return { q: `Benda «${benda}» berbentuk …`, a: bentuk };
+   516→   516→  },
+   517→   517→};
+   518→   518→const lawanKata: TopikDef = {
+   519→   519→  id: "cal-lawan-kata", label: "Lawan kata (antonim)",
+   520→   520→  gen: (lv, R) => {
+   521→   521→    const [a, b] = pick(R, LAWAN_KATA);
+   522→   522→    return lv === 3
+   523→   523→      ? { q: `Sempurnakan pasangan: ${a} ↔ …`, a: b }
+   524→   524→      : { q: `Lawan kata dari «${a}» adalah …`, a: b };
+   525→   525→  },
+   526→   526→};
+   527→   527→const kaliCeria: TopikDef = {
+   528→   528→  id: "cal-kali-ceria", label: "Perkalian ceria (kelompok benda)",
+   529→   529→  gen: (lv, R) => {
+   530→   530→    const g = ri(R, 2, S(lv, 6, 0.4)), per = ri(R, 2, 6);
+   531→   531→    return { q: `Ada ${g} keranjang, setiap keranjang berisi ${per} buah. Semua buah = ${g} × ${per} = …`, a: `${g * per}` };
+   532→   532→  },
+   533→   533→};
+   534→   534→const bacaJam: TopikDef = {
+   535→   535→  id: "cal-baca-jam", label: "Membaca jam",
+   536→   536→  gen: (lv, R) => {
+   537→   537→    const h = ri(R, 1, 12);
+   538→   538→    if (lv === 3 && R() < 0.5) return { q: `Jarum pendek menunjuk ${h}, jarum panjang menunjuk 6. Waktunya …`, a: `${h}.30` };
+   539→   539→    return { q: `Jarum pendek menunjuk ${h}, jarum panjang menunjuk 12. Waktunya …`, a: `${h}.00` };
+   540→   540→  },
+   541→   541→};
+   542→   542→const uangCeria: TopikDef = {
+   543→   543→  id: "cal-uang", label: "Mengenal uang rupiah",
+   544→   544→  gen: (lv, R) => {
+   545→   545→    const den = pick(R, [100, 200, 500, 1000]);
+   546→   546→    const k = ri(R, 2, S(lv, 5, 0.5));
+   547→   547→    return { q: `${k} keping Rp${den.toLocaleString("id-ID")} nilainya Rp…`, a: `Rp${(den * k).toLocaleString("id-ID")}` };
+   548→   548→  },
+   549→   549→};
+   550→   550→const persamaanKata: TopikDef = {
+   551→   551→  id: "cal-sinonim", label: "Persamaan kata (sinonim)",
+   552→   552→  gen: (_lv, R) => {
+   553→   553→    const [a, b] = pick(R, PERSAMAAN_KATA);
+   554→   554→    return { q: `Persamaan kata dari «${a}» adalah …`, a: b };
+   555→   555→  },
+   556→   556→};
+   557→   557→
+   558→   558→export const TOPIK_CALISTUNG: Record<string, Record<string, TopikDef[]>> = {
+   559→   559→  SD: {
+   560→   560→    "1": [lingkariHuruf, sukuKata2, kataHilang, hitungBintang, tambahGambar],
+   561→   561→    "2": [lanjutHitung, operasi100Ceria, bentukBenda, lawanKata, sukuKata2],
+   562→   562→    "3": [kaliCeria, bacaJam, uangCeria, persamaanKata, kataHilang],
+   563→   563→  },
+   564→   564→};
+   565→   565→
+   566→   566→/* ================= Bahasa Inggris Dasar (SD kelas 1–6) ================= */
+   567→   567→
+   568→   568→const VOK: Record<string, [string, string][]> = {
+   569→   569→  warna: [["merah", "red"], ["biru", "blue"], ["hijau", "green"], ["kuning", "yellow"], ["hitam", "black"], ["putih", "white"], ["merah muda", "pink"], ["cokelat", "brown"]],
+   570→   570→  sapaan: [["Selamat pagi", "Good morning"], ["Selamat siang", "Good afternoon"], ["Selamat malam", "Good evening"], ["Terima kasih", "Thank you"], ["Sampai jumpa", "Good bye"], ["Apa kabar?", "How are you?"], ["Maaf", "Sorry"], ["Permisi", "Excuse me"]],
+   571→   571→  hewan: [["kucing", "cat"], ["anjing", "dog"], ["burung", "bird"], ["ikan", "fish"], ["kuda", "horse"], ["gajah", "elephant"], ["harimau", "tiger"], ["monyet", "monkey"], ["ayam", "chicken"], ["kambing", "goat"]],
+   572→   572→  buah: [["apel", "apple"], ["pisang", "banana"], ["jeruk", "orange"], ["mangga", "mango"], ["semangka", "watermelon"], ["anggur", "grape"], ["nanas", "pineapple"], ["pepaya", "papaya"]],
+   573→   573→  keluarga: [["ibu", "mother"], ["ayah", "father"], ["nenek", "grandmother"], ["kakek", "grandfather"], ["kakak perempuan", "sister"], ["kakak laki-laki", "brother"], ["paman", "uncle"], ["bibi", "aunt"]],
+   574→   574→  tubuh: [["mata", "eye"], ["hidung", "nose"], ["mulut", "mouth"], ["tangan", "hand"], ["kaki", "foot"], ["telinga", "ear"], ["rambut", "hair"], ["gigi", "tooth"]],
+   575→   575→  kelas: [["buku", "book"], ["pensil", "pencil"], ["penghapus", "eraser"], ["penggaris", "ruler"], ["tas", "bag"], ["kursi", "chair"], ["jendela", "window"], ["kapur", "chalk"]],
+   576→   576→  kerja: [["makan", "eat"], ["minum", "drink"], ["tidur", "sleep"], ["berjalan", "walk"], ["berlari", "run"], ["membaca", "read"], ["menulis", "write"], ["menyanyi", "sing"]],
+   577→   577→};
+   578→   578→const HARI: [string, string][] = [["Senin", "Monday"], ["Selasa", "Tuesday"], ["Rabu", "Wednesday"], ["Kamis", "Thursday"], ["Jumat", "Friday"], ["Sabtu", "Saturday"], ["Minggu", "Sunday"]];
+   579→   579→const PULUHAN: [number, string][] = [[20, "twenty"], [30, "thirty"], [40, "forty"], [50, "fifty"], [60, "sixty"], [70, "seventy"], [80, "eighty"], [90, "ninety"], [100, "one hundred"]];
+   580→   580→const ANGKA1: [number, string][] = [[1, "one"], [2, "two"], [3, "three"], [4, "four"], [5, "five"], [6, "six"], [7, "seven"], [8, "eight"], [9, "nine"], [10, "ten"]];
+   581→   581→const TOBE: [string, string][] = [["She", "is"], ["He", "is"], ["It", "is"], ["I", "am"], ["You", "are"], ["We", "are"], ["They", "are"], ["My mother", "is"], ["The cats", "are"]];
+   582→   582→const TOBE_PREDIKAT = ["a teacher", "a student", "a doctor", "happy today", "my friend"];
+   583→   583→const ABJAD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+   584→   584→
+   585→   585→/** soal kosakata dua arah: mudah = ID→EN, sulit = EN→ID */
+   586→   586→const vokabuler = (kelompok: string, tanya: (lv: number, R: () => number) => GenSoal): TopikDef => ({
+   587→   587→  id: `eng-${kelompok}`,
+   588→   588→  label: kelompok[0].toUpperCase() + kelompok.slice(1),
+   589→   589→  gen: tanya,
+   590→   590→});
+   591→   591→const tanyaVok = (kelompok: string) => (lv: number, R: () => number): GenSoal => {
+   592→   592→  const [id, en] = pick(R, VOK[kelompok]);
+   593→   593→  const arah = lv === 1 ? true : lv === 3 ? false : R() < 0.6;
+   594→   594→  return arah
+   595→   595→    ? { q: `«${id}» in English is …`, a: en }
+   596→   596→    : { q: `«${en}» artinya …`, a: id };
+   597→   597→};
+   598→   598→
+   599→   599→const abjad: TopikDef = {
+   600→   600→  id: "eng-abjad", label: "Alphabet (urutan huruf)",
+   601→   601→  gen: (lv, R) => {
+   602→   602→    const i = ri(R, 1, 24);
+   603→   603→    if (lv === 3) return { q: `Two letters after «${ABJAD[i]}» are … and …`, a: `${ABJAD[i + 1]}, ${ABJAD[i + 2]}` };
+   604→   604→    return R() < 0.5
+   605→   605→      ? { q: `What letter is after «${ABJAD[i]}»?`, a: ABJAD[i + 1] }
+   606→   606→      : { q: `What letter is before «${ABJAD[i]}»?`, a: ABJAD[i - 1] };
+   607→   607→  },
+   608→   608→};
+   609→   609→const angkaDasar: TopikDef = {
+   610→   610→  id: "eng-angka", label: "Numbers 1–10",
+   611→   611→  gen: (lv, R) => {
+   612→   612→    const [n, w] = pick(R, ANGKA1);
+   613→   613→    return lv === 3
+   614→   614→      ? { q: `«${w}» means number …`, a: `${n}` }
+   615→   615→      : { q: `Write in English: ${n} = …`, a: w };
+   616→   616→  },
+   617→   617→};
+   618→   618→const puluhan: TopikDef = {
+   619→   619→  id: "eng-puluhan", label: "Numbers 20–100",
+   620→   620→  gen: (lv, R) => {
+   621→   621→    const [n, w] = pick(R, PULUHAN);
+   622→   622→    return lv === 3
+   623→   623→      ? { q: `«${w}» means number …`, a: `${n}` }
+   624→   624→      : { q: `Write in English: ${n} = …`, a: w };
+   625→   625→  },
+   626→   626→};
+   627→   627→const hariInggris: TopikDef = {
+   628→   628→  id: "eng-hari", label: "Days of the week",
+   629→   629→  gen: (lv, R) => {
+   630→   630→    if (lv === 3) {
+   631→   631→      const i = ri(R, 0, 5);
+   632→   632→      return { q: `The day after «${HARI[i][1]}» is …`, a: HARI[i + 1][1] };
+   633→   633→    }
+   634→   634→    const [id, en] = pick(R, HARI);
+   635→   635→    return R() < 0.6
+   636→   636→      ? { q: `«${id}» in English is …`, a: en }
+   637→   637→      : { q: `«${en}» artinya hari …`, a: id };
+   638→   638→  },
+   639→   639→};
+   640→   640→const tobe: TopikDef = {
+   641→   641→  id: "eng-tobe", label: "To be (is / am / are)",
+   642→   642→  gen: (_lv, R) => {
+   643→   643→    const [subjek, jawab] = pick(R, TOBE);
+   644→   644→    const predikat = pick(R, TOBE_PREDIKAT);
+   645→   645→    return { q: `Fill in the blank: ${subjek} … ${predikat}.`, a: jawab };
+   646→   646→  },
+   647→   647→};
+   648→   648→const engWarna = vokabuler("warna", tanyaVok("warna"));
+   649→   649→const engSapaan = vokabuler("sapaan", tanyaVok("sapaan"));
+   650→   650→const engHewan = vokabuler("hewan", tanyaVok("hewan"));
+   651→   651→const engBuah = vokabuler("buah", tanyaVok("buah"));
+   652→   652→const engKeluarga = vokabuler("keluarga", tanyaVok("keluarga"));
+   653→   653→const engTubuh = vokabuler("tubuh", tanyaVok("tubuh"));
+   654→   654→const engKelas = vokabuler("kelas", tanyaVok("kelas"));
+   655→   655→const engKerja = vokabuler("kerja", tanyaVok("kerja"));
+   656→   656→
+   657→   657→export const TOPIK_ENGLISH: Record<string, Record<string, TopikDef[]>> = {
+   658→   658→  SD: {
+   659→   659→    "1": [abjad, angkaDasar, engWarna, engSapaan],
+   660→   660→    "2": [engHewan, engBuah, angkaDasar, engSapaan],
+   661→   661→    "3": [engKeluarga, engTubuh, engHewan, engBuah],
+   662→   662→    "4": [engTubuh, engKelas, hariInggris, engKeluarga],
+   663→   663→    "5": [engKerja, engKelas, hariInggris, puluhan],
+   664→   664→    "6": [engKerja, puluhan, tobe, hariInggris],
+   665→   665→  },
+   666→   666→};
+   667→   667→
+   668→   668→/* ================= Worksheet Coding (SD 4–6, SMP 7–9) ================= */
+   669→   669→
+   670→   670→const urutanRobot: TopikDef = {
+   671→   671→  id: "cod-urutan", label: "Sequence (urutan perintah)",
+   672→   672→  gen: (lv, R) => {
+   673→   673→    const f = ri(R, 3, S(lv, 8, 0.5));
+   674→   674→    if (R() < 0.5) {
+   675→   675→      const f2 = ri(R, 2, 9);
+   676→   676→      return { q: `Robot menerima perintah: MAJU ${f}, MAJU ${f2}. Berapa langkah robot dari titik awal?`, a: `${f + f2}` };
+   677→   677→    }
+   678→   678→    const b = ri(R, 1, f - 1);
+   679→   679→    return { q: `Robot menerima perintah: MAJU ${f}, MUNDUR ${b}. Berapa langkah robot dari titik awal?`, a: `${f - b}` };
+   680→   680→  },
+   681→   681→};
+   682→   682→const polaUlang: TopikDef = {
+   683→   683→  id: "cod-pola", label: "Pattern (pola berulang)",
+   684→   684→  gen: (lv, R) => {
+   685→   685→    const simbol = ["●", "▲", "★", "■", "◆"];
+   686→   686→    const c = lv === 1 ? 2 : 3;
+   687→   687→    const dipakai = [...simbol].sort(() => R() - 0.5).slice(0, c);
+   688→   688→    const urut = Array.from({ length: 6 }, (_, i) => dipakai[i % c]).join(" ");
+   689→   689→    return { q: `Lanjutkan pola: ${urut} … Bentuk berikutnya adalah …`, a: dipakai[6 % c] };
+   690→   690→  },
+   691→   691→};
+   692→   692→const logikaIf: TopikDef = {
+   693→   693→  id: "cod-if", label: "Condition (logika IF)",
+   694→   694→  gen: (lv, R) => {
+   695→   695→    const t = pick(R, [70, 75, 80]);
+   696→   696→    const n = ri(R, 45, S(lv, 90, 0.1));
+   697→   697→    return {
+   698→   698→      q: `Program: JIKA nilai ≥ ${t} tampilkan "LULUS", selain itu "ULANG". Nilai Rina = ${n}. Output program: …`,
+   699→   699→      a: n >= t ? "LULUS" : "ULANG",
+   700→   700→    };
+   701→   701→  },
+   702→   702→};
+   703→   703→const langkahLoop: TopikDef = {
+   704→   704→  id: "cod-loop-1", label: "Repetition (perulangan)",
+   705→   705→  gen: (lv, R) => {
+   706→   706→    const k = ri(R, 2, S(lv, 8, 0.6));
+   707→   707→    if (R() < 0.5) return { q: `Perintah "Ulangi ${k} kali: tempel stiker" menghasilkan … stiker.`, a: `${k}` };
+   708→   708→    const d = ri(R, 2, 9);
+   709→   709→    return { q: `Perintah: ulangi ${k} kali → "tambah ${d} poin". Total poin yang didapat = …`, a: `${k * d}` };
+   710→   710→  },
+   711→   711→};
+   712→   712→const binerDasar: TopikDef = {
+   713→   713→  id: "cod-biner", label: "Bilangan biner",
+   714→   714→  gen: (lv, R) => {
+   715→   715→    const v = ri(R, 2, lv === 3 ? 15 : 7);
+   716→   716→    const bit = lv === 3 ? 4 : 3;
+   717→   717→    const biner = v.toString(2).padStart(bit, "0");
+   718→   718→    const uraian = biner.split("").map((b, i) => `${b}×${Math.pow(2, biner.length - 1 - i)}`).join(" + ");
+   719→   719→    return { q: `Biner ${biner} berarti ${uraian}. Nilai desimalnya = …`, a: `${v}` };
+   720→   720→  },
+   721→   721→};
+   722→   722→const varDasar: TopikDef = {
+   723→   723→  id: "cod-var-1", label: "Variabel sederhana",
+   724→   724→  gen: (lv, R) => {
+   725→   725→    const a = ri(R, 2, S(lv, 9, 0.8)), b = ri(R, 1, 9);
+   726→   726→    return { q: `A = ${a}; B = A + ${b}. Nilai B = …`, a: `${a + b}` };
+   727→   727→  },
+   728→   728→};
+   729→   729→const varChain: TopikDef = {
+   730→   730→  id: "cod-var-2", label: "Variabel berantai",
+   731→   731→  gen: (lv, R) => {
+   732→   732→    const x = ri(R, 2, S(lv, 9, 0.8)), d = ri(R, 1, 9), m = ri(R, 2, 4);
+   733→   733→    return { q: `x = ${x}; y = x + ${d}; z = y × ${m}. Nilai z = …`, a: `${(x + d) * m}` };
+   734→   734→  },
+   735→   735→};
+   736→   736→const loopTotal: TopikDef = {
+   737→   737→  id: "cod-loop-2", label: "Loop & akumulasi",
+   738→   738→  gen: (lv, R) => {
+   739→   739→    const k = ri(R, 2, S(lv, 8, 0.5)), d = ri(R, 2, 9);
+   740→   740→    return { q: `total = 0; ulangi ${k} kali: total = total + ${d}. Nilai akhir total = …`, a: `${k * d}` };
+   741→   741→  },
+   742→   742→};
+   743→   743→const modulo: TopikDef = {
+   744→   744→  id: "cod-modulo", label: "Sisa bagi (modulo)",
+   745→   745→  gen: (lv, R) => {
+   746→   746→    const a = ri(R, 10, S(lv, 49, 1.5)), b = ri(R, 2, 9);
+   747→   747→    return { q: `${a} : ${b} bersisa … (operasi ${a} % ${b})`, a: `${a % b}` };
+   748→   748→  },
+   749→   749→};
+   750→   750→const booleanCek: TopikDef = {
+   751→   751→  id: "cod-boolean", label: "Logika AND/OR",
+   752→   752→  gen: (_lv, R) => {
+   753→   753→    const lo = pick(R, [7, 10, 12]), hi = pick(R, [15, 17, 60]);
+   754→   754→    const age = ri(R, 5, hi + 3);
+   755→   755→    const ok = age >= lo && age <= hi;
+   756→   756→    return {
+   757→   757→      q: `Syarat tiket: umur ≥ ${lo} DAN umur ≤ ${hi}. Umur Dewi = ${age}. Apakah Dewi memenuhi syarat? (jawab benar/salah)`,
+   758→   758→      a: ok ? "benar" : "salah",
+   759→   759→    };
+   760→   760→  },
+   761→   761→};
+   762→   762→const debugOutput: TopikDef = {
+   763→   763→  id: "cod-debug", label: "Debugging (baca output)",
+   764→   764→  gen: (_lv, R) => {
+   765→   765→    const a = ri(R, 3, 15), b = ri(R, 2, a - 1);
+   766→   766→    const op = pick(R, [["+", a + b], ["−", a - b], ["×", a * b]] as [string, number][]);
+   767→   767→    return { q: `Kode: a = ${a}; b = ${b}; tampil a ${op[0]} b. Output yang muncul: …`, a: `${op[1]}` };
+   768→   768→  },
+   769→   769→};
+   770→   770→
+   771→   771→export const TOPIK_CODING: Record<string, Record<string, TopikDef[]>> = {
+   772→   772→  SD: {
+   773→   773→    "4": [urutanRobot, polaUlang, logikaIf, langkahLoop],
+   774→   774→    "5": [polaUlang, logikaIf, binerDasar, varDasar],
+   775→   775→    "6": [binerDasar, varDasar, langkahLoop, polaUlang],
+   776→   776→  },
+   777→   777→  SMP: {
+   778→   778→    "7": [varChain, loopTotal, booleanCek],
+   779→   779→    "8": [varChain, loopTotal, modulo, booleanCek],
+   780→   780→    "9": [modulo, loopTotal, debugOutput, varChain],
+   781→   781→  },
+   782→   782→};
+   783→   783→
+   784→   784→/* ============ pemetaan jenjang → kelas → topik ============ */
+   785→   785→
+   786→   786→export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
+   787→   787→  SD: {
+   788→   788→    "1": [tambah20, kurang20, campur20],
+   789→   789→    "2": [tambah100, kurang100, kaliDasar],
+   790→   790→    "3": [kaliBag, tambah1000, kurang1000],
+   791→   791→    "4": [operasiCampur, kali2digit, bagiSisa],
+   792→   792→    "5": [pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
+   793→   793→    "6": [persen, kpkfpb, desimalKali, cacahCampur],
+   794→   794→  },
+   795→   795→  SMP: {
+   796→   796→    "7": [bilBulat, pecahan7, aljabarSederhana, plsv],
+   797→   797→    "8": [spldv, pythagoras, plsvKurung, bilBulat],
+   798→   798→    "9": [eksponen9, akar9, pkFaktor, polaBarisan],
+   799→   799→  },
+   800→   800→  SMA: {
+   801→   801→    "10": [eksLog, pk10, barisanArit],
+   802→   802→    "11": [fungsiKuadrat, geometri11, polinom11],
+   803→   803→    "12": [turunan12, integral12, limit12],
+   804→   804→  },
+   805→   805→};
+   806→   806→
+   807→   807→export const KELAS_BY_JENJANG: Record<string, string[]> = {
+   808→   808→  SD: ["1", "2", "3", "4", "5", "6"],
+   809→   809→  SMP: ["7", "8", "9"],
+   810→   810→  SMA: ["10", "11", "12"],
+   811→   811→};
+   812→   812→
+   813→   813→/** Mapel yang punya bank generator otomatis */
+   814→   814→export type GenMapel = "matematika" | "calistung" | "english" | "coding";
+   815→   815→
+   816→   816→export interface GenMapelDef {
+   817→   817→  id: GenMapel;
+   818→   818→  label: string;
+   819→   819→  rentang: string;
+   820→   820→  jenjang: string[];
+   821→   821→}
+   822→   822→
+   823→   823→export const GEN_MAPEL: GenMapelDef[] = [
+   824→   824→  { id: "matematika", label: "Matematika", rentang: "SD · SMP · SMA", jenjang: ["SD", "SMP", "SMA"] },
+   825→   825→  { id: "calistung", label: "Calistung Ceria", rentang: "SD kelas 1–3", jenjang: ["SD"] },
+   826→   826→  { id: "english", label: "Bahasa Inggris Dasar", rentang: "SD kelas 1–6", jenjang: ["SD"] },
+   827→   827→  { id: "coding", label: "Worksheet Coding", rentang: "SD 4–6 · SMP", jenjang: ["SD", "SMP"] },
+   828→   828→];
+   829→   829→
+   830→   830→export const TOPIK_GENERATOR: Record<GenMapel, Record<string, Record<string, TopikDef[]>>> = {
+   831→   831→  matematika: TOPIK_MATEMATIKA,
+   832→   832→  calistung: TOPIK_CALISTUNG,
+   833→   833→  english: TOPIK_ENGLISH,
+   834→   834→  coding: TOPIK_CODING,
+   835→   835→};
+   836→   836→
+   837→   837→/** daftar kelas yang punya topik generator untuk mapel+jenjang */
+   838→   838→export function kelasTersedia(mapel: GenMapel, jenjang: string): string[] {
+   839→   839→  return Object.keys(TOPIK_GENERATOR[mapel]?.[jenjang] ?? {}).sort((a, b) => Number(a) - Number(b));
+   840→   840→}
+   841→   841→
+   842→   842→export const MAPEL_LIST = [
+   843→   843→  "Matematika",
+   844→   844→  "Bahasa Indonesia",
+   845→   845→  "Bahasa Inggris",
+   846→   846→  "IPA",
+   847→   847→  "IPS",
+   848→   848→  "PAI",
+   849→   849→  "Fisika",
+   850→   850→  "Kimia",
+   851→   851→  "Biologi",
+   852→   852→  "Ekonomi",
+   853→   853→  "Geografi",
+   854→   854→  "Sejarah",
+   855→   855→] as const;
+   856→   856→
+   857→   857→export type Kesulitan = 1 | 2 | 3;
+   858→   858→
+   859→   859→/** Buat n soal unik dari satu topik pada mapel generator tertentu. */
+   860→   860→export function generateQuestions(
+   861→   861→  mapel: GenMapel,
+   862→   862→  topikId: string,
+   863→   863→  jenjang: string,
+   864→   864→  kelas: string,
+   865→   865→  n: number,
+   866→   866→  kesulitan: Kesulitan
+   867→   867→): GenSoal[] {
+   868→   868→  const topik = (TOPIK_GENERATOR[mapel]?.[jenjang]?.[kelas] ?? []).find((t) => t.id === topikId);
+   869→   869→  if (!topik) return [];
+   870→   870→  const out: GenSoal[] = [];
+   871→   871→  const seen = new Set<string>();
+   872→   872→  let guard = 0;
+   873→   873→  while (out.length < n && guard < n * 40) {
+   874→   874→    guard++;
+   875→   875→    const s = topik.gen(kesulitan, Math.random);
+   876→   876→    const key = s.q;
+   877→   877→    if (seen.has(key)) continue;
+   878→   878→    seen.add(key);
+   879→   879→    out.push(s);
+   880→   880→  }
+   881→   881→  return out;
+   882→   882→}
+   883→   883→
+   884→   884→/** label topik dari id (untuk arsip); dicari di semua bank generator */
+   885→   885→export function topikLabel(mapel: GenMapel, topikId: string, jenjang: string, kelas: string): string {
+   886→   886→  return (
+   887→   887→    TOPIK_GENERATOR[mapel]?.[jenjang]?.[kelas]?.find((t) => t.id === topikId)?.label ??
+   888→   888→    Object.values(TOPIK_GENERATOR)
+   889→   889→      .flatMap((bank) => Object.values(bank).flatMap((k) => Object.values(k)))
+   890→   890→      .flat()
+   891→   891→      .find((t) => t.id === topikId)?.label ??
+   892→   892→    topikId
+   893→   893→  );
+   894→   894→}
+   895→   895→

@@ -1,0 +1,113 @@
+
+== gdCheck (cari: 'function gdCheck(') ==
+guna TIDAK perlu menekan
+       tombol "Simpan sekarang" (tombol itu hanya cadangan manual). */
+    function gdCheck(){
+      if (!gd.token || !gd.ready || gd.savingNow) return;
+      var h = gdHash(gdStateString());
+      /* gdLastHash === null berarti belum pernah ada simpan/muat yang sukses
+         di sesi ini — anggap state saat ini perlu disimpan juga, supaya
+         simpan otomatis tidak mati total setelah satu kegagalan awal. */
+      if (gdLastHash === null || h !== gdLastHash){
+        if (gd.status !== "saving"){ gd.status = "saving"; renderDriveUI(); }
+        /* Jadwalkan hanya bila belum ada jadwal menunggu — polling berkala
+           tidak boleh terus menggeser timer, kalau tidak simpan tidak akan
+           pernah jalan selama halaman terbuka. */
+        if (!gd.saveTimer
+
+== gdOnToken (cari: 'function gdOnToken(') ==
+   renderDriveUI();
+      toast("Keluar dari Google. Data sesi tetap seperti sekarang.");
+    }
+    function gdOnToken(resp){
+      gd.silent = false;
+      if (!resp || resp.error){
+        gd.token = null;
+        if (gd.status === "connecting"){ gd.status = "out"; gd.errorMsg = "Login Google gagal. Coba lagi."; }
+        renderDriveUI();
+        return;
+      }
+      gd.token = resp.access_token;
+      gd.expiresAt = Date.now() + (resp.expires_in ? resp.expires_in * 1000 : 3500 * 1000);
+      /* Simpan sesi ke perangkat supaya tidak perlu login lagi saat web
+         dibuka kembali (juga berlaku untuk token hasil pembaruan senyap). */
+      gdPersistSession();
+      if (gd.refreshOnly){
+        gd.refreshOnly = false; gd.refreshing = false;
+        gdSaveNow();
+        return;
+      }
+ 
+
+== pemanggilan gdCheck (cari: 'gdCheck(') ==
+K perlu menekan
+       tombol "Simpan sekarang" (tombol itu hanya cadangan manual). */
+    function gdCheck(){
+      if (!gd.token || !gd.ready || gd.savingNow) return;
+      var h = gdHash(gdStateString());
+      /* gdLastHash === null berarti belum pernah ada simpan/muat yang sukses
+         di sesi ini — anggap state saat ini perlu disimpan juga, supaya
+         simpan otomatis tidak mati total setelah satu kegagalan awal. */
+      if (gdLastHash === null || h !== gdLastHash){
+        if (gd.status !== "saving"){ gd.status = "saving"; renderDriveUI(); }
+        /* Jadwalkan hanya bila belum ada jadwal menunggu — polling berkala
+           tidak boleh terus menggeser timer, kalau tidak simpan tidak akan
+           pernah jalan selama halaman terbuka. */
+        if (!gd.saveTimer) gdSched
+
+== init / DOMContentLoaded (cari: 'DOMContentLoaded') ==
+  TIDAK DITEMUKAN
+
+== init / window.onload (cari: 'window.onload') ==
+  TIDAK DITEMUKAN
+
+== gdLogin (cari: 'function gdLogin(') ==
+atalkan. Coba lagi."; }
+          renderDriveUI();
+        }
+      });
+      return true;
+    }
+    function gdLogin(){
+      if (!gdEnsureClient()){
+        toast("Library Google belum termuat — periksa koneksi internet, lalu coba lagi.");
+        return;
+      }
+      gd.errorMsg = "";
+      gd.status = "connecting";
+      renderDriveUI();
+      try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+      catch (e){ gd.status = "out"; gd.errorMsg = "Login Google gagal dibuka. Coba lagi."; renderDriveUI(); }
+    }
+    function gdLogout(){
+      if (gd.token && typeof google !== "undefined" && google.accounts && google.accounts.oauth2){
+        try { google.accounts.oauth2.revoke(gd.token, function(){}); } catch (e) {}
+      }
+      clearTimeout(gd.saveTimer);
+      gdMatFolderId = nul
+
+== prompt parameter (cari: 'prompt') ==
+   gd.status = "connecting";
+      renderDriveUI();
+      try { gd.tokenClient.requestAccessToken({ prompt: "" }); }
+      catch (e){ gd.status = "out"; gd.errorMsg = "Login Google gagal dibuka. Coba lagi."; renderDriveUI(); }
+    }
+    function gdLogout(){
+      if (gd.token && typeof google !== "undefined" && google.accounts && google.accounts.oauth2){
+        try { google.accounts.oauth2.revoke(gd.token, function(){}); } catch (e) {}
+      }
+      clearTimeout(gd.saveTimer);
+      gdMatFolderId = null;
+      gdClearSession();
+      gd.token = null; gd.fileId = null; gd.ready = false; gd.email = "";
+      gd.status = "out"; gd.errorMsg = ""; gdLastHash = null;
+      gd.errorDetail = ""; gd.apiDisabled = false; gd.loadRetries = 0;
+      renderDriveUI();
+      toast("Keluar dari Google. Da
+
+== PANGGIL gdEnsureClient/gdLogin ==
+  ...gd]") : null;       if (!b || b.disabled) return;       var act = b.getAttribute("data-gd");       if (act === "login") gdLogin();       else if (act === "logout") gdLogout();       else if (act === "save"){ ...
+  ...renderDriveUI();         gdSyncFromDrive();       }     });      /* ---------- Login / token ---------- */     function gdEnsureClient(){       if (gd.tokenClient) return true;       if (typeof google === "undefined...
+  ...al atau dibatalkan. Coba lagi."; }           renderDriveUI();         }       });       return true;     }     function gdLogin(){       if (!gdEnsureClient()){         toast("Library Google belum termuat — p...
+  ...ba lagi."; }           renderDriveUI();         }       });       return true;     }     function gdLogin(){       if (!gdEnsureClient()){         toast("Library Google belum termuat — periksa koneksi internet, lalu...
+  ...       renderDriveUI();         gdSyncFromDrive();         return;       }       if (saved) gdClearSession();       if (gdEnsureClient() && !gd.token){         gd.silent = true;         try { gd.tokenClient.requestA...

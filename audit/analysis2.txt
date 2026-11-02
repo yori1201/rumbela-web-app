@@ -1,0 +1,57 @@
+== NAVIGASI ==
+  nav (0 item): []
+  nav (0 item): []
+
+== ID unik utama (99) ==
+  ['65e01998-ce2d-491e-8580-1b82a0bbaa70', 'att-date', 'att-list', 'att-recap', 'bottomnav', 'btn-add-material', 'btn-add-student', 'btn-export', 'btn-export-side', 'btn-import', 'btn-import-side', 'btn-jr-copy', 'btn-jr-reset', 'btn-jr-wa', 'btn-jr-week-copy', 'btn-jr-week-reset', 'btn-jr-week-wa', 'btn-rep-copy', 'btn-rep-reset', 'btn-rep-sent', 'btn-rep-wa', 'drive-card', 'drive-side', 'file-import', 'fm-add-more', 'fm-desc', 'fm-drive-note', 'fm-file', 'fm-file-list', 'fm-file-note', 'fm-file-wrap', 'fm-program', 'fm-submit', 'fm-title', 'fm-type', 'fm-url', 'fm-url-wrap', 'followup', 'form-material', 'form-student', 'fs-fee', 'fs-grade', 'fs-group', 'fs-level', 'fs-meet', 'fs-name', 'fs-parent', 'fs-program', 'fs-start', 'fs-wa', 'jr-activity', 'jr-date', 'jr-day', 'jr-edit-hint', 'jr-preview', 'jr-progress', 'jr-saved', 'jr-student', 'jr-week', 'jr-week-hint']
+
+== BODY == <body>
+
+Total JS inline: 87,981 bytes
+
+== PENYIMPANAN DATA ==
+  localStorage: 5x
+  sessionStorage: 0x
+  rumbela-database.json refs: 4x
+  multipart upload: 2x
+  query Drive: 2x
+
+== KEAMANAN / GATE ==
+  password/pin: 1x
+  confirm(): 0x
+  fungsi esc(): 40x
+  innerHTML assignment: 0x
+  eval(): 0x
+  TODO/FIXME: 0x
+
+== KONTEKS CLIENT_ID ==
+  ounts || !google.accounts.oauth2) return false;
+      gd.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GDRIVE_CLIENT_ID,
+        scope: GDRIVE_SCOPE,
+        callback: gdOnToken,
+        error_callback: function(){
+          var wasSilent = gd.silent;
+          gd.silent = false; gd.refreshing = false; gd.refreshOnly = false;
+          if (wasSilent)
+
+== DATA CONTOH (hardcoded) ==
+  PROGRAMS: var PROGRAMS = ["Calistung Ceria","Matematika","Pendampingan Belajar & PR","Bahasa Inggris Dasar","Privat"]
+  variabel (var\s+): ['PROGRAMS', 'MONTHS', 'MONTHS_SHORT', 'DAYS', 'ASPECTS', 'FEE_DEFAULT', 'WA_OFFICIAL', 'd', 'd', 'p', 'state', 's1', 'now', 'NAV', 'currentView', 'html', 'toastTimer', 't', 'confirmCb', 'cb', 'now', 'days', 'key', 'total', 'lunas', 'hadir', 'pct', 'unpaid', 'fu', 'st', 'key', 'st', 'text', 'editingStudent', 'q', 'fp', 'list', 'hit', 'box', 'over']
+  variabel (const\): []
+  variabel (let\s+): []
+
+== FUNGSI JS (86) ==
+  ['defaultFee', 'uid', 'pad', 'todayStr', 'monthKey', 'rp', 'esc', 'normWa', 'fmtDate', 'seed', 'buildNav', 'showView', 'toast', 'openModal', 'closeModal', 'askConfirm', 'studentById', 'payStatus', 'setPayStatus', 'groupCount', 'hasSample', 'renderBeranda', 'statCard', 'sendReminder', 'renderStudents', 'fillProgramSelects', 'openStudentForm', 'autoFee', 'renderPayments', 'initPayControls', 'renderAttendance', 'parseDateStr', 'dateToStr', 'getJournal', 'attLabel', 'weekDates', 'buildDailyText', 'buildWeekText', 'renderJournal', 'copyText', 'reportKey', 'getReport', 'renderReport', 'buildReportText', 'fmtSize', 'driveIdOf', 'gdLoggedIn', 'matCanPrint', 'typeFromFile', 'matDownload', 'matPrint', 'renderMaterials', 'renderPendingFiles', 'updateMatFileNote', 'openMaterialForm', 'exportJSON', 'importJSON', 'renderAll', 'gdPersistSession', 'gdReadSession', 'gdClearSession', 'gdPad', 'gdTimeStr', 'gdStateString', 'gdHash', 'gdStatusInfo', 'gdButtonsHTML', 'renderDriveUI', 'gdEnsureClient', 'gdLogin', 'gdLogout', 'gdOnToken', 'gdFetchEmail', 'gdFetch', 'gdFindFile', 'gdDownload', 'gdCreate', 'gdUpdate', 'gdEnsureMatFolder', 'gdUploadMaterialFile', 'gdFetchBlob', 'gdDeleteDriveFile', 'gdSyncFromDrive', 'gdCheck', 'gdScheduleSave', 'gdSaveNow']
+
+== WHATSAPP ==
+  ['wa.me/']
+
+== KOMPONEN UI ==
+  modal: 42x | toast: 55x | tabel: 1x
+  tombol: 46x | select: 10x
+
+== RESPONSIVE ==
+  media queries: ['@media (max-width:760px)', '@media (max-width:900px)', '@media (max-width:760px)', '@media (prefers-reduced-motion: reduce)']
+  warna CSS (13): ['#0b3556', '#0e4d84', '#17364f', '#1c6fb8', '#3574ad', '#57748c', '#b9cbdd', '#cfdff0', '#d7e6f4', '#e1eefb', '#e9f2fb', '#fff', '#ffffff']
+  prefers-color-scheme: 0x

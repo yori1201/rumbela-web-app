@@ -1,0 +1,78 @@
+Ukuran file HTML: 622,069 bytes (607.5 KB)
+Jumlah baris: 2020
+
+== TITLE ==
+['Rumbela — Web App Admin']
+
+== META TAGS (3) ==
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+
+== SCRIPT EKSTERNAL (2) ==
+  https://accounts.google.com/gsi/client
+  /.netlify/scripts/hud?variant=public
+
+== SCRIPT INLINE: 2 blok, total 87,980 bytes (85.9 KB) ==
+  blok#1: 63,794 bytes | awal: '"use strict";\n    /* ================= Konstanta ================= */\n    var PROGRAMS = ["Calistung'
+  blok#2: 24,186 bytes | awal: '"use strict";\n    /* ================= Google Drive: login GIS + database JSON =================\n   '
+
+== LINK CSS EKSTERNAL (1) ==
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+== CSS INLINE: 1 blok, total 12,651 bytes (12.4 KB) ==
+
+== REFERENSI GOOGLE/API ==
+  https://accounts.google.com/gsi/client
+  https://drive.google.com
+  https://drive.google.com/file/d/
+  https://fonts.googleapis.com
+  https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap
+  https://www.googleapis.com/auth/drive.file
+  https://www.googleapis.com/drive/v3/about?fields=
+  https://www.googleapis.com/drive/v3/files/
+  https://www.googleapis.com/drive/v3/files?fields=id
+  https://www.googleapis.com/drive/v3/files?q=
+  https://www.googleapis.com/upload/drive/v3/files/
+  https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id
+  https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size
+CLIENT_ID ditemukan: ['149416737862-lispiijdp0ktj8v4e3gc47trlbfise40.apps.googleusercontent.com']
+API key Google (AIza...) ditemukan: []
+FILE_ID config: []
+URL Drive: ['drive.google.com/file/d/', 'drive.google.com/file/d/']
+
+== JEJAK LIBRARY ==
+  vue: 3 kemunculan
+
+== HEADING (h1-h3) ==
+  h1: Beranda
+  h2: Perlu ditindaklanjuti
+  h2: Database Google Drive
+  h2: Cadangan data
+  h1: Siswa
+  h1: Iuran
+  h1: Absensi
+  h2: Rekap bulan ini
+  h1: Laporan Harian
+  h2: Aktivitas &amp; progres hari ini
+  h2: Kirim progres harian ke orang tua
+  h2: Rekap mingguan
+  h2: Teks rekap mingguan
+  h1: Laporan Progres
+  h2: Pesan WhatsApp ke orang tua
+  h1: Materi
+  h2: Tambah Siswa
+  h2: Tambah Materi
+  h2: Hapus data?
+  h3: ' + esc(s.name) + '
+  h2: Jadwal &amp; kehadiran — ' + DAYS[d.getDay()] + ", " + fmtDa
+  h3: ' + esc(m.title) + '
+
+== IMG: 2 ==
+  tanpa alt: 0
+== atribut aria-*: 10 ==
+== lang: ['id'] ==
+== form: 34 input/select/textarea, 30 label ==
+
+== cek teks Indonesia (contoh): 'Siswa' x19, 'Iuran' x8 ==
+
+== hash routing: [] ==

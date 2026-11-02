@@ -1,0 +1,754 @@
+     1→"use client";
+     2→
+     3→/* Generator Soal & Worksheet Rumbela — khusus penggunaan internal admin.
+     4→   • Mode otomatis: bank generator Matematika per jenjang/kelas/topik
+     5→   • Mode tulis-sendiri: semua mata pelajaran (PG / isian / uraian)
+     6→   • Template khusus Rumbela berlogo → cetak PDF & unduh PNG
+     7→   • Arsip worksheet tersimpan otomatis di Google Drive */
+     8→
+     9→import { useMemo, useState } from "react";
+    10→import Image from "next/image";
+    11→import {
+    12→  BookPlus, Download, FileQuestion, Loader2, Plus, Printer, Save,
+    13→  Sparkles, Trash2, Wand2,
+    14→} from "lucide-react";
+    15→import { useApp } from "@/lib/store";
+    16→import {
+    17→  GEN_MAPEL, KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_GENERATOR, generateQuestions, kelasTersedia, topikLabel,
+    18→  type GenMapel, type Kesulitan,
+    19→} from "@/lib/generatorSoal";
+    20→import { isCeria, renderWorksheetCanvas, slugify } from "@/lib/renderWorksheet";
+    21→import { canvasToBlob } from "@/lib/renderLaporan";
+    22→import { todayStr, uid } from "@/lib/constants";
+    23→import type { SoalKind, Worksheet, WorksheetQ } from "@/lib/types";
+    24→import { EmptyState, SectionCard } from "./shared";
+    25→import { Button } from "@/components/ui/button";
+    26→import { Input } from "@/components/ui/input";
+    27→import { Label } from "@/components/ui/label";
+    28→import { Switch } from "@/components/ui/switch";
+    29→import { Textarea } from "@/components/ui/textarea";
+    30→import {
+    31→  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+    32→} from "@/components/ui/select";
+    33→import { toast } from "@/hooks/use-toast";
+    34→import { cn } from "@/lib/utils";
+    35→
+    36→const JENJANG = ["SD", "SMP", "SMA"] as const;
+    37→const JUMLAH_OPSI = [5, 8, 10, 15, 20, 25];
+    38→const LETTERS = ["a", "b", "c", "d"];
+    39→const KIND_LABEL: Record<SoalKind, string> = { pg: "Pilihan Ganda", isian: "Isian Singkat", uraian: "Uraian" };
+    40→
+    41→function blankQ(kind: SoalKind = "isian"): WorksheetQ {
+    42→  return { id: uid(), text: "", kind, answer: "", ...(kind === "pg" ? { options: ["", "", "", ""] } : {}) };
+    43→}
+    44→
+    45→/* ================= Lembar A4 (HTML — tampilan & cetak) =================
+    46→   Layout sesuai referensi brand: logo Rumbela penuh kiri atas, halaman
+    47→   bersih minimal, footer tengah "Rumbela <tahun>". */
+    48→
+    49→function AnswerLines({ n }: { n: number }) {
+    50→  return (
+    51→    <div className="mt-1.5 space-y-5">
+    52→      {Array.from({ length: n }).map((_, i) => (
+    53→        <div key={i} className="border-b-[1.5px] border-dotted border-slate-400" />
+    54→      ))}
+    55→    </div>
+    56→  );
+    57→}
+    58→
+    59→function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
+    60→  const tahun = new Date().getFullYear();
+    61→  return (
+    62→    <div className="sheet relative mx-auto w-[794px] shrink-0 rounded-xl bg-white p-12 text-slate-800 shadow-lg ring-1 ring-slate-200" style={{ minHeight: 1123 }}>
+    63→      {/* kop: logo penuh kiri atas + tanggal kanan atas */}
+    64→      <div className="flex items-start justify-between">
+    65→        <Image src="/logo.webp" alt="Rumbela — Rumah Belajar Anak" width={225} height={207} className="h-auto w-[225px]" />
+    66→        <p className="pt-1 text-[11px] font-medium text-slate-400">
+    67→          {new Date(ws.createdAt + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+    68→        </p>
+    69→      </div>
+    70→
+    71→      {jenis === "soal" ? (
+    72→        <>
+    73→          {/* judul */}
+    74→          <div className="mt-3 flex items-end justify-between gap-4">
+    75→            <div className="min-w-0">
+    76→              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Worksheet · {ws.mapel || "—"}</p>
+    77→              <h3 className="truncate text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
+    78→              <p className="mt-0.5 text-[13px] font-semibold text-slate-500">
+    79→                {[ws.jenjang, ws.kelas ? `Kelas ${ws.kelas}` : "", `${ws.questions.length} soal`].filter(Boolean).join("  ·  ")}
+    80→              </p>
+    81→            </div>
+    82→            <p className="shrink-0 text-[13px] font-black text-emerald-600">Selamat mengerjakan!</p>
+    83→          </div>
+    84→          <div className="mt-5 flex gap-10 text-[15px] font-semibold">
+    85→            <span className="flex flex-1 items-end gap-2">Nama : <span className="flex-1 border-b-[1.5px] border-dotted border-slate-400" /></span>
+    86→            <span className="flex w-56 items-end gap-2">Kelas : <span className="flex-1 border-b-[1.5px] border-dotted border-slate-400" /></span>
+    87→          </div>
+    88→          {ws.petunjuk && (
+    89→            <div className="mt-4 rounded-xl bg-sky-50 px-5 py-3 text-[13.5px] font-semibold leading-relaxed text-sky-900">
+    90→              {ws.petunjuk}
+    91→            </div>
+    92→          )}
+    93→          <ol className="mt-5 space-y-5">
+    94→            {ws.questions.map((q, i) => (
+    95→              <li key={q.id} className="flex gap-2 text-[15px] leading-relaxed">
+    96→                <span className="font-black text-sky-700">{i + 1}.</span>
+    97→                <div className="min-w-0 flex-1">
+    98→                  <p className="font-semibold">{q.text}</p>
+    99→                  {q.kind === "pg" && q.options?.length ? (
+   100→                    <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
+   101→                      {q.options.slice(0, 4).map((opt, oi) => (
+   102→                        <span key={oi} className="flex items-center gap-2 font-semibold">
+   103→                          <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border-[1.5px] border-slate-400 text-[10px] font-bold text-slate-500">{LETTERS[oi]}</span>
+   104→                          {opt}
+   105→                        </span>
+   106→                      ))}
+   107→                    </div>
+   108→                  ) : q.kind === "uraian" ? (
+   109→                    <AnswerLines n={3} />
+   110→                  ) : (
+   111→                    <AnswerLines n={1} />
+   112→                  )}
+   113→                </div>
+   114→              </li>
+   115→            ))}
+   116→          </ol>
+   117→        </>
+   118→      ) : (
+   119→        <>
+   120→          <div className="mt-3">
+   121→            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Kunci Jawaban · {ws.mapel || "—"}</p>
+   122→            <h3 className="text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
+   123→            <p className="mt-0.5 text-[16px] font-black text-emerald-600">KUNCI JAWABAN</p>
+   124→          </div>
+   125→          <div className="mt-6 grid grid-cols-2 gap-x-10 gap-y-4">
+   126→            {ws.questions.map((q, i) => (
+   127→              <p key={q.id} className="flex gap-2 text-[15px]">
+   128→                <span className="font-black text-sky-700">{i + 1}.</span>
+   129→                <span className="font-bold text-slate-800">
+   130→                  {q.kind === "pg" && q.options?.length ? q.answer.toUpperCase() : q.answer || "—"}
+   131→                </span>
+   132→              </p>
+   133→            ))}
+   134→          </div>
+   135→        </>
+   136→      )}
+   137→
+   138→      {/* footer sesuai referensi: Rumbela <tahun> tengah bawah */}
+   139→      <div className="absolute inset-x-12 bottom-7 text-center">
+   140→        <p className="text-[13px] font-medium text-slate-400">Rumbela {tahun}</p>
+   141→      </div>
+   142→    </div>
+   143→  );
+   144→}
+   145→
+   146→/* ================= Lembar gaya ceria (worksheet anak) =================
+   147→   Sesuai referensi lembar ceria Rumbela: langit biru + awan, judul
+   148→   warna-warni, pil kuning Materi, info bar, kotak soal pastel dengan
+   149→   badge nomor, kotak jawaban rounded, bukit hijau + pita penutup. */
+   150→
+   151→const PELANGI_TXT = [
+   152→  "text-orange-500", "text-green-600", "text-sky-600",
+   153→  "text-pink-500", "text-yellow-500", "text-violet-600",
+   154→];
+   155→const KOTAK_TXT = [
+   156→  "border-green-200 bg-green-50", "border-pink-200 bg-pink-50",
+   157→  "border-violet-200 bg-violet-50", "border-amber-200 bg-amber-50",
+   158→  "border-sky-200 bg-sky-50",
+   159→];
+   160→const BADGE_TXT = ["bg-green-600", "bg-pink-600", "bg-violet-600", "bg-amber-500", "bg-sky-600"];
+   161→
+   162→function SheetCeria({ ws }: { ws: Worksheet }) {
+   163→  return (
+   164→    <div
+   165→      className="sheet relative mx-auto w-[794px] shrink-0 overflow-hidden rounded-xl bg-sky-100 shadow-lg ring-1 ring-sky-200"
+   166→      style={{ minHeight: 1123 }}
+   167→    >
+   168→      {/* awan dekoratif */}
+   169→      <div className="pointer-events-none absolute right-10 top-10 h-12 w-28 rounded-full bg-white/80" />
+   170→      <div className="pointer-events-none absolute right-32 top-20 h-9 w-16 rounded-full bg-white/70" />
+   171→      <div className="pointer-events-none absolute left-10 top-56 h-8 w-20 rounded-full bg-white/60" />
+   172→
+   173→      <div className="relative px-10 pt-8">
+   174→        <div className="flex items-start gap-5">
+   175→          <div className="rounded-2xl bg-white p-2 shadow-sm">
+   176→            <Image src="/logo.webp" alt="Rumbela — Rumah Belajar Anak" width={132} height={121} className="h-auto w-[132px]" />
+   177→          </div>
+   178→          <div className="min-w-0 flex-1 pt-1">
+   179→            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-sky-800">Worksheet Rumbela</p>
+   180→            <h3 className="text-[30px] font-black leading-tight">
+   181→              {(ws.topik || "Latihan").slice(0, 60).split("").map((ch, i) =>
+   182→                ch === " " ? (
+   183→                  <span key={i}> </span>
+   184→                ) : (
+   185→                  <span key={i} className={PELANGI_TXT[i % PELANGI_TXT.length]}>{ch}</span>
+   186→                )
+   187→              )}
+   188→            </h3>
+   189→            <p className="mt-0.5 text-[13px] font-bold text-slate-500">
+   190→              {[ws.jenjang, ws.kelas ? `Kelas ${ws.kelas}` : "", `${ws.questions.length} soal`].filter(Boolean).join("  ·  ")}
+   191→            </p>
+   192→          </div>
+   193→        </div>
+   194→
+   195→        <div className="mt-3 inline-block rounded-full bg-yellow-300 px-5 py-1.5 text-[13px] font-black text-amber-900">
+   196→          Materi: {ws.mapel || "—"}
+   197→        </div>
+   198→
+   199→        {/* info bar identitas */}
+   200→        <div className="mt-4 flex items-end gap-6 rounded-2xl border-2 border-sky-300 bg-white/90 px-5 py-3 text-[14px] font-bold text-sky-900">
+   201→          <span className="flex flex-1 items-end gap-2">Nama : <span className="flex-1 border-b-[1.5px] border-dotted border-sky-400" /></span>
+   202→          <span className="flex w-44 items-end gap-2">Tanggal : <span className="flex-1 border-b-[1.5px] border-dotted border-sky-400" /></span>
+   203→        </div>
+   204→
+   205→        {ws.petunjuk && (
+   206→          <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-[13px] font-semibold leading-relaxed text-amber-900">
+   207→            {ws.petunjuk}
+   208→          </div>
+   209→        )}
+   210→
+   211→        <ol className="mt-4 space-y-3 pb-40">
+   212→          {ws.questions.map((q, i) => (
+   213→            <li key={q.id} className={`flex gap-3 rounded-2xl border-2 p-4 ${KOTAK_TXT[i % KOTAK_TXT.length]}`}>
+   214→              <span className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full text-[15px] font-black text-white ${BADGE_TXT[i % BADGE_TXT.length]}`}>
+   215→                {i + 1}
+   216→              </span>
+   217→              <div className="min-w-0 flex-1 text-[15px] font-semibold leading-relaxed text-slate-800">
+   218→                <p>
+   219→                  {q.text}
+   220→                  {q.kind === "isian" && (
+   221→                    <span className="ml-2 inline-block h-9 w-40 rounded-lg border-[2.5px] border-sky-400 bg-white align-middle" />
+   222→                  )}
+   223→                </p>
+   224→                {q.kind === "pg" && q.options?.length ? (
+   225→                  <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
+   226→                    {q.options.slice(0, 4).map((opt, oi) => (
+   227→                      <span key={oi} className="flex items-center gap-2">
+   228→                        <span className="grid h-[19px] w-[19px] shrink-0 place-items-center rounded-full border-[1.5px] border-slate-400 text-[10px] font-bold text-slate-500">{LETTERS[oi]}</span>
+   229→                        {opt}
+   230→                      </span>
+   231→                    ))}
+   232→                  </div>
+   233→                ) : q.kind === "uraian" ? (
+   234→                  <AnswerLines n={2} />
+   235→                ) : null}
+   236→              </div>
+   237→            </li>
+   238→          ))}
+   239→        </ol>
+   240→      </div>
+   241→
+   242→      {/* bukit hijau + pita penutup */}
+   243→      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36">
+   244→        <div className="absolute -left-16 bottom-0 h-32 w-[75%] rounded-[100%] bg-green-300" />
+   245→        <div className="absolute -right-16 bottom-0 h-28 w-[70%] rounded-[100%] bg-green-400" />
+   246→        <div className="absolute inset-x-0 bottom-6 flex justify-center">
+   247→          <div className="rounded-full bg-sky-600 px-10 py-2.5 text-[16px] font-black text-white shadow-md">Belajar di Rumbela, Yuk!</div>
+   248→        </div>
+   249→      </div>
+   250→    </div>
+   251→  );
+   252→}
+   253→
+   254→/* ================= View utama ================= */
+   255→
+   256→export function SoalView() {
+   257→  const { db, mutate } = useApp();
+   258→  const peng = db.pengaturan;
+   259→
+   260→  const [mode, setMode] = useState<"otomatis" | "manual">("otomatis");
+   261→  const [genMapel, setGenMapel] = useState<GenMapel>("matematika");
+   262→  const [mapel, setMapel] = useState<string>("Matematika");
+   263→  const [jenjang, setJenjang] = useState<string>("SD");
+   264→  const [kelas, setKelas] = useState<string>("1");
+   265→  const [topikId, setTopikId] = useState<string>(
+   266→    TOPIK_GENERATOR.matematika.SD?.["1"]?.[0]?.id ?? ""
+   267→  );
+   268→  const [topikText, setTopikText] = useState<string>("");
+   269→  const [jumlah, setJumlah] = useState<number>(10);
+   270→  const [kesulitan, setKesulitan] = useState<Kesulitan>(2);
+   271→  const [petunjuk, setPetunjuk] = useState<string>("Kerjakan seluruh soal di bawah ini dengan teliti!");
+   272→  const [kunci, setKunci] = useState<boolean>(true);
+   273→
+   274→  const [manualQs, setManualQs] = useState<WorksheetQ[]>([blankQ(), blankQ(), blankQ(), blankQ(), blankQ()]);
+   275→  const [sheet, setSheet] = useState<Worksheet | null>(null);
+   276→  const [busy, setBusy] = useState(false);
+   277→
+   278→  const topikList = useMemo(
+   279→    () => TOPIK_GENERATOR[genMapel]?.[jenjang]?.[kelas] ?? [],
+   280→    [genMapel, jenjang, kelas]
+   281→  );
+   282→  const kelasOpsi = useMemo(
+   283→    () => (mode === "otomatis" ? kelasTersedia(genMapel, jenjang) : KELAS_BY_JENJANG[jenjang] ?? []),
+   284→    [mode, genMapel, jenjang]
+   285→  );
+   286→
+   287→  const gantiGenMapel = (m: GenMapel) => {
+   288→    setGenMapel(m);
+   289→    const def = GEN_MAPEL.find((g) => g.id === m);
+   290→    const j = def?.jenjang[0] ?? "SD";
+   291→    const kk = kelasTersedia(m, j)[0] ?? "1";
+   292→    setJenjang(j);
+   293→    setKelas(kk);
+   294→    setTopikId(TOPIK_GENERATOR[m]?.[j]?.[kk]?.[0]?.id ?? "");
+   295→  };
+   296→
+   297→  const gantiJenjangKelas = (j: string, k?: string) => {
+   298→    setJenjang(j);
+   299→    const opsi = mode === "otomatis" ? kelasTersedia(genMapel, j) : KELAS_BY_JENJANG[j] ?? [];
+   300→    const kk = k && opsi.includes(k) ? k : opsi[0] || "1";
+   301→    setKelas(kk);
+   302→    setTopikId(TOPIK_GENERATOR[genMapel]?.[j]?.[kk]?.[0]?.id ?? "");
+   303→  };
+   304→
+   305→  const buat = () => {
+   306→    if (mode === "otomatis") {
+   307→      const gen = generateQuestions(genMapel, topikId, jenjang, kelas, jumlah, kesulitan);
+   308→      if (!gen.length) {
+   309→        toast({ title: "Topik belum tersedia", description: "Pilih topik generator untuk jenjang & kelas ini." });
+   310→        return;
+   311→      }
+   312→      setSheet({
+   313→        id: "", createdAt: todayStr(), mapel: GEN_MAPEL.find((g) => g.id === genMapel)?.label ?? "Matematika", jenjang, kelas,
+   314→        topik: topikLabel(genMapel, topikId, jenjang, kelas), petunjuk, kunci,
+   315→        questions: gen.map((g) => ({ id: uid(), text: g.q, kind: "isian" as SoalKind, answer: g.a })),
+   316→      });
+   317→    } else {
+   318→      const qs = manualQs
+   319→        .filter((q) => q.text.trim())
+   320→        .map((q) => ({
+   321→          ...q,
+   322→          text: q.text.trim(),
+   323→          answer: q.kind === "pg" ? q.answer.toLowerCase() : q.answer.trim(),
+   324→          options: q.kind === "pg" ? (q.options ?? []).map((o) => o.trim()) : undefined,
+   325→        }));
+   326→      if (!qs.length) {
+   327→        toast({ title: "Belum ada soal", description: "Tulis minimal satu soal pada mode Tulis sendiri." });
+   328→        return;
+   329→      }
+   330→      setSheet({
+   331→        id: "", createdAt: todayStr(), mapel, jenjang, kelas,
+   332→        topik: topikText.trim() || `Latihan ${mapel}`, petunjuk, kunci, questions: qs,
+   333→      });
+   334→    }
+   335→    toast({ title: "Worksheet siap", description: "Periksa pratinjau, lalu cetak atau simpan." });
+   336→  };
+   337→
+   338→  const simpanArsip = () => {
+   339→    if (!sheet) return;
+   340→    const rec: Worksheet = { ...sheet, id: uid(), createdAt: sheet.createdAt || todayStr() };
+   341→    mutate((d) => {
+   342→      d.worksheets.unshift(rec);
+   343→    });
+   344→    setSheet(rec);
+   345→    toast({ title: "Tersimpan di arsip", description: `${rec.mapel} · ${rec.topik}` });
+   346→  };
+   347→
+   348→  const bukaArsip = (ws: Worksheet) => {
+   349→    setSheet(ws);
+   350→    setMapel(ws.mapel || "Matematika");
+   351→    if (KELAS_BY_JENJANG[ws.jenjang]) {
+   352→      setJenjang(ws.jenjang);
+   353→      setKelas(ws.kelas || KELAS_BY_JENJANG[ws.jenjang][0]);
+   354→    }
+   355→    setTopikText(ws.topik);
+   356→    setPetunjuk(ws.petunjuk);
+   357→    setKunci(ws.kunci);
+   358→    setManualQs(ws.questions.length ? ws.questions.map((q) => ({ ...q })) : [blankQ()]);
+   359→    setMode("manual");
+   360→    toast({ title: "Worksheet dibuka dari arsip", description: ws.topik });
+   361→  };
+   362→
+   363→  const unduhPng = async (jenis: "soal" | "kunci") => {
+   364→    if (!sheet) return;
+   365→    setBusy(true);
+   366→    try {
+   367→      const canvas = await renderWorksheetCanvas(sheet, peng, jenis);
+   368→      const blob = await canvasToBlob(canvas);
+   369→      const a = document.createElement("a");
+   370→      a.href = URL.createObjectURL(blob);
+   371→      a.download = `rumbela-${slugify(sheet.topik)}-${jenis}.png`;
+   372→      a.click();
+   373→      setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+   374→    } finally {
+   375→      setBusy(false);
+   376→    }
+   377→  };
+   378→
+   379→  const cetak = () => {
+   380→    if (!sheet) return;
+   381→    window.print();
+   382→  };
+   383→
+   384→  return (
+   385→    <div className="space-y-5">
+   386→      <div className="grid gap-5 xl:grid-cols-[400px,1fr]">
+   387→        {/* ============ FORM ============ */}
+   388→        <div className="space-y-4">
+   389→          <SectionCard
+   390→            title="Susun worksheet"
+   391→            desc="Penggunaan internal Rumbela — lembar latihan bergambar khusus"
+   392→          >
+   393→            {/* mode */}
+   394→            <div className="grid grid-cols-2 gap-2">
+   395→              <button
+   396→                type="button"
+   397→                onClick={() => setMode("otomatis")}
+   398→                className={cn(
+   399→                  "rounded-xl border-2 px-3 py-2.5 text-left text-sm font-bold transition-colors",
+   400→                  mode === "otomatis" ? "border-sky-400 bg-sky-50 text-sky-700" : "border-slate-200 text-slate-500 hover:border-sky-200"
+   401→                )}
+   402→              >
+   403→                <Wand2 className="mb-1 h-4 w-4" /> Otomatis
+   404→                <span className="block text-[11px] font-semibold opacity-75">4 bank generator mapel</span>
+   405→              </button>
+   406→              <button
+   407→                type="button"
+   408→                onClick={() => setMode("manual")}
+   409→                className={cn(
+   410→                  "rounded-xl border-2 px-3 py-2.5 text-left text-sm font-bold transition-colors",
+   411→                  mode === "manual" ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500 hover:border-emerald-200"
+   412→                )}
+   413→              >
+   414→                <BookPlus className="mb-1 h-4 w-4" /> Tulis sendiri
+   415→                <span className="block text-[11px] font-semibold opacity-75">Semua mata pelajaran</span>
+   416→              </button>
+   417→            </div>
+   418→
+   419→            {/* mapel */}
+   420→            <div className="mt-4 space-y-1.5">
+   421→              <Label>Mata pelajaran</Label>
+   422→              {mode === "otomatis" ? (
+   423→                <Select value={genMapel} onValueChange={(v) => gantiGenMapel(v as GenMapel)}>
+   424→                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+   425→                  <SelectContent>
+   426→                    {GEN_MAPEL.map((g) => (
+   427→                      <SelectItem key={g.id} value={g.id}>{g.label} — {g.rentang}</SelectItem>
+   428→                    ))}
+   429→                  </SelectContent>
+   430→                </Select>
+   431→              ) : (
+   432→                <Select value={mapel} onValueChange={setMapel}>
+   433→                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+   434→                  <SelectContent>
+   435→                    {MAPEL_LIST.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+   436→                  </SelectContent>
+   437→                </Select>
+   438→              )}
+   439→            </div>
+   440→
+   441→            {/* jenjang & kelas */}
+   442→            <div className="mt-3 grid grid-cols-2 gap-3">
+   443→              <div className="space-y-1.5">
+   444→                <Label>Jenjang</Label>
+   445→                <div className="flex overflow-hidden rounded-lg border border-slate-200">
+   446→                  {JENJANG.map((j) => {
+   447→                    const tersedia = mode === "manual" || (GEN_MAPEL.find((g) => g.id === genMapel)?.jenjang ?? []).includes(j);
+   448→                    return (
+   449→                      <button
+   450→                        key={j}
+   451→                        type="button"
+   452→                        disabled={!tersedia}
+   453→                        onClick={() => gantiJenjangKelas(j)}
+   454→                        className={cn(
+   455→                          "flex-1 py-2 text-sm font-bold transition-colors",
+   456→                          jenjang === j ? "bg-sky-600 text-white" : tersedia ? "bg-white text-slate-500 hover:bg-sky-50" : "cursor-not-allowed bg-slate-100 text-slate-300"
+   457→                        )}
+   458→                      >
+   459→                        {j}
+   460→                      </button>
+   461→                    );
+   462→                  })}
+   463→                </div>
+   464→              </div>
+   465→              <div className="space-y-1.5">
+   466→                <Label>Kelas</Label>
+   467→                <Select value={kelas} onValueChange={(k) => gantiJenjangKelas(jenjang, k)}>
+   468→                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+   469→                  <SelectContent>
+   470→                    {kelasOpsi.map((k) => (
+   471→                      <SelectItem key={k} value={k}>Kelas {k}</SelectItem>
+   472→                    ))}
+   473→                  </SelectContent>
+   474→                </Select>
+   475→              </div>
+   476→            </div>
+   477→
+   478→            {/* topik */}
+   479→            <div className="mt-3 space-y-1.5">
+   480→              <Label>Topik soal</Label>
+   481→              {mode === "otomatis" ? (
+   482→                <Select value={topikId} onValueChange={setTopikId}>
+   483→                  <SelectTrigger className="w-full"><SelectValue placeholder="Pilih topik" /></SelectTrigger>
+   484→                  <SelectContent>
+   485→                    {topikList.map((t) => (
+   486→                      <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+   487→                    ))}
+   488→                  </SelectContent>
+   489→                </Select>
+   490→              ) : (
+   491→                <Input
+   492→                  value={topikText}
+   493→                  onChange={(e) => setTopikText(e.target.value)}
+   494→                  placeholder="cth. Teks Deskripsi, Perkalian Pecahan…"
+   495→                />
+   496→              )}
+   497→            </div>
+   498→
+   499→            {/* jumlah & kesulitan (otomatis) */}
+   500→            {mode === "otomatis" && (
+   501→              <div className="mt-3 grid grid-cols-2 gap-3">
+   502→                <div className="space-y-1.5">
+   503→                  <Label>Jumlah soal</Label>
+   504→                  <Select value={String(jumlah)} onValueChange={(v) => setJumlah(Number(v))}>
+   505→                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+   506→                    <SelectContent>
+   507→                      {JUMLAH_OPSI.map((n) => <SelectItem key={n} value={String(n)}>{n} soal</SelectItem>)}
+   508→                    </SelectContent>
+   509→                  </Select>
+   510→                </div>
+   511→                <div className="space-y-1.5">
+   512→                  <Label>Kesulitan</Label>
+   513→                  <div className="flex overflow-hidden rounded-lg border border-slate-200">
+   514→                    {([["1", "Mudah"], ["2", "Sedang"], ["3", "Sulit"]] as const).map(([v, l]) => (
+   515→                      <button
+   516→                        key={v}
+   517→                        type="button"
+   518→                        onClick={() => setKesulitan(Number(v) as Kesulitan)}
+   519→                        className={cn(
+   520→                          "flex-1 py-2 text-xs font-bold transition-colors",
+   521→                          kesulitan === Number(v) ? "bg-emerald-500 text-white" : "bg-white text-slate-500 hover:bg-emerald-50"
+   522→                        )}
+   523→                      >
+   524→                        {l}
+   525→                      </button>
+   526→                    ))}
+   527→                  </div>
+   528→                </div>
+   529→              </div>
+   530→            )}
+   531→
+   532→            {/* petunjuk */}
+   533→            <div className="mt-3 space-y-1.5">
+   534→              <Label>Petunjuk pengerjaan (opsional)</Label>
+   535→              <Textarea
+   536→                value={petunjuk}
+   537→                onChange={(e) => setPetunjuk(e.target.value)}
+   538→                rows={2}
+   539→                placeholder="cth. Kerjakan pada lembar ini, tunjukkan cara pengerjaanmu!"
+   540→              />
+   541→            </div>
+   542→
+   543→            {/* kunci */}
+   544→            <div className="mt-3 flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3">
+   545→              <div>
+   546→                <p className="text-sm font-bold text-emerald-800">Lembar kunci jawaban</p>
+   547→                <p className="text-xs text-emerald-700/80">Ikut tercetak & bisa diunduh terpisah</p>
+   548→              </div>
+   549→              <Switch checked={kunci} onCheckedChange={setKunci} />
+   550→            </div>
+   551→
+   552→            <div className="mt-4 flex gap-2">
+   553→              <Button onClick={buat} className="flex-1 gap-2 rounded-xl bg-sky-600 font-bold hover:bg-sky-700">
+   554→                <Sparkles className="h-4 w-4" /> {sheet ? "Perbarui worksheet" : "Buat worksheet"}
+   555→              </Button>
+   556→              {sheet && (
+   557→                <Button variant="outline" className="rounded-xl" onClick={() => setSheet(null)}>
+   558→                  Reset
+   559→                </Button>
+   560→              )}
+   561→            </div>
+   562→          </SectionCard>
+   563→
+   564→          {/* editor manual */}
+   565→          {mode === "manual" && (
+   566→            <SectionCard
+   567→              title={`Daftar soal (${manualQs.filter((q) => q.text.trim()).length} terisi)`}
+   568→              desc="Pilih jenis tiap soal; kunci untuk pilihan ganda diisi lewat tombol huruf"
+   569→              action={
+   570→                <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setManualQs((q) => [...q, blankQ("pg")])}>
+   571→                  <Plus className="h-4 w-4" /> Soal
+   572→                </Button>
+   573→              }
+   574→            >
+   575→              <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
+   576→                {manualQs.map((q, i) => (
+   577→                  <div key={q.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+   578→                    <div className="mb-2 flex items-center gap-2">
+   579→                      <span className="grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800">{i + 1}</span>
+   580→                      <Select
+   581→                        value={q.kind}
+   582→                        onValueChange={(v) =>
+   583→                          setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, kind: v as SoalKind, options: v === "pg" ? (x.options ?? ["", "", "", ""]) : undefined } : x))
+   584→                        }
+   585→                      >
+   586→                        <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue /></SelectTrigger>
+   587→                        <SelectContent>
+   588→                          {(Object.keys(KIND_LABEL) as SoalKind[]).map((k) => (
+   589→                            <SelectItem key={k} value={k}>{KIND_LABEL[k]}</SelectItem>
+   590→                          ))}
+   591→                        </SelectContent>
+   592→                      </Select>
+   593→                      <button
+   594→                        type="button"
+   595→                        aria-label="Hapus soal"
+   596→                        className="ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+   597→                        onClick={() => setManualQs((arr) => (arr.length > 1 ? arr.filter((x) => x.id !== q.id) : arr))}
+   598→                      >
+   599→                        <Trash2 className="h-4 w-4" />
+   600→                      </button>
+   601→                    </div>
+   602→                    <Textarea
+   603→                      value={q.text}
+   604→                      onChange={(e) => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, text: e.target.value } : x))}
+   605→                      rows={2}
+   606→                      placeholder={`Tulis soal nomor ${i + 1}…`}
+   607→                      className="bg-white"
+   608→                    />
+   609→                    {q.kind === "pg" && (
+   610→                      <div className="mt-2 space-y-1.5">
+   611→                        {(q.options ?? []).map((opt, oi) => (
+   612→                          <div key={oi} className="flex items-center gap-2">
+   613→                            <button
+   614→                              type="button"
+   615→                              onClick={() => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] } : x))}
+   616→                              className={cn(
+   617→                                "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
+   618→                                q.answer === LETTERS[oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"
+   619→                              )}
+   620→                              title={q.answer === LETTERS[oi] ? "Kunci jawaban" : "Tandai sebagai kunci"}
+   621→                            >
+   622→                              {LETTERS[oi]}
+   623→                            </button>
+   624→                            <Input
+   625→                              value={opt}
+   626→                              onChange={(e) =>
+   627→                                setManualQs((arr) => arr.map((x) => {
+   628→                                  if (x.id !== q.id) return x;
+   629→                                  const opts = [...(x.options ?? ["", "", "", ""])];
+   630→                                  opts[oi] = e.target.value;
+   631→                                  return { ...x, options: opts };
+   632→                                }))
+   633→                              }
+   634→                              placeholder={`Opsi ${LETTERS[oi]}`}
+   635→                              className="h-8 bg-white text-sm"
+   636→                            />
+   637→                          </div>
+   638→                        ))}
+   639→                      </div>
+   640→                    )}
+   641→                    {q.kind !== "pg" && (
+   642→                      <Input
+   643→                        value={q.answer}
+   644→                        onChange={(e) => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, answer: e.target.value } : x))}
+   645→                        placeholder="Kunci jawaban (untuk lembar kunci)…"
+   646→                        className="mt-2 h-8 bg-white text-sm"
+   647→                      />
+   648→                    )}
+   649→                  </div>
+   650→                ))}
+   651→              </div>
+   652→            </SectionCard>
+   653→          )}
+   654→        </div>
+   655→
+   656→        {/* ============ PRATINJAU + EKSPOR ============ */}
+   657→        <div className="space-y-4">
+   658→          <SectionCard
+   659→            title="Pratinjau & cetak"
+   660→            desc="Template khusus Rumbela — ukuran A4"
+   661→            action={
+   662→              sheet ? (
+   663→                <div className="flex flex-wrap gap-2">
+   664→                  <Button size="sm" className="gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700" onClick={cetak}>
+   665→                    <Printer className="h-4 w-4" /> Cetak / PDF
+   666→                  </Button>
+   667→                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("soal")} disabled={busy}>
+   668→                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Soal
+   669→                  </Button>
+   670→                  {sheet.kunci && (
+   671→                    <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("kunci")} disabled={busy}>
+   672→                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Kunci
+   673→                    </Button>
+   674→                  )}
+   675→                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg border-emerald-200 text-emerald-700 hover:bg-emerald-50" onClick={simpanArsip}>
+   676→                    <Save className="h-4 w-4" /> Arsipkan
+   677→                  </Button>
+   678→                </div>
+   679→              ) : null
+   680→            }
+   681→          >
+   682→            {!sheet ? (
+   683→              <EmptyState title="Belum ada worksheet">
+   684→                Isi formulir di samping, lalu klik <b>Buat worksheet</b>. Pratinjau lembar A4 akan muncul di sini.
+   685→              </EmptyState>
+   686→            ) : (
+   687→              <div id="print-area">
+   688→                {/* tampilan layar */}
+   689→                <div className="sheet-scroll">
+   690→                  <div className="space-y-6 print:space-y-0">
+   691→                    {isCeria(sheet) ? <SheetCeria ws={sheet} /> : <SheetHTML ws={sheet} jenis="soal" />}
+   692→                    {sheet.kunci && <SheetHTML ws={sheet} jenis="kunci" />}
+   693→                  </div>
+   694→                </div>
+   695→                <p className="mt-3 text-xs text-muted-foreground">
+   696→                  Cetak memakai dialog browser → pilih <b>Save as PDF</b> untuk menyimpan sebagai berkas.
+   697→                </p>
+   698→              </div>
+   699→            )}
+   700→          </SectionCard>
+   701→
+   702→          {/* arsip */}
+   703→          <SectionCard
+   704→            title={`Arsip worksheet (${db.worksheets.length})`}
+   705→            desc="Tersimpan otomatis di Google Drive — buka kembali kapan saja"
+   706→          >
+   707→            {!db.worksheets.length ? (
+   708→              <EmptyState title="Arsip masih kosong">
+   709→                Worksheet yang diarsipkan akan muncul di sini.
+   710→              </EmptyState>
+   711→            ) : (
+   712→              <ul className="divide-y divide-slate-100">
+   713→                {db.worksheets.map((ws) => (
+   714→                  <li key={ws.id} className="flex flex-wrap items-center gap-3 py-2.5">
+   715→                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-100 text-sky-700">
+   716→                      <FileQuestion className="h-5 w-5" />
+   717→                    </span>
+   718→                    <div className="min-w-0 flex-1">
+   719→                      <p className="truncate text-sm font-bold text-slate-700">{ws.topik}</p>
+   720→                      <p className="truncate text-xs text-muted-foreground">
+   721→                        {ws.mapel} · {ws.jenjang}{ws.kelas ? ` kelas ${ws.kelas}` : ""} · {ws.questions.length} soal · {ws.createdAt}
+   722→                      </p>
+   723→                    </div>
+   724→                    <div className="flex gap-1.5">
+   725→                      <Button size="sm" variant="outline" className="h-8 rounded-lg px-3 text-xs" onClick={() => bukaArsip(ws)}>
+   726→                        Buka
+   727→                      </Button>
+   728→                      <Button
+   729→                        size="sm"
+   730→                        variant="outline"
+   731→                        className="h-8 rounded-lg px-3 text-xs"
+   732→                        onClick={() => {
+   733→                          if (window.confirm(`Hapus worksheet "${ws.topik}" dari arsip?`)) {
+   734→                            mutate((d) => {
+   735→                              d.worksheets = d.worksheets.filter((x) => x.id !== ws.id);
+   736→                            });
+   737→                            toast({ title: "Worksheet dihapus" });
+   738→                          }
+   739→                        }}
+   740→                      >
+   741→                        <Trash2 className="h-3.5 w-3.5" />
+   742→                      </Button>
+   743→                    </div>
+   744→                  </li>
+   745→                ))}
+   746→              </ul>
+   747→            )}
+   748→          </SectionCard>
+   749→        </div>
+   750→      </div>
+   751→    </div>
+   752→  );
+   753→}
+   754→

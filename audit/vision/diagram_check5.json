@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Gambar 1:** BERSIH\n**Gambar 2:** BERSIH",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1793579247,
+  "id": "2026110208272455f7deeea54a433f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026110208272455f7deeea54a433f",
+  "usage": {
+    "completion_tokens": 20,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 3895,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3915
+  }
+}
