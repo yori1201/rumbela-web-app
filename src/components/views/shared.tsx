@@ -3,10 +3,10 @@
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function StatCard({ label, value, sub, accent = "orange" }: { label: string; value: string; sub?: string; accent?: "orange" | "sky" | "emerald" | "rose" }) {
+export function StatCard({ label, value, sub, accent = "emerald" }: { label: string; value: string; sub?: string; accent?: "sky" | "teal" | "emerald" | "rose" }) {
   const accents: Record<string, string> = {
-    orange: "bg-sky-50 text-sky-800 border-sky-100",
     sky: "bg-sky-50 text-sky-700 border-sky-100",
+    teal: "bg-teal-50 text-teal-700 border-teal-100",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
     rose: "bg-rose-50 text-rose-700 border-rose-100",
   };

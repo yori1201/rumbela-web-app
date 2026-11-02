@@ -119,6 +119,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* dashboard: dingin lembut biru–hijau, menyatu dengan app-shell */
+    background: linear-gradient(180deg, #eef6f9 0%, #f0f9ff 100%);
+    background-attachment: fixed;
   }
 }
 

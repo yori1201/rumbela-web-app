@@ -28,7 +28,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-gradient-to-r from-sky-600 to-emerald-500 p-5 text-white shadow-sm">
+      <div className="rounded-2xl bg-gradient-to-r from-sky-700 via-sky-600 to-emerald-500 p-5 text-white shadow-sm">
         <p className="text-sm font-semibold opacity-90">
           {greeting()} · {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}
         </p>
@@ -39,19 +39,19 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
           <Button size="sm" className="bg-white text-sky-700 hover:bg-sky-50" onClick={() => setView("absensi")}>
             <CalendarCheck2 className="h-4 w-4" /> Absensi hari ini
           </Button>
-          <Button size="sm" className="bg-sky-700/50 text-white hover:bg-sky-700/70" onClick={() => setView("laporan")}>
+          <Button size="sm" className="bg-emerald-600/50 text-white hover:bg-emerald-600/70" onClick={() => setView("laporan")}>
             <ClipboardList className="h-4 w-4" /> Buat laporan gambar
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Siswa aktif" value={String(totalSiswa)} sub={`${new Set(db.students.map((s) => s.program)).size} program`} />
+        <StatCard label="Siswa aktif" value={String(totalSiswa)} sub={`${new Set(db.students.map((s) => s.program)).size} program`} accent="sky" />
         <StatCard
           label="Hadir hari ini"
           value={tercatat ? `${hadir}/${tercatat}` : "—"}
           sub={tercatat ? `${Math.round((hadir / tercatat) * 100)}% dari tercatat` : "belum diisi"}
-          accent="sky"
+          accent="teal"
         />
         <StatCard label="Iuran bulan ini" value={`${lunas}/${totalSiswa}`} sub={`${rp(terkumpul)} terkumpul`} accent="emerald" />
         <StatCard label="Perlu perhatian" value={String(belumLunas.length)} sub="iuran belum lunas" accent="rose" />
@@ -142,7 +142,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
             <button
               key={a.id}
               onClick={() => setView(a.id)}
-              className="flex flex-col items-center gap-2 rounded-xl border border-slate-100 bg-white p-4 text-xs font-bold text-slate-600 transition-colors hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
+              className="flex flex-col items-center gap-2 rounded-xl border border-slate-100 bg-white p-4 text-xs font-bold text-slate-600 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
             >
               <a.icon className="h-5 w-5" />
               {a.label}

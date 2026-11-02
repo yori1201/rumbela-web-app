@@ -103,7 +103,7 @@ function AccountMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-bold text-sky-800">
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-sky-500 to-emerald-500 text-xs font-bold text-white">
             {(authMode === "demo" ? "D" : email?.[0] || "A").toUpperCase()}
           </span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -134,13 +134,13 @@ export function AppShell({ view, setView, children }: { view: ViewId; setView: (
   const restNav = NAV.filter((n) => !BOTTOM_MAIN.includes(n.id));
 
   return (
-    <div className="min-h-screen bg-[#fdf8f3]">
+    <div className="min-h-screen bg-[#eef6f9]">
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-sky-100/80 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-          <Image src="/logo-round.webp" alt="Logo Rumbela" width={40} height={40} className="rounded-full" priority />
+          <Image src="/logo-round.webp" alt="Logo Rumbela" width={40} height={40} className="ring-2 ring-emerald-200 rounded-full" priority />
           <div className="min-w-0 leading-tight">
-            <p className="truncate font-extrabold text-sky-700">{db.pengaturan.namaLembaga}</p>
+            <p className="truncate bg-gradient-to-r from-sky-700 to-emerald-600 bg-clip-text font-extrabold text-transparent">{db.pengaturan.namaLembaga}</p>
             <p className="hidden truncate text-xs text-muted-foreground sm:block">{db.pengaturan.tagline}</p>
           </div>
           <div className="ml-auto flex items-center gap-2.5">
@@ -183,8 +183,8 @@ export function AppShell({ view, setView, children }: { view: ViewId; setView: (
                 onClick={() => setView(n.id)}
                 className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
                   view === n.id
-                    ? "bg-sky-100 text-sky-800"
-                    : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
+                    ? "border-l-[3px] border-emerald-500 bg-gradient-to-r from-sky-50 to-emerald-50 text-sky-800"
+                    : "border-l-[3px] border-transparent text-slate-600 hover:bg-sky-50 hover:text-emerald-700"
                 }`}
                 aria-current={view === n.id ? "page" : undefined}
               >
@@ -252,7 +252,7 @@ export function AppShell({ view, setView, children }: { view: ViewId; setView: (
                       setSheetOpen(false);
                     }}
                     className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-xs font-semibold ${
-                      view === n.id ? "border-sky-300 bg-sky-50 text-sky-800" : "border-slate-200 text-slate-600"
+                      view === n.id ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-600"
                     }`}
                   >
                     <n.icon className="h-5 w-5" />
