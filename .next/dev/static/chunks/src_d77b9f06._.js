@@ -13158,12 +13158,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-client] (ecmascript) <export default as Download>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$question$2d$mark$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileQuestion$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-question-mark.js [app-client] (ecmascript) <export default as FileQuestion>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/pencil.js [app-client] (ecmascript) <export default as Pencil>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/plus.js [app-client] (ecmascript) <export default as Plus>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$printer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Printer$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/printer.js [app-client] (ecmascript) <export default as Printer>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/save.js [app-client] (ecmascript) <export default as Save>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/sparkles.js [app-client] (ecmascript) <export default as Sparkles>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$wand$2d$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Wand2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/wand-sparkles.js [app-client] (ecmascript) <export default as Wand2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/store.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$generatorSoal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/generatorSoal.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$renderWorksheet$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/renderWorksheet.ts [app-client] (ecmascript)");
@@ -14137,6 +14139,250 @@ function SheetHTML({ ws, jenis }) {
     }, this);
 }
 _c7 = SheetHTML;
+/* ================= Editor soal (dipakai mode manual & edit hasil) ================= */ function SoalEditor({ qs, onChange }) {
+    const ubah = (id, fn)=>onChange(qs.map((x)=>x.id === id ? fn(x) : x));
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "max-h-[560px] space-y-3 overflow-y-auto pr-1",
+        children: qs.map((q, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "rounded-xl border border-slate-200 bg-slate-50/60 p-3",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mb-2 flex items-center gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800",
+                                children: i + 1
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 395,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                                value: q.kind,
+                                onValueChange: (v)=>ubah(q.id, (x)=>({
+                                            ...x,
+                                            kind: v,
+                                            options: v === "pg" ? x.options ?? [
+                                                "",
+                                                "",
+                                                "",
+                                                ""
+                                            ] : undefined,
+                                            pairs: v === "jodoh" ? x.pairs ?? [] : undefined,
+                                            words: v === "urut" ? x.words ?? [] : undefined,
+                                            text: !x.text.trim() ? petunjukKind(v) || x.text : x.text
+                                        })),
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
+                                        className: "h-8 w-[170px] text-xs",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 409,
+                                            columnNumber: 64
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 409,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
+                                        children: Object.keys(KIND_LABEL).map((k)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                                value: k,
+                                                children: KIND_LABEL[k]
+                                            }, k, false, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 412,
+                                                columnNumber: 19
+                                            }, this))
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 410,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 396,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                type: "button",
+                                "aria-label": "Hapus soal",
+                                className: "ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600",
+                                onClick: ()=>onChange(qs.length > 1 ? qs.filter((x)=>x.id !== q.id) : qs),
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                    className: "h-4 w-4"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/views/soal.tsx",
+                                    lineNumber: 422,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 416,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 394,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
+                        value: q.text,
+                        onChange: (e)=>ubah(q.id, (x)=>({
+                                    ...x,
+                                    text: e.target.value
+                                })),
+                        rows: 2,
+                        placeholder: `Tulis soal nomor ${i + 1}…`,
+                        className: "bg-white"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 425,
+                        columnNumber: 11
+                    }, this),
+                    q.kind === "pg" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-2 space-y-1.5",
+                        children: (q.options ?? []).map((opt, oi)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center gap-2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        type: "button",
+                                        onClick: ()=>ubah(q.id, (x)=>({
+                                                    ...x,
+                                                    answer: x.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "" : __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]
+                                                })),
+                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors", q.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"),
+                                        title: q.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "Kunci jawaban" : "Tandai sebagai kunci",
+                                        children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 436,
+                                        columnNumber: 19
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                        value: opt,
+                                        onChange: (e)=>ubah(q.id, (x)=>{
+                                                const opts = [
+                                                    ...x.options ?? [
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        ""
+                                                    ]
+                                                ];
+                                                opts[oi] = e.target.value;
+                                                return {
+                                                    ...x,
+                                                    options: opts
+                                                };
+                                            }),
+                                        placeholder: `Opsi ${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]}`,
+                                        className: "h-8 bg-white text-sm"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 447,
+                                        columnNumber: 19
+                                    }, this)
+                                ]
+                            }, oi, true, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 435,
+                                columnNumber: 17
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 433,
+                        columnNumber: 13
+                    }, this),
+                    q.kind === "jodoh" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
+                        value: (q.pairs ?? []).map((p)=>p.join(" = ")).join("\n"),
+                        onChange: (e)=>ubah(q.id, (x)=>({
+                                    ...x,
+                                    pairs: e.target.value.split("\n").map((ln)=>{
+                                        const idx = ln.indexOf("=");
+                                        return idx === -1 ? [
+                                            ln,
+                                            ""
+                                        ] : [
+                                            ln.slice(0, idx),
+                                            ln.slice(idx + 1)
+                                        ];
+                                    }).map((p)=>[
+                                            p[0].trim(),
+                                            p[1].trim()
+                                        ])
+                                })),
+                        rows: 5,
+                        placeholder: "Satu pasangan per baris (kiri = kanan):\nSelamat pagi = Good morning\nSampai jumpa = Good bye",
+                        className: "mt-2 bg-white font-mono text-[13px]"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 464,
+                        columnNumber: 13
+                    }, this),
+                    q.kind === "urut" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-2 space-y-1.5",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                value: (q.words ?? []).join(", "),
+                                onChange: (e)=>ubah(q.id, (x)=>({
+                                            ...x,
+                                            words: e.target.value.split(",").map((w)=>w.trim())
+                                        })),
+                                placeholder: "Kata acak, pisahkan koma — cth. am, I, student, a",
+                                className: "h-8 bg-white text-sm"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 485,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                value: q.answer,
+                                onChange: (e)=>ubah(q.id, (x)=>({
+                                            ...x,
+                                            answer: e.target.value
+                                        })),
+                                placeholder: "Kunci: kalimat utuh — cth. I am a student",
+                                className: "h-8 bg-white text-sm"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 493,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 484,
+                        columnNumber: 13
+                    }, this),
+                    q.kind !== "pg" && q.kind !== "jodoh" && q.kind !== "urut" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                        value: q.answer,
+                        onChange: (e)=>ubah(q.id, (x)=>({
+                                    ...x,
+                                    answer: e.target.value
+                                })),
+                        placeholder: "Kunci jawaban (untuk lembar kunci)…",
+                        className: "mt-2 h-8 bg-white text-sm"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/views/soal.tsx",
+                        lineNumber: 502,
+                        columnNumber: 13
+                    }, this)
+                ]
+            }, q.id, true, {
+                fileName: "[project]/src/components/views/soal.tsx",
+                lineNumber: 393,
+                columnNumber: 9
+            }, this))
+    }, void 0, false, {
+        fileName: "[project]/src/components/views/soal.tsx",
+        lineNumber: 391,
+        columnNumber: 5
+    }, this);
+}
+_c8 = SoalEditor;
 function SoalView() {
     _s();
     const { db, mutate } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useApp"])();
@@ -14162,6 +14408,10 @@ function SoalView() {
     ]);
     const [sheet, setSheet] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [busy, setBusy] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    /* mode edit hasil: salin sheet ke working copy agar bisa diubah sebelum cetak/simpan */ const [editMode, setEditMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [editQs, setEditQs] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [editTopik, setEditTopik] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [editPetunjuk, setEditPetunjuk] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const topikList = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "SoalView.useMemo[topikList]": ()=>__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$generatorSoal$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TOPIK_GENERATOR"][genMapel]?.[jenjang]?.[kelas] ?? []
     }["SoalView.useMemo[topikList]"], [
@@ -14383,7 +14633,38 @@ function SoalView() {
         if (!sheet) return;
         window.print();
     };
-    const ubahQ = (id, fn)=>setManualQs((arr)=>arr.map((x)=>x.id === id ? fn(x) : x));
+    /* masuk mode edit: salin sheet saat ini ke working copy */ const mulaiEdit = ()=>{
+        if (!sheet) return;
+        setEditQs(sheet.questions.map((q)=>({
+                ...q
+            })));
+        setEditTopik(sheet.topik);
+        setEditPetunjuk(sheet.petunjuk);
+        setEditMode(true);
+    };
+    /* simpan hasil edit kembali ke sheet (filter soal kosong) */ const simpanEdit = ()=>{
+        if (!sheet) return;
+        const bersih = editQs.filter((q)=>q.text.trim());
+        if (!bersih.length) {
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
+                title: "Tidak ada soal",
+                description: "Minimal satu soal harus berisi teks."
+            });
+            return;
+        }
+        setSheet({
+            ...sheet,
+            topik: editTopik.trim() || sheet.topik,
+            petunjuk: editPetunjuk,
+            questions: bersih
+        });
+        setEditMode(false);
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"])({
+            title: "Perubahan disimpan",
+            description: `${bersih.length} soal diperbarui.`
+        });
+    };
+    const batalEdit = ()=>setEditMode(false);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "space-y-5",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14408,7 +14689,7 @@ function SoalView() {
                                                     className: "mb-1 h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 588,
+                                                    lineNumber: 746,
                                                     columnNumber: 17
                                                 }, this),
                                                 " Otomatis",
@@ -14417,13 +14698,13 @@ function SoalView() {
                                                     children: "4 bank generator mapel"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 589,
+                                                    lineNumber: 747,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 580,
+                                            lineNumber: 738,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -14435,7 +14716,7 @@ function SoalView() {
                                                     className: "mb-1 h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 599,
+                                                    lineNumber: 757,
                                                     columnNumber: 17
                                                 }, this),
                                                 " Tulis sendiri",
@@ -14444,19 +14725,19 @@ function SoalView() {
                                                     children: "Semua mata pelajaran"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 600,
+                                                    lineNumber: 758,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 591,
+                                            lineNumber: 749,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 579,
+                                    lineNumber: 737,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14466,7 +14747,7 @@ function SoalView() {
                                             children: "Mata pelajaran"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 606,
+                                            lineNumber: 764,
                                             columnNumber: 15
                                         }, this),
                                         mode === "otomatis" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -14477,12 +14758,12 @@ function SoalView() {
                                                     className: "w-full",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 609,
+                                                        lineNumber: 767,
                                                         columnNumber: 53
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 609,
+                                                    lineNumber: 767,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -14495,18 +14776,18 @@ function SoalView() {
                                                             ]
                                                         }, g.id, true, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 612,
+                                                            lineNumber: 770,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 610,
+                                                    lineNumber: 768,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 608,
+                                            lineNumber: 766,
                                             columnNumber: 17
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
                                             value: mapel,
@@ -14516,12 +14797,12 @@ function SoalView() {
                                                     className: "w-full",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 618,
+                                                        lineNumber: 776,
                                                         columnNumber: 53
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 618,
+                                                    lineNumber: 776,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -14530,24 +14811,24 @@ function SoalView() {
                                                             children: m
                                                         }, m, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 620,
+                                                            lineNumber: 778,
                                                             columnNumber: 44
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 619,
+                                                    lineNumber: 777,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 617,
+                                            lineNumber: 775,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 605,
+                                    lineNumber: 763,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14560,7 +14841,7 @@ function SoalView() {
                                                     children: "Jenjang"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 629,
+                                                    lineNumber: 787,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14575,19 +14856,19 @@ function SoalView() {
                                                             children: j
                                                         }, j, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 634,
+                                                            lineNumber: 792,
                                                             columnNumber: 23
                                                         }, this);
                                                     })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 630,
+                                                    lineNumber: 788,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 628,
+                                            lineNumber: 786,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14597,7 +14878,7 @@ function SoalView() {
                                                     children: "Kelas"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 651,
+                                                    lineNumber: 809,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -14608,12 +14889,12 @@ function SoalView() {
                                                             className: "w-full",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 653,
+                                                                lineNumber: 811,
                                                                 columnNumber: 53
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 653,
+                                                            lineNumber: 811,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -14625,30 +14906,30 @@ function SoalView() {
                                                                     ]
                                                                 }, k, true, {
                                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                                    lineNumber: 656,
+                                                                    lineNumber: 814,
                                                                     columnNumber: 23
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 654,
+                                                            lineNumber: 812,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 652,
+                                                    lineNumber: 810,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 650,
+                                            lineNumber: 808,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 627,
+                                    lineNumber: 785,
                                     columnNumber: 13
                                 }, this),
                                 mode === "otomatis" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14658,7 +14939,7 @@ function SoalView() {
                                             children: "Topik soal"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 666,
+                                            lineNumber: 824,
                                             columnNumber: 17
                                         }, this),
                                         campuran ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14672,7 +14953,7 @@ function SoalView() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 668,
+                                            lineNumber: 826,
                                             columnNumber: 19
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
                                             value: topikId,
@@ -14684,12 +14965,12 @@ function SoalView() {
                                                         placeholder: "Pilih topik"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 673,
+                                                        lineNumber: 831,
                                                         columnNumber: 55
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 673,
+                                                    lineNumber: 831,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -14698,24 +14979,24 @@ function SoalView() {
                                                             children: t.label
                                                         }, t.id, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 676,
+                                                            lineNumber: 834,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 674,
+                                                    lineNumber: 832,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 672,
+                                            lineNumber: 830,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 665,
+                                    lineNumber: 823,
                                     columnNumber: 15
                                 }, this),
                                 mode === "manual" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14725,7 +15006,7 @@ function SoalView() {
                                             children: "Topik soal"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 687,
+                                            lineNumber: 845,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -14734,13 +15015,13 @@ function SoalView() {
                                             placeholder: "cth. Teks Deskripsi, Perkalian Pecahan…"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 688,
+                                            lineNumber: 846,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 686,
+                                    lineNumber: 844,
                                     columnNumber: 15
                                 }, this),
                                 mode === "otomatis" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14753,7 +15034,7 @@ function SoalView() {
                                                     children: campuran ? "Total soal (±)" : "Jumlah soal"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 700,
+                                                    lineNumber: 858,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -14764,12 +15045,12 @@ function SoalView() {
                                                             className: "w-full",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 702,
+                                                                lineNumber: 860,
                                                                 columnNumber: 55
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 702,
+                                                            lineNumber: 860,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -14781,24 +15062,24 @@ function SoalView() {
                                                                     ]
                                                                 }, n, true, {
                                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                                    lineNumber: 704,
+                                                                    lineNumber: 862,
                                                                     columnNumber: 47
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 703,
+                                                            lineNumber: 861,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 701,
+                                                    lineNumber: 859,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 699,
+                                            lineNumber: 857,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14808,7 +15089,7 @@ function SoalView() {
                                                     children: "Kesulitan"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 709,
+                                                    lineNumber: 867,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14833,24 +15114,24 @@ function SoalView() {
                                                             children: l
                                                         }, v, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 712,
+                                                            lineNumber: 870,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 710,
+                                                    lineNumber: 868,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 708,
+                                            lineNumber: 866,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 698,
+                                    lineNumber: 856,
                                     columnNumber: 15
                                 }, this),
                                 mode === "otomatis" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -14863,7 +15144,7 @@ function SoalView() {
                                                     children: "Paket campuran"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 733,
+                                                    lineNumber: 891,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -14871,13 +15152,13 @@ function SoalView() {
                                                     children: "Semua topik kelas ini jadi bagian A, B, C… seperti buku latihan"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 734,
+                                                    lineNumber: 892,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 732,
+                                            lineNumber: 890,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$switch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Switch"], {
@@ -14885,13 +15166,13 @@ function SoalView() {
                                             onCheckedChange: setCampuran
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 736,
+                                            lineNumber: 894,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 731,
+                                    lineNumber: 889,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14901,7 +15182,7 @@ function SoalView() {
                                             children: "Petunjuk pengerjaan (opsional)"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 742,
+                                            lineNumber: 900,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -14911,13 +15192,13 @@ function SoalView() {
                                             placeholder: "cth. Kerjakan pada lembar ini, tunjukkan cara pengerjaanmu!"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 743,
+                                            lineNumber: 901,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 741,
+                                    lineNumber: 899,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14930,7 +15211,7 @@ function SoalView() {
                                                     children: "Lembar kunci jawaban"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 754,
+                                                    lineNumber: 912,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -14938,13 +15219,13 @@ function SoalView() {
                                                     children: "Ikut tercetak & bisa diunduh terpisah"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 755,
+                                                    lineNumber: 913,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 753,
+                                            lineNumber: 911,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$switch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Switch"], {
@@ -14952,13 +15233,13 @@ function SoalView() {
                                             onCheckedChange: setKunci
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 757,
+                                            lineNumber: 915,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 752,
+                                    lineNumber: 910,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -14972,7 +15253,7 @@ function SoalView() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 762,
+                                                    lineNumber: 920,
                                                     columnNumber: 17
                                                 }, this),
                                                 " ",
@@ -14980,7 +15261,7 @@ function SoalView() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 761,
+                                            lineNumber: 919,
                                             columnNumber: 15
                                         }, this),
                                         sheet && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -14990,19 +15271,19 @@ function SoalView() {
                                             children: "Reset"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 765,
+                                            lineNumber: 923,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/views/soal.tsx",
-                                    lineNumber: 760,
+                                    lineNumber: 918,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/views/soal.tsx",
-                            lineNumber: 574,
+                            lineNumber: 732,
                             columnNumber: 11
                         }, this),
                         mode === "manual" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SectionCard"], {
@@ -15024,14 +15305,14 @@ function SoalView() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 780,
+                                                lineNumber: 938,
                                                 columnNumber: 21
                                             }, void 0),
                                             " Jodoh"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 779,
+                                        lineNumber: 937,
                                         columnNumber: 19
                                     }, void 0),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -15047,14 +15328,14 @@ function SoalView() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 783,
+                                                lineNumber: 941,
                                                 columnNumber: 21
                                             }, void 0),
                                             " Susun"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 782,
+                                        lineNumber: 940,
                                         columnNumber: 19
                                     }, void 0),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -15070,379 +15351,211 @@ function SoalView() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 786,
+                                                lineNumber: 944,
                                                 columnNumber: 21
                                             }, void 0),
                                             " Soal"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 785,
+                                        lineNumber: 943,
                                         columnNumber: 19
                                     }, void 0)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 778,
+                                lineNumber: 936,
                                 columnNumber: 17
                             }, void 0),
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "max-h-[560px] space-y-3 overflow-y-auto pr-1",
-                                children: manualQs.map((q, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "rounded-xl border border-slate-200 bg-slate-50/60 p-3",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "mb-2 flex items-center gap-2",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800",
-                                                        children: i + 1
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 795,
-                                                        columnNumber: 23
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
-                                                        value: q.kind,
-                                                        onValueChange: (v)=>ubahQ(q.id, (x)=>({
-                                                                    ...x,
-                                                                    kind: v,
-                                                                    options: v === "pg" ? x.options ?? [
-                                                                        "",
-                                                                        "",
-                                                                        "",
-                                                                        ""
-                                                                    ] : undefined,
-                                                                    pairs: v === "jodoh" ? x.pairs ?? [] : undefined,
-                                                                    words: v === "urut" ? x.words ?? [] : undefined,
-                                                                    text: !x.text.trim() ? petunjukKind(v) || x.text : x.text
-                                                                })),
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
-                                                                className: "h-8 w-[170px] text-xs",
-                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
-                                                                    fileName: "[project]/src/components/views/soal.tsx",
-                                                                    lineNumber: 809,
-                                                                    columnNumber: 74
-                                                                }, this)
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 809,
-                                                                columnNumber: 25
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
-                                                                children: Object.keys(KIND_LABEL).map((k)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                                        value: k,
-                                                                        children: KIND_LABEL[k]
-                                                                    }, k, false, {
-                                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                                        lineNumber: 812,
-                                                                        columnNumber: 29
-                                                                    }, this))
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 810,
-                                                                columnNumber: 25
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 796,
-                                                        columnNumber: 23
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                        type: "button",
-                                                        "aria-label": "Hapus soal",
-                                                        className: "ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600",
-                                                        onClick: ()=>setManualQs((arr)=>arr.length > 1 ? arr.filter((x)=>x.id !== q.id) : arr),
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                                            className: "h-4 w-4"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 822,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 816,
-                                                        columnNumber: 23
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 794,
-                                                columnNumber: 21
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
-                                                value: q.text,
-                                                onChange: (e)=>ubahQ(q.id, (x)=>({
-                                                            ...x,
-                                                            text: e.target.value
-                                                        })),
-                                                rows: 2,
-                                                placeholder: `Tulis soal nomor ${i + 1}…`,
-                                                className: "bg-white"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 825,
-                                                columnNumber: 21
-                                            }, this),
-                                            q.kind === "pg" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "mt-2 space-y-1.5",
-                                                children: (q.options ?? []).map((opt, oi)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                        className: "flex items-center gap-2",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                                type: "button",
-                                                                onClick: ()=>ubahQ(q.id, (x)=>({
-                                                                            ...x,
-                                                                            answer: x.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "" : __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]
-                                                                        })),
-                                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors", q.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"),
-                                                                title: q.answer === __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi] ? "Kunci jawaban" : "Tandai sebagai kunci",
-                                                                children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 836,
-                                                                columnNumber: 29
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                                value: opt,
-                                                                onChange: (e)=>ubahQ(q.id, (x)=>{
-                                                                        const opts = [
-                                                                            ...x.options ?? [
-                                                                                "",
-                                                                                "",
-                                                                                "",
-                                                                                ""
-                                                                            ]
-                                                                        ];
-                                                                        opts[oi] = e.target.value;
-                                                                        return {
-                                                                            ...x,
-                                                                            options: opts
-                                                                        };
-                                                                    }),
-                                                                placeholder: `Opsi ${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$worksheetTheme$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LETTERS"][oi]}`,
-                                                                className: "h-8 bg-white text-sm"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                                lineNumber: 847,
-                                                                columnNumber: 29
-                                                            }, this)
-                                                        ]
-                                                    }, oi, true, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 835,
-                                                        columnNumber: 27
-                                                    }, this))
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 833,
-                                                columnNumber: 23
-                                            }, this),
-                                            q.kind === "jodoh" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
-                                                value: (q.pairs ?? []).map((p)=>p.join(" = ")).join("\n"),
-                                                onChange: (e)=>ubahQ(q.id, (x)=>({
-                                                            ...x,
-                                                            pairs: e.target.value.split("\n").map((ln)=>{
-                                                                const idx = ln.indexOf("=");
-                                                                return idx === -1 ? [
-                                                                    ln,
-                                                                    ""
-                                                                ] : [
-                                                                    ln.slice(0, idx),
-                                                                    ln.slice(idx + 1)
-                                                                ];
-                                                            }).map((p)=>[
-                                                                    p[0].trim(),
-                                                                    p[1].trim()
-                                                                ])
-                                                        })),
-                                                rows: 5,
-                                                placeholder: "Satu pasangan per baris (kiri = kanan):\nSelamat pagi = Good morning\nSampai jumpa = Good bye",
-                                                className: "mt-2 bg-white font-mono text-[13px]"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 864,
-                                                columnNumber: 23
-                                            }, this),
-                                            q.kind === "urut" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "mt-2 space-y-1.5",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                        value: (q.words ?? []).join(", "),
-                                                        onChange: (e)=>ubahQ(q.id, (x)=>({
-                                                                    ...x,
-                                                                    words: e.target.value.split(",").map((w)=>w.trim())
-                                                                })),
-                                                        placeholder: "Kata acak, pisahkan koma — cth. am, I, student, a",
-                                                        className: "h-8 bg-white text-sm"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 885,
-                                                        columnNumber: 25
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                        value: q.answer,
-                                                        onChange: (e)=>ubahQ(q.id, (x)=>({
-                                                                    ...x,
-                                                                    answer: e.target.value
-                                                                })),
-                                                        placeholder: "Kunci: kalimat utuh — cth. I am a student",
-                                                        className: "h-8 bg-white text-sm"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 893,
-                                                        columnNumber: 25
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 884,
-                                                columnNumber: 23
-                                            }, this),
-                                            q.kind !== "pg" && q.kind !== "jodoh" && q.kind !== "urut" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                value: q.answer,
-                                                onChange: (e)=>ubahQ(q.id, (x)=>({
-                                                            ...x,
-                                                            answer: e.target.value
-                                                        })),
-                                                placeholder: "Kunci jawaban (untuk lembar kunci)…",
-                                                className: "mt-2 h-8 bg-white text-sm"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 902,
-                                                columnNumber: 23
-                                            }, this)
-                                        ]
-                                    }, q.id, true, {
-                                        fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 793,
-                                        columnNumber: 19
-                                    }, this))
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SoalEditor, {
+                                qs: manualQs,
+                                onChange: setManualQs
                             }, void 0, false, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 791,
+                                lineNumber: 949,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/views/soal.tsx",
-                            lineNumber: 774,
+                            lineNumber: 932,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/views/soal.tsx",
-                    lineNumber: 573,
+                    lineNumber: 731,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "space-y-4",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SectionCard"], {
-                            title: "Pratinjau & cetak",
-                            desc: "Template ceria Rumbela — ukuran A4",
+                            title: editMode ? "Edit worksheet" : "Pratinjau & cetak",
+                            desc: editMode ? "Ubah soal, topik, atau petunjuk sebelum dicetak" : "Template ceria Rumbela — ukuran A4",
                             action: sheet ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex flex-wrap gap-2",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                        size: "sm",
-                                        className: "gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700",
-                                        onClick: cetak,
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$printer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Printer$3e$__["Printer"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 925,
-                                                columnNumber: 21
-                                            }, void 0),
-                                            " Cetak / PDF"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 924,
-                                        columnNumber: 19
-                                    }, void 0),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                        size: "sm",
-                                        variant: "outline",
-                                        className: "gap-1.5 rounded-lg",
-                                        onClick: ()=>void unduhPng("soal"),
-                                        disabled: busy,
-                                        children: [
-                                            busy ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
-                                                className: "h-4 w-4 animate-spin"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 928,
-                                                columnNumber: 29
-                                            }, void 0) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 928,
-                                                columnNumber: 76
-                                            }, void 0),
-                                            " PNG Soal"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 927,
-                                        columnNumber: 19
-                                    }, void 0),
-                                    sheet.kunci && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                        size: "sm",
-                                        variant: "outline",
-                                        className: "gap-1.5 rounded-lg",
-                                        onClick: ()=>void unduhPng("kunci"),
-                                        disabled: busy,
-                                        children: [
-                                            busy ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
-                                                className: "h-4 w-4 animate-spin"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 932,
-                                                columnNumber: 31
-                                            }, void 0) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 932,
-                                                columnNumber: 78
-                                            }, void 0),
-                                            " PNG Kunci"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 931,
-                                        columnNumber: 21
-                                    }, void 0),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                        size: "sm",
-                                        variant: "outline",
-                                        className: "gap-1.5 rounded-lg border-emerald-200 text-emerald-700 hover:bg-emerald-50",
-                                        onClick: simpanArsip,
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
-                                                className: "h-4 w-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 936,
-                                                columnNumber: 21
-                                            }, void 0),
-                                            " Arsipkan"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 935,
-                                        columnNumber: 19
-                                    }, void 0)
-                                ]
-                            }, void 0, true, {
+                                children: editMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            className: "gap-1.5 rounded-lg bg-emerald-600 font-bold hover:bg-emerald-700",
+                                            onClick: simpanEdit,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 965,
+                                                    columnNumber: 25
+                                                }, void 0),
+                                                " Simpan perubahan"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 964,
+                                            columnNumber: 23
+                                        }, void 0),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "gap-1.5 rounded-lg",
+                                            onClick: batalEdit,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__["X"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 968,
+                                                    columnNumber: 25
+                                                }, void 0),
+                                                " Batal"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 967,
+                                            columnNumber: 23
+                                        }, void 0)
+                                    ]
+                                }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "gap-1.5 rounded-lg border-sky-300 text-sky-700 hover:bg-sky-50",
+                                            onClick: mulaiEdit,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__["Pencil"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 974,
+                                                    columnNumber: 25
+                                                }, void 0),
+                                                " Edit"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 973,
+                                            columnNumber: 23
+                                        }, void 0),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            className: "gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700",
+                                            onClick: cetak,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$printer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Printer$3e$__["Printer"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 977,
+                                                    columnNumber: 25
+                                                }, void 0),
+                                                " Cetak / PDF"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 976,
+                                            columnNumber: 23
+                                        }, void 0),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "gap-1.5 rounded-lg",
+                                            onClick: ()=>void unduhPng("soal"),
+                                            disabled: busy,
+                                            children: [
+                                                busy ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                    className: "h-4 w-4 animate-spin"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 980,
+                                                    columnNumber: 33
+                                                }, void 0) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 980,
+                                                    columnNumber: 80
+                                                }, void 0),
+                                                " PNG Soal"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 979,
+                                            columnNumber: 23
+                                        }, void 0),
+                                        sheet.kunci && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "gap-1.5 rounded-lg",
+                                            onClick: ()=>void unduhPng("kunci"),
+                                            disabled: busy,
+                                            children: [
+                                                busy ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                    className: "h-4 w-4 animate-spin"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 984,
+                                                    columnNumber: 35
+                                                }, void 0) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 984,
+                                                    columnNumber: 82
+                                                }, void 0),
+                                                " PNG Kunci"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 983,
+                                            columnNumber: 25
+                                        }, void 0),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                            size: "sm",
+                                            variant: "outline",
+                                            className: "gap-1.5 rounded-lg border-emerald-200 text-emerald-700 hover:bg-emerald-50",
+                                            onClick: simpanArsip,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
+                                                    className: "h-4 w-4"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/components/views/soal.tsx",
+                                                    lineNumber: 988,
+                                                    columnNumber: 25
+                                                }, void 0),
+                                                " Arsipkan"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/components/views/soal.tsx",
+                                            lineNumber: 987,
+                                            columnNumber: 23
+                                        }, void 0)
+                                    ]
+                                }, void 0, true)
+                            }, void 0, false, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 923,
+                                lineNumber: 961,
                                 columnNumber: 17
                             }, void 0) : null,
                             children: !sheet ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EmptyState"], {
@@ -15453,14 +15566,203 @@ function SoalView() {
                                         children: "Buat worksheet"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 944,
+                                        lineNumber: 998,
                                         columnNumber: 52
                                     }, this),
                                     ". Pratinjau lembar A4 akan muncul di sini."
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 943,
+                                lineNumber: 997,
+                                columnNumber: 15
+                            }, this) : editMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "space-y-4",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "grid gap-3 sm:grid-cols-2",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-1.5",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                        children: "Topik"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1004,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                        value: editTopik,
+                                                        onChange: (e)=>setEditTopik(e.target.value),
+                                                        placeholder: "Topik worksheet"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1005,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1003,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-1.5",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                        children: "Petunjuk"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1008,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                        value: editPetunjuk,
+                                                        onChange: (e)=>setEditPetunjuk(e.target.value),
+                                                        placeholder: "Petunjuk pengerjaan"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1009,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1007,
+                                                columnNumber: 19
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 1002,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-wrap gap-1.5",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                size: "sm",
+                                                variant: "outline",
+                                                className: "gap-1.5 rounded-lg",
+                                                onClick: ()=>setEditQs((q)=>[
+                                                            ...q,
+                                                            blankQ("pg")
+                                                        ]),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+                                                        className: "h-4 w-4"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1014,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " Soal PG"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1013,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                size: "sm",
+                                                variant: "outline",
+                                                className: "gap-1.5 rounded-lg",
+                                                onClick: ()=>setEditQs((q)=>[
+                                                            ...q,
+                                                            blankQ("isian")
+                                                        ]),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+                                                        className: "h-4 w-4"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1017,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " Isian"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1016,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                size: "sm",
+                                                variant: "outline",
+                                                className: "gap-1.5 rounded-lg",
+                                                onClick: ()=>setEditQs((q)=>[
+                                                            ...q,
+                                                            blankQ("jodoh")
+                                                        ]),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+                                                        className: "h-4 w-4"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1020,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " Jodoh"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1019,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                size: "sm",
+                                                variant: "outline",
+                                                className: "gap-1.5 rounded-lg",
+                                                onClick: ()=>setEditQs((q)=>[
+                                                            ...q,
+                                                            blankQ("urut")
+                                                        ]),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
+                                                        className: "h-4 w-4"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/views/soal.tsx",
+                                                        lineNumber: 1023,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " Susun"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/views/soal.tsx",
+                                                lineNumber: 1022,
+                                                columnNumber: 19
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 1012,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-xs text-muted-foreground",
+                                        children: [
+                                            editQs.filter((q)=>q.text.trim()).length,
+                                            " dari ",
+                                            editQs.length,
+                                            " soal terisi · soal kosong akan dibuang saat disimpan"
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 1026,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SoalEditor, {
+                                        qs: editQs,
+                                        onChange: setEditQs
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/views/soal.tsx",
+                                        lineNumber: 1029,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/views/soal.tsx",
+                                lineNumber: 1001,
                                 columnNumber: 15
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 id: "print-area",
@@ -15475,7 +15777,7 @@ function SoalView() {
                                                     jenis: "soal"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 951,
+                                                    lineNumber: 1036,
                                                     columnNumber: 21
                                                 }, this),
                                                 sheet.kunci && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SheetHTML, {
@@ -15483,18 +15785,18 @@ function SoalView() {
                                                     jenis: "kunci"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 952,
+                                                    lineNumber: 1037,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/views/soal.tsx",
-                                            lineNumber: 950,
+                                            lineNumber: 1035,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 949,
+                                        lineNumber: 1034,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -15505,25 +15807,25 @@ function SoalView() {
                                                 children: "Save as PDF"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 956,
+                                                lineNumber: 1041,
                                                 columnNumber: 56
                                             }, this),
                                             " untuk menyimpan sebagai berkas."
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 955,
+                                        lineNumber: 1040,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 947,
+                                lineNumber: 1032,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/views/soal.tsx",
-                            lineNumber: 918,
+                            lineNumber: 956,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$views$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SectionCard"], {
@@ -15534,7 +15836,7 @@ function SoalView() {
                                 children: "Worksheet yang diarsipkan akan muncul di sini."
                             }, void 0, false, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 968,
+                                lineNumber: 1053,
                                 columnNumber: 15
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
                                 className: "divide-y divide-slate-100",
@@ -15547,12 +15849,12 @@ function SoalView() {
                                                     className: "h-5 w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/views/soal.tsx",
-                                                    lineNumber: 976,
+                                                    lineNumber: 1061,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 975,
+                                                lineNumber: 1060,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -15563,7 +15865,7 @@ function SoalView() {
                                                         children: ws.topik
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 979,
+                                                        lineNumber: 1064,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -15580,13 +15882,13 @@ function SoalView() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 980,
+                                                        lineNumber: 1065,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 978,
+                                                lineNumber: 1063,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -15600,7 +15902,7 @@ function SoalView() {
                                                         children: "Buka"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 985,
+                                                        lineNumber: 1070,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -15621,61 +15923,61 @@ function SoalView() {
                                                             className: "h-3.5 w-3.5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/views/soal.tsx",
-                                                            lineNumber: 1001,
+                                                            lineNumber: 1086,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/views/soal.tsx",
-                                                        lineNumber: 988,
+                                                        lineNumber: 1073,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/views/soal.tsx",
-                                                lineNumber: 984,
+                                                lineNumber: 1069,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, ws.id, true, {
                                         fileName: "[project]/src/components/views/soal.tsx",
-                                        lineNumber: 974,
+                                        lineNumber: 1059,
                                         columnNumber: 19
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/views/soal.tsx",
-                                lineNumber: 972,
+                                lineNumber: 1057,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/views/soal.tsx",
-                            lineNumber: 963,
+                            lineNumber: 1048,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/views/soal.tsx",
-                    lineNumber: 917,
+                    lineNumber: 955,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/views/soal.tsx",
-            lineNumber: 571,
+            lineNumber: 729,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/views/soal.tsx",
-        lineNumber: 570,
+        lineNumber: 728,
         columnNumber: 5
     }, this);
 }
-_s(SoalView, "1o1U9VWjgz4Rx26UgH8193MS4Q4=", false, function() {
+_s(SoalView, "Fh24mT1lVQeRX4vWLE9q4XYeAwM=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$store$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useApp"]
     ];
 });
-_c8 = SoalView;
-var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8;
+_c9 = SoalView;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9;
 __turbopack_context__.k.register(_c, "Bintang");
 __turbopack_context__.k.register(_c1, "Awan");
 __turbopack_context__.k.register(_c2, "Hati");
@@ -15684,7 +15986,8 @@ __turbopack_context__.k.register(_c4, "BarisJawaban");
 __turbopack_context__.k.register(_c5, "SoalItem");
 __turbopack_context__.k.register(_c6, "KartuSeksi");
 __turbopack_context__.k.register(_c7, "SheetHTML");
-__turbopack_context__.k.register(_c8, "SoalView");
+__turbopack_context__.k.register(_c8, "SoalEditor");
+__turbopack_context__.k.register(_c9, "SoalView");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }

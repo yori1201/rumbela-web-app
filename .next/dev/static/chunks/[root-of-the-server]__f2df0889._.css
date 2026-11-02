@@ -2762,6 +2762,10 @@
     background-color: var(--color-emerald-500);
   }
 
+  .bg-emerald-600 {
+    background-color: var(--color-emerald-600);
+  }
+
   .bg-emerald-600\/50 {
     background-color: #00976780;
   }
@@ -4586,6 +4590,12 @@
       .hover\:bg-emerald-600\/70:hover {
         background-color: color-mix(in oklab, var(--color-emerald-600) 70%, transparent);
       }
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-emerald-700:hover {
+      background-color: var(--color-emerald-700);
     }
   }
 
