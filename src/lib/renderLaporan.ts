@@ -25,7 +25,7 @@ function loadLogo(): Promise<HTMLImageElement | null> {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = "/logo.webp";
+    img.src = "/logo-round.webp";
   });
 }
 
@@ -118,7 +118,7 @@ export async function renderReportCanvas(
   const alamat = db.pengaturan.alamat || "Curup, Bengkulu";
   const telp = db.pengaturan.telepon;
 
-  const drawHeader = (bg: string, fg: string, sub: string) => {
+  const drawHeader = (bg: string | CanvasGradient, fg: string, sub: string) => {
     ctx.fillStyle = bg;
     rr(ctx, 40, 40, W - 80, 150, 28);
     ctx.fill();
@@ -153,7 +153,7 @@ export async function renderReportCanvas(
     // latar + confetti
     ctx.fillStyle = "#fff9f2";
     ctx.fillRect(0, 0, W, H);
-    const dots = [
+    const dots: [number, number, string][] = [
       [90, 260, "#fed7aa"], [905, 300, "#bbf7d0"], [60, 760, "#fef08a"],
       [935, 820, "#fecaca"], [80, 1180, "#bfdbfe"], [920, 1220, "#fed7aa"],
     ];

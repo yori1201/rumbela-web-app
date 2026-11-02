@@ -2,9 +2,9 @@
   <img src="public/logo.webp" alt="Rumbela — Rumah Belajar Anak" width="180" />
 </p>
 
-<h1 align="center">Rumbela Web App v2.0</h1>
+<h1 align="center">Rumbela Web App v2.1</h1>
 <p align="center"><b>Aplikasi admin bimbel</b> · Rumbela — Rumah Belajar Anak, Curup<br/>
-Kelola siswa, iuran, absensi, jurnal, jadwal kelas, dan <b>laporan perkembangan bergambar</b> untuk orang tua.</p>
+Kelola siswa, iuran, absensi, jurnal, jadwal kelas, <b>laporan perkembangan bergambar</b>, dan <b>generator soal/worksheet</b>.</p>
 
 ---
 
@@ -20,6 +20,7 @@ Kelola siswa, iuran, absensi, jurnal, jadwal kelas, dan <b>laporan perkembangan 
 | 📊 **Laporan (baru!)** | **Laporan Perkembangan Siswa → gambar PNG siap kirim ke orang tua**, 3 template (Ceria / Klasik / Minimal), skor aspek bintang, catatan otomatis dari jurnal, unduh PNG & kirim WA |
 | 🗓️ **Jadwal (baru!)** | Jadwal kelas mingguan per grup: grid hari × slot jam, warna per program, editor slot jam |
 | 📚 **Materi** | Bank materi: tautan / unggah berkas ke folder Drive “Rumbela — Bank Materi” |
+| 🧮 **Generator Soal (baru!)** | Worksheet latihan bergambar khusus Rumbela: **generator otomatis Matematika** (SD/SMP/SMA per kelas & topik, 3 tingkat kesulitan) atau tulis sendiri untuk semua mapel (PG/isian/uraian), lembar kunci jawaban, cetak PDF & unduh PNG, arsip tersimpan otomatis |
 | ⚙️ **Pengaturan** | Profil lembaga, template laporan, whitelist email admin, ekspor/impor JSON, hapus data contoh |
 
 ### Sorotan teknis v2.0
@@ -27,7 +28,8 @@ Kelola siswa, iuran, absensi, jurnal, jadwal kelas, dan <b>laporan perkembangan 
 - 🔐 **Login cukup sekali** — sesi Google (token + kedaluwarsa) tersimpan di perangkat. Membuka web lagi langsung masuk **tanpa popup apa pun**. Bila token kedaluwarsa, muncul banner *Sambung ulang* (satu klik) — **tidak pernah ada popup otomatis** (perbaikan bug v1).
 - 💾 **Auto-save** — setiap perubahan tersimpan otomatis ke Google Drive (debounce 1,2 detik) dengan indikator status di header; flush otomatis saat tab ditutup.
 - 🛡️ **Khusus admin** — satu akun Google pemilik; opsi *email admin* membatasi akun lain.
-- 🖼️ **Logo baru** — identitas Rumbela 2026 di seluruh aplikasi + favicon/PWA icon.
+- 🖼️ **Logo baru 2026** — logo maskot Rumbela transparan di seluruh aplikasi (login, header, favicon/PWA, lembar laporan & worksheet).
+- 🧮 **Template worksheet khusus** — kop logo penuh kiri atas, halaman bersih, footer “Rumbela <tahun>” — konsisten antara pratinjau, cetak PDF, dan PNG.
 - 📱 **Ramah mobile** — bottom nav 5 menu + sheet “Lainnya”, tanpa logo hosting yang menutupi form.
 - 🧩 **Kompatibel data v1** — membaca & melanjutkan file `rumbela-database.json` lama tanpa migrasi manual.
 
@@ -44,7 +46,8 @@ rumbela-database.json
 ├── materials[]   bank materi
 ├── journal{}     { "YYYY-MM-DD": { activity, progress } }
 ├── jadwal        v2 → { slots[], kelas[], items[] }
-└── pengaturan    v2 → profil lembaga, template laporan, email admin
+├── pengaturan    v2 → profil lembaga, template laporan, email admin
+└── worksheets[]  v2.1 → arsip worksheet generator soal
 ```
 
 ## 🚀 Menjalankan lokal

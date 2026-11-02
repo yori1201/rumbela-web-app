@@ -33,7 +33,7 @@ export function SiswaView() {
   const [editing, setEditing] = useState<Siswa | null>(null);
   const [open, setOpen] = useState(false);
   const [del, setDel] = useState<Siswa | null>(null);
-  const [form, setForm] = useState({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: "", group: "", fee: 200000, meet: 12 });
+  const [form, setForm] = useState<{ name: string; level: string; grade: string; program: string; parent: string; wa: string; start: string; group: string; fee: number; meet: number }>({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: "", group: "", fee: 200000, meet: 12 });
 
   const groups = useMemo(() => Array.from(new Set(db.students.map((s) => s.group).filter(Boolean))), [db.students]);
   const programs = useMemo(() => Array.from(new Set([...PROGRAMS, ...db.students.map((s) => s.program)])), [db.students]);

@@ -29,7 +29,7 @@ export function MateriView() {
   const { db, mutate, authMode } = useApp();
   const [fProgram, setFProgram] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", program: PROGRAMS[0], type: "Dokumen", url: "", desc: "" });
+  const [form, setForm] = useState<{ title: string; program: string; type: string; url: string; desc: string; fileId?: string }>({ title: "", program: PROGRAMS[0], type: "Dokumen", url: "", desc: "" });
   const [uploading, setUploading] = useState(false);
 
   const programs = useMemo(() => Array.from(new Set([...PROGRAMS, ...db.materials.map((m) => m.program)])), [db.materials, db.students]);

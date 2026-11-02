@@ -2,7 +2,7 @@
 
 /* Tipe data Rumbela v2 — 100% kompatibel dengan rumbela-database.json v1.
    v1: { students, payments, attendance, reports, materials, journal }
-   v2 menambah: jadwal (slots/kelas/items) & pengaturan. */
+   v2 menambah: jadwal (slots/kelas/items), pengaturan & worksheets (generator soal). */
 
 export interface Siswa {
   id: string;
@@ -62,6 +62,35 @@ export interface JadwalItem {
 
 export type TemplateLaporan = "ceria" | "klasik" | "minimal";
 
+/* ===== Generator Soal / Worksheet ===== */
+export type SoalKind = "pg" | "isian" | "uraian";
+
+export interface WorksheetQ {
+  id: string;
+  text: string;
+  kind: SoalKind;
+  /** pilihan ganda: 4 opsi (a–d) */
+  options?: string[];
+  /** kunci jawaban */
+  answer: string;
+}
+
+export interface Worksheet {
+  id: string;
+  /** tanggal pembuatan YYYY-MM-DD */
+  createdAt: string;
+  mapel: string;
+  /** SD | SMP | SMA */
+  jenjang: string;
+  /** "1"–"12" atau "" */
+  kelas: string;
+  topik: string;
+  petunjuk: string;
+  questions: WorksheetQ[];
+  /** cetak lembar kunci jawaban */
+  kunci: boolean;
+}
+
 export interface Pengaturan {
   namaLembaga: string;
   tagline: string;
@@ -85,9 +114,10 @@ export interface Database {
   journal: Record<string, JournalEntry>;
   jadwal: { slots: SlotJam[]; kelas: string[]; items: JadwalItem[] };
   pengaturan: Pengaturan;
+  worksheets: Worksheet[];
 }
 
-import { DEFAULT_SLOTS } from "./constants";
+import { DEFAULT_SLOTS, todayStr } from "./constants";
 
 export function defaultPengaturan(): Pengaturan {
   return {
@@ -116,6 +146,7 @@ export function emptyDB(): Database {
     journal: {},
     jadwal: { slots: DEFAULT_SLOTS.map((s) => ({ ...s })), kelas: [], items: [] },
     pengaturan: defaultPengaturan(),
+    worksheets: [],
   };
 }
 
@@ -165,6 +196,31 @@ export function normalizeDB(raw: unknown): Database {
         }))
       : [],
     journal: isObj(d.journal) ? (d.journal as Database["journal"]) : {},
+    worksheets: Array.isArray(d.worksheets)
+      ? (d.worksheets as Record<string, unknown>[]).map((ws) => ({
+          id: STR(ws.id) || Math.random().toString(36).slice(2),
+          createdAt: STR(ws.createdAt, todayStr()),
+          mapel: STR(ws.mapel),
+          jenjang: STR(ws.jenjang),
+          kelas: STR(ws.kelas),
+          topik: STR(ws.topik),
+          petunjuk: STR(ws.petunjuk),
+          kunci: ws.kunci !== false,
+          questions: Array.isArray(ws.questions)
+            ? (ws.questions as Record<string, unknown>[]).map((q) => ({
+                id: STR(q.id) || Math.random().toString(36).slice(2),
+                text: STR(q.text),
+                kind: (["pg", "isian", "uraian"].includes(STR(q.kind))
+                  ? STR(q.kind)
+                  : "isian") as WorksheetQ["kind"],
+                options: Array.isArray(q.options)
+                  ? (q.options as unknown[]).map((o) => STR(o)).filter(Boolean)
+                  : undefined,
+                answer: STR(q.answer),
+              }))
+            : [],
+        }))
+      : [],
   };
 
   if (isObj(d.jadwal)) {

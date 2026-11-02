@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import {
   Home, Users, Wallet, CalendarCheck2, NotebookPen, ClipboardList,
-  CalendarDays, BookOpen, Settings, MoreHorizontal, CheckCircle2,
+  CalendarDays, BookOpen, FileQuestion, Settings, MoreHorizontal, CheckCircle2,
   Loader2, CloudAlert, RotateCcw, LogOut, Save, ChevronDown, PlayCircle,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
@@ -19,7 +19,7 @@ import type { LucideIcon } from "lucide-react";
 
 export type ViewId =
   | "beranda" | "siswa" | "iuran" | "absensi" | "jurnal"
-  | "laporan" | "jadwal" | "materi" | "pengaturan";
+  | "laporan" | "jadwal" | "materi" | "soal" | "pengaturan";
 
 export const NAV: { id: ViewId; label: string; icon: LucideIcon; desc: string }[] = [
   { id: "beranda", label: "Beranda", icon: Home, desc: "Ringkasan hari ini" },
@@ -30,6 +30,7 @@ export const NAV: { id: ViewId; label: string; icon: LucideIcon; desc: string }[
   { id: "laporan", label: "Laporan", icon: ClipboardList, desc: "Laporan gambar utk orang tua" },
   { id: "jadwal", label: "Jadwal", icon: CalendarDays, desc: "Jadwal kelas mingguan" },
   { id: "materi", label: "Materi", icon: BookOpen, desc: "Bank materi belajar" },
+  { id: "soal", label: "Generator Soal", icon: FileQuestion, desc: "Worksheet & kunci jawaban" },
   { id: "pengaturan", label: "Pengaturan", icon: Settings, desc: "Profil, data, demo" },
 ];
 

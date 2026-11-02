@@ -99,5 +99,29 @@ export function demoDB(): Database {
     J("Grup B", "Sabtu", 0, "Matematika", "Pak Andi", "#22c55e"),
   ];
 
+  // Worksheet contoh (Generator Soal)
+  db.worksheets = [
+    {
+      id: uid(),
+      createdAt: todayStr(),
+      mapel: "Matematika",
+      jenjang: "SD",
+      kelas: "3",
+      topik: "Perkalian & pembagian",
+      petunjuk: "Kerjakan seluruh soal di bawah ini dengan teliti!",
+      kunci: true,
+      questions: [
+        { id: uid(), text: "7 × 8 = …", kind: "isian", answer: "56" },
+        { id: uid(), text: "6 × 9 = …", kind: "isian", answer: "54" },
+        { id: uid(), text: "45 : 5 = …", kind: "isian", answer: "9" },
+        { id: uid(), text: "8 × 7 = …", kind: "isian", answer: "56" },
+        { id: uid(), text: "72 : 8 = …", kind: "isian", answer: "9" },
+        { id: uid(), text: "9 × 6 = …", kind: "isian", answer: "54" },
+        { id: uid(), text: "63 : 7 = …", kind: "isian", answer: "9" },
+        { id: uid(), text: "12 × 4 = …", kind: "isian", answer: "48" },
+      ],
+    },
+  ];
+
   return db;
 }

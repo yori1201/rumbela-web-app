@@ -120,3 +120,66 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== Cetak worksheet (Generator Soal) — hanya lembar A4 yang tercetak ===== */
+/* wrapper pratinjau: scroll horizontal hanya di layar sempit, netral saat cetak */
+.sheet-scroll { min-width: 0; }
+@media (max-width: 860px) {
+  .sheet-scroll {
+    overflow-x: auto;
+    background: #f1f5f9;
+    padding: 12px;
+    border-radius: 16px;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+  body {
+    background: #fff !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #print-area,
+  #print-area * {
+    visibility: visible !important;
+  }
+  #print-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .sheet-scroll {
+    overflow: visible !important;
+    background: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+  #print-area .sheet {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: none !important;
+    outline: none !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  #print-area .sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  #print-area .print\:space-y-0 > * + * {
+    margin-top: 0 !important;
+  }
+}

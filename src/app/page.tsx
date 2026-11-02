@@ -13,6 +13,7 @@ import { JurnalView } from "@/components/views/jurnal";
 import { LaporanView } from "@/components/views/laporan";
 import { JadwalView } from "@/components/views/jadwal";
 import { MateriView } from "@/components/views/materi";
+import { SoalView } from "@/components/views/soal";
 import { PengaturanView } from "@/components/views/pengaturan";
 
 const VALID: ViewId[] = NAV.map((n) => n.id);
@@ -61,6 +62,7 @@ function Inner() {
       {view === "laporan" && <LaporanView />}
       {view === "jadwal" && <JadwalView />}
       {view === "materi" && <MateriView />}
+      {view === "soal" && <SoalView />}
       {view === "pengaturan" && <PengaturanView />}
     </AppShell>
   );

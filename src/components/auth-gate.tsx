@@ -20,13 +20,14 @@ export function AuthGate() {
         <Image
           src="/logo.webp"
           alt="Rumbela — Rumah Belajar Anak"
-          width={180}
-          height={180}
-          className="mx-auto drop-shadow-sm"
+          width={210}
+          height={193}
+          className="mx-auto h-auto w-[210px] drop-shadow-sm"
           priority
         />
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-orange-600">Rumbela</h1>
-        <p className="text-sm font-semibold text-sky-600">Rumah Belajar Anak · Curup</p>
+        <p className="mt-1 text-sm font-bold tracking-wide text-sky-600">
+          Rumah Belajar Anak · Curup
+        </p>
         <p className="mt-4 text-sm leading-relaxed text-slate-500">
           Aplikasi admin bimbel. Login dengan akun Google pemilik Rumbela — seluruh data
           tersimpan otomatis sebagai satu file di Google Drive Anda.
