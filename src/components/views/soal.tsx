@@ -10,8 +10,8 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
-  BookPlus, Download, FileQuestion, Loader2, Plus, Printer, Save,
-  Sparkles, Trash2, Wand2,
+  BookPlus, Download, FileQuestion, Loader2, Pencil, Plus, Printer, Save,
+  Sparkles, Trash2, Wand2, X,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
@@ -381,6 +381,137 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
   );
 }
 
+/* ================= Editor soal (dipakai mode manual & edit hasil) ================= */
+
+function SoalEditor({ qs, onChange }: { qs: WorksheetQ[]; onChange: (qs: WorksheetQ[]) => void }) {
+  const ubah = (id: string, fn: (q: WorksheetQ) => WorksheetQ) =>
+    onChange(qs.map((x) => (x.id === id ? fn(x) : x)));
+
+  return (
+    <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
+      {qs.map((q, i) => (
+        <div key={q.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800">{i + 1}</span>
+            <Select
+              value={q.kind}
+              onValueChange={(v) =>
+                ubah(q.id, (x) => ({
+                  ...x,
+                  kind: v as SoalKind,
+                  options: v === "pg" ? (x.options ?? ["", "", "", ""]) : undefined,
+                  pairs: v === "jodoh" ? (x.pairs ?? []) : undefined,
+                  words: v === "urut" ? (x.words ?? []) : undefined,
+                  text: !x.text.trim() ? petunjukKind(v as SoalKind) || x.text : x.text,
+                }))
+              }
+            >
+              <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {(Object.keys(KIND_LABEL) as SoalKind[]).map((k) => (
+                  <SelectItem key={k} value={k}>{KIND_LABEL[k]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <button
+              type="button"
+              aria-label="Hapus soal"
+              className="ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+              onClick={() => onChange(qs.length > 1 ? qs.filter((x) => x.id !== q.id) : qs)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+          <Textarea
+            value={q.text}
+            onChange={(e) => ubah(q.id, (x) => ({ ...x, text: e.target.value }))}
+            rows={2}
+            placeholder={`Tulis soal nomor ${i + 1}…`}
+            className="bg-white"
+          />
+          {q.kind === "pg" && (
+            <div className="mt-2 space-y-1.5">
+              {(q.options ?? []).map((opt, oi) => (
+                <div key={oi} className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => ubah(q.id, (x) => ({ ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] }))}
+                    className={cn(
+                      "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
+                      q.answer === LETTERS[oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"
+                    )}
+                    title={q.answer === LETTERS[oi] ? "Kunci jawaban" : "Tandai sebagai kunci"}
+                  >
+                    {LETTERS[oi]}
+                  </button>
+                  <Input
+                    value={opt}
+                    onChange={(e) =>
+                      ubah(q.id, (x) => {
+                        const opts = [...(x.options ?? ["", "", "", ""])];
+                        opts[oi] = e.target.value;
+                        return { ...x, options: opts };
+                      })
+                    }
+                    placeholder={`Opsi ${LETTERS[oi]}`}
+                    className="h-8 bg-white text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {q.kind === "jodoh" && (
+            <Textarea
+              value={(q.pairs ?? []).map((p) => p.join(" = ")).join("\n")}
+              onChange={(e) =>
+                ubah(q.id, (x) => ({
+                  ...x,
+                  pairs: e.target.value
+                    .split("\n")
+                    .map((ln) => {
+                      const idx = ln.indexOf("=");
+                      return idx === -1 ? [ln, ""] : [ln.slice(0, idx), ln.slice(idx + 1)];
+                    })
+                    .map((p) => [p[0].trim(), p[1].trim()]),
+                }))
+              }
+              rows={5}
+              placeholder={"Satu pasangan per baris (kiri = kanan):\nSelamat pagi = Good morning\nSampai jumpa = Good bye"}
+              className="mt-2 bg-white font-mono text-[13px]"
+            />
+          )}
+          {q.kind === "urut" && (
+            <div className="mt-2 space-y-1.5">
+              <Input
+                value={(q.words ?? []).join(", ")}
+                onChange={(e) =>
+                  ubah(q.id, (x) => ({ ...x, words: e.target.value.split(",").map((w) => w.trim()) }))
+                }
+                placeholder="Kata acak, pisahkan koma — cth. am, I, student, a"
+                className="h-8 bg-white text-sm"
+              />
+              <Input
+                value={q.answer}
+                onChange={(e) => ubah(q.id, (x) => ({ ...x, answer: e.target.value }))}
+                placeholder="Kunci: kalimat utuh — cth. I am a student"
+                className="h-8 bg-white text-sm"
+              />
+            </div>
+          )}
+          {q.kind !== "pg" && q.kind !== "jodoh" && q.kind !== "urut" && (
+            <Input
+              value={q.answer}
+              onChange={(e) => ubah(q.id, (x) => ({ ...x, answer: e.target.value }))}
+              placeholder="Kunci jawaban (untuk lembar kunci)…"
+              className="mt-2 h-8 bg-white text-sm"
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ================= View utama ================= */
 
 export function SoalView() {
@@ -405,6 +536,12 @@ export function SoalView() {
   const [manualQs, setManualQs] = useState<WorksheetQ[]>([blankQ(), blankQ(), blankQ(), blankQ(), blankQ()]);
   const [sheet, setSheet] = useState<Worksheet | null>(null);
   const [busy, setBusy] = useState(false);
+
+  /* mode edit hasil: salin sheet ke working copy agar bisa diubah sebelum cetak/simpan */
+  const [editMode, setEditMode] = useState(false);
+  const [editQs, setEditQs] = useState<WorksheetQ[]>([]);
+  const [editTopik, setEditTopik] = useState("");
+  const [editPetunjuk, setEditPetunjuk] = useState("");
 
   const topikList = useMemo(
     () => TOPIK_GENERATOR[genMapel]?.[jenjang]?.[kelas] ?? [],
@@ -563,8 +700,29 @@ export function SoalView() {
     window.print();
   };
 
-  const ubahQ = (id: string, fn: (q: WorksheetQ) => WorksheetQ) =>
-    setManualQs((arr) => arr.map((x) => (x.id === id ? fn(x) : x)));
+  /* masuk mode edit: salin sheet saat ini ke working copy */
+  const mulaiEdit = () => {
+    if (!sheet) return;
+    setEditQs(sheet.questions.map((q) => ({ ...q })));
+    setEditTopik(sheet.topik);
+    setEditPetunjuk(sheet.petunjuk);
+    setEditMode(true);
+  };
+
+  /* simpan hasil edit kembali ke sheet (filter soal kosong) */
+  const simpanEdit = () => {
+    if (!sheet) return;
+    const bersih = editQs.filter((q) => q.text.trim());
+    if (!bersih.length) {
+      toast({ title: "Tidak ada soal", description: "Minimal satu soal harus berisi teks." });
+      return;
+    }
+    setSheet({ ...sheet, topik: editTopik.trim() || sheet.topik, petunjuk: editPetunjuk, questions: bersih });
+    setEditMode(false);
+    toast({ title: "Perubahan disimpan", description: `${bersih.length} soal diperbarui.` });
+  };
+
+  const batalEdit = () => setEditMode(false);
 
   return (
     <div className="space-y-5">
@@ -788,127 +946,7 @@ export function SoalView() {
                 </div>
               }
             >
-              <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
-                {manualQs.map((q, i) => (
-                  <div key={q.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800">{i + 1}</span>
-                      <Select
-                        value={q.kind}
-                        onValueChange={(v) =>
-                          ubahQ(q.id, (x) => ({
-                            ...x,
-                            kind: v as SoalKind,
-                            options: v === "pg" ? (x.options ?? ["", "", "", ""]) : undefined,
-                            pairs: v === "jodoh" ? (x.pairs ?? []) : undefined,
-                            words: v === "urut" ? (x.words ?? []) : undefined,
-                            text: !x.text.trim() ? petunjukKind(v as SoalKind) || x.text : x.text,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {(Object.keys(KIND_LABEL) as SoalKind[]).map((k) => (
-                            <SelectItem key={k} value={k}>{KIND_LABEL[k]}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <button
-                        type="button"
-                        aria-label="Hapus soal"
-                        className="ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                        onClick={() => setManualQs((arr) => (arr.length > 1 ? arr.filter((x) => x.id !== q.id) : arr))}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <Textarea
-                      value={q.text}
-                      onChange={(e) => ubahQ(q.id, (x) => ({ ...x, text: e.target.value }))}
-                      rows={2}
-                      placeholder={`Tulis soal nomor ${i + 1}…`}
-                      className="bg-white"
-                    />
-                    {q.kind === "pg" && (
-                      <div className="mt-2 space-y-1.5">
-                        {(q.options ?? []).map((opt, oi) => (
-                          <div key={oi} className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => ubahQ(q.id, (x) => ({ ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] }))}
-                              className={cn(
-                                "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
-                                q.answer === LETTERS[oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"
-                              )}
-                              title={q.answer === LETTERS[oi] ? "Kunci jawaban" : "Tandai sebagai kunci"}
-                            >
-                              {LETTERS[oi]}
-                            </button>
-                            <Input
-                              value={opt}
-                              onChange={(e) =>
-                                ubahQ(q.id, (x) => {
-                                  const opts = [...(x.options ?? ["", "", "", ""])];
-                                  opts[oi] = e.target.value;
-                                  return { ...x, options: opts };
-                                })
-                              }
-                              placeholder={`Opsi ${LETTERS[oi]}`}
-                              className="h-8 bg-white text-sm"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {q.kind === "jodoh" && (
-                      <Textarea
-                        value={(q.pairs ?? []).map((p) => p.join(" = ")).join("\n")}
-                        onChange={(e) =>
-                          ubahQ(q.id, (x) => ({
-                            ...x,
-                            pairs: e.target.value
-                              .split("\n")
-                              .map((ln) => {
-                                const idx = ln.indexOf("=");
-                                return idx === -1 ? [ln, ""] : [ln.slice(0, idx), ln.slice(idx + 1)];
-                              })
-                              .map((p) => [p[0].trim(), p[1].trim()]),
-                          }))
-                        }
-                        rows={5}
-                        placeholder={"Satu pasangan per baris (kiri = kanan):\nSelamat pagi = Good morning\nSampai jumpa = Good bye"}
-                        className="mt-2 bg-white font-mono text-[13px]"
-                      />
-                    )}
-                    {q.kind === "urut" && (
-                      <div className="mt-2 space-y-1.5">
-                        <Input
-                          value={(q.words ?? []).join(", ")}
-                          onChange={(e) =>
-                            ubahQ(q.id, (x) => ({ ...x, words: e.target.value.split(",").map((w) => w.trim()) }))
-                          }
-                          placeholder="Kata acak, pisahkan koma — cth. am, I, student, a"
-                          className="h-8 bg-white text-sm"
-                        />
-                        <Input
-                          value={q.answer}
-                          onChange={(e) => ubahQ(q.id, (x) => ({ ...x, answer: e.target.value }))}
-                          placeholder="Kunci: kalimat utuh — cth. I am a student"
-                          className="h-8 bg-white text-sm"
-                        />
-                      </div>
-                    )}
-                    {q.kind !== "pg" && q.kind !== "jodoh" && q.kind !== "urut" && (
-                      <Input
-                        value={q.answer}
-                        onChange={(e) => ubahQ(q.id, (x) => ({ ...x, answer: e.target.value }))}
-                        placeholder="Kunci jawaban (untuk lembar kunci)…"
-                        className="mt-2 h-8 bg-white text-sm"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
+              <SoalEditor qs={manualQs} onChange={setManualQs} />
             </SectionCard>
           )}
         </div>
@@ -916,25 +954,41 @@ export function SoalView() {
         {/* ============ PRATINJAU + EKSPOR ============ */}
         <div className="space-y-4">
           <SectionCard
-            title="Pratinjau & cetak"
-            desc="Template ceria Rumbela — ukuran A4"
+            title={editMode ? "Edit worksheet" : "Pratinjau & cetak"}
+            desc={editMode ? "Ubah soal, topik, atau petunjuk sebelum dicetak" : "Template ceria Rumbela — ukuran A4"}
             action={
               sheet ? (
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" className="gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700" onClick={cetak}>
-                    <Printer className="h-4 w-4" /> Cetak / PDF
-                  </Button>
-                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("soal")} disabled={busy}>
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Soal
-                  </Button>
-                  {sheet.kunci && (
-                    <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("kunci")} disabled={busy}>
-                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Kunci
-                    </Button>
+                  {editMode ? (
+                    <>
+                      <Button size="sm" className="gap-1.5 rounded-lg bg-emerald-600 font-bold hover:bg-emerald-700" onClick={simpanEdit}>
+                        <Save className="h-4 w-4" /> Simpan perubahan
+                      </Button>
+                      <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={batalEdit}>
+                        <X className="h-4 w-4" /> Batal
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button size="sm" variant="outline" className="gap-1.5 rounded-lg border-sky-300 text-sky-700 hover:bg-sky-50" onClick={mulaiEdit}>
+                        <Pencil className="h-4 w-4" /> Edit
+                      </Button>
+                      <Button size="sm" className="gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700" onClick={cetak}>
+                        <Printer className="h-4 w-4" /> Cetak / PDF
+                      </Button>
+                      <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("soal")} disabled={busy}>
+                        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Soal
+                      </Button>
+                      {sheet.kunci && (
+                        <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("kunci")} disabled={busy}>
+                          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PNG Kunci
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" className="gap-1.5 rounded-lg border-emerald-200 text-emerald-700 hover:bg-emerald-50" onClick={simpanArsip}>
+                        <Save className="h-4 w-4" /> Arsipkan
+                      </Button>
+                    </>
                   )}
-                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg border-emerald-200 text-emerald-700 hover:bg-emerald-50" onClick={simpanArsip}>
-                    <Save className="h-4 w-4" /> Arsipkan
-                  </Button>
                 </div>
               ) : null
             }
@@ -943,6 +997,37 @@ export function SoalView() {
               <EmptyState title="Belum ada worksheet">
                 Isi formulir di samping, lalu klik <b>Buat worksheet</b>. Pratinjau lembar A4 akan muncul di sini.
               </EmptyState>
+            ) : editMode ? (
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label>Topik</Label>
+                    <Input value={editTopik} onChange={(e) => setEditTopik(e.target.value)} placeholder="Topik worksheet" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Petunjuk</Label>
+                    <Input value={editPetunjuk} onChange={(e) => setEditPetunjuk(e.target.value)} placeholder="Petunjuk pengerjaan" />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setEditQs((q) => [...q, blankQ("pg")])}>
+                    <Plus className="h-4 w-4" /> Soal PG
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setEditQs((q) => [...q, blankQ("isian")])}>
+                    <Plus className="h-4 w-4" /> Isian
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setEditQs((q) => [...q, blankQ("jodoh")])}>
+                    <Plus className="h-4 w-4" /> Jodoh
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setEditQs((q) => [...q, blankQ("urut")])}>
+                    <Plus className="h-4 w-4" /> Susun
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {editQs.filter((q) => q.text.trim()).length} dari {editQs.length} soal terisi · soal kosong akan dibuang saat disimpan
+                </p>
+                <SoalEditor qs={editQs} onChange={setEditQs} />
+              </div>
             ) : (
               <div id="print-area">
                 {/* tampilan layar */}
