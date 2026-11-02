@@ -29,3 +29,9 @@ db/*.sqlite
 .vercel
 .netlify
 .env*
+
+# artefak sandbox QA (lokal saja)
+audit/
+download/
+upload/
+scripts/

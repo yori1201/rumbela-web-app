@@ -63,7 +63,7 @@ export interface JadwalItem {
 export type TemplateLaporan = "ceria" | "klasik" | "minimal";
 
 /* ===== Generator Soal / Worksheet ===== */
-export type SoalKind = "pg" | "isian" | "uraian";
+export type SoalKind = "pg" | "isian" | "uraian" | "jodoh" | "urut";
 
 export interface WorksheetQ {
   id: string;
@@ -73,6 +73,12 @@ export interface WorksheetQ {
   options?: string[];
   /** kunci jawaban */
   answer: string;
+  /** nama seksi (cth. "Penjumlahan") — soal dikelompokkan jadi bagian A/B/C */
+  section?: string;
+  /** menjodohkan: pasangan [kiri, kanan] dalam urutan benar */
+  pairs?: string[][];
+  /** susun kata: kata acak yang dirangkai jadi kalimat */
+  words?: string[];
 }
 
 export interface Worksheet {
@@ -210,13 +216,22 @@ export function normalizeDB(raw: unknown): Database {
             ? (ws.questions as Record<string, unknown>[]).map((q) => ({
                 id: STR(q.id) || Math.random().toString(36).slice(2),
                 text: STR(q.text),
-                kind: (["pg", "isian", "uraian"].includes(STR(q.kind))
+                kind: (["pg", "isian", "uraian", "jodoh", "urut"].includes(STR(q.kind))
                   ? STR(q.kind)
                   : "isian") as WorksheetQ["kind"],
                 options: Array.isArray(q.options)
                   ? (q.options as unknown[]).map((o) => STR(o)).filter(Boolean)
                   : undefined,
                 answer: STR(q.answer),
+                section: STR(q.section) || undefined,
+                pairs: Array.isArray(q.pairs)
+                  ? (q.pairs as unknown[])
+                      .map((p) => (Array.isArray(p) ? p.map((x) => STR(x)) : []))
+                      .filter((p) => p.length >= 2 && p[0] && p[1])
+                  : undefined,
+                words: Array.isArray(q.words)
+                  ? (q.words as unknown[]).map((w) => STR(w)).filter(Boolean)
+                  : undefined,
               }))
             : [],
         }))

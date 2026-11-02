@@ -7,6 +7,14 @@
 export interface GenSoal {
   q: string;
   a: string;
+  /** jenis khusus: pg / jodoh / urut (default isian) */
+  kind?: "pg" | "jodoh" | "urut";
+  /** opsi pilihan ganda (urutan benar = indeks 0 dipindah saat render) */
+  options?: string[];
+  /** pasangan menjodohkan [kiri, kanan] urutan benar */
+  pairs?: string[][];
+  /** kata acak untuk disusun */
+  words?: string[];
 }
 
 export interface TopikDef {
@@ -461,7 +469,7 @@ const sukuKata2: TopikDef = {
       [acak[i], acak[j]] = [acak[j], acak[i]];
     }
     if (acak.join("") === s.join("")) [acak[0], acak[acak.length - 1]] = [acak[acak.length - 1], acak[0]];
-    return { q: `Rangkai suku kata menjadi kata: ${acak.join(" - ")} = …`, a: s.join("") };
+    return { q: "Rangkai suku kata menjadi kata yang benar!", a: s.join(""), kind: "urut", words: acak };
   },
 };
 const kataHilang: TopikDef = {
@@ -654,14 +662,85 @@ const engTubuh = vokabuler("tubuh", tanyaVok("tubuh"));
 const engKelas = vokabuler("kelas", tanyaVok("kelas"));
 const engKerja = vokabuler("kerja", tanyaVok("kerja"));
 
+/* --- topik interaktif: menjodohkan & susun kalimat (seperti worksheet referensi) --- */
+
+const acakArray = <T,>(R: () => number, arr: T[]): T[] => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(R() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+const PG_LETTERS = ["a", "b", "c", "d"];
+
+/** menjodohkan: pilih 5 pasangan acak dari daftar */
+const jodohDari = (daftar: [string, string][], instruksi: string): TopikDef => ({
+  id: "", label: "",
+  gen: (_lv, R) => ({
+    q: instruksi,
+    a: "",
+    kind: "jodoh",
+    pairs: acakArray(R, daftar).slice(0, 5),
+  }),
+});
+const abjadJodoh: TopikDef = {
+  ...jodohDari(
+    ABJAD.slice(0, 20).map((h): [string, string] => [h, h.toLowerCase()]),
+    "Pasangkan huruf besar dengan huruf kecilnya!"
+  ),
+  id: "eng-abjad-jodoh", label: "Alphabet (pasangkan)",
+};
+const sapaanJodoh: TopikDef = {
+  ...jodohDari(VOK.sapaan, "Pasangkan sapaan di kiri dengan artinya di kanan!"),
+  id: "eng-sapaan-jodoh", label: "Greetings (pasangkan)",
+};
+
+const KALIMAT_EN: string[][] = [
+  ["I", "am", "a", "student"], ["She", "is", "my", "mother"], ["He", "is", "a", "teacher"],
+  ["My", "name", "is", "Rina"], ["I", "have", "a", "cat"], ["We", "go", "to", "school"],
+  ["This", "is", "my", "book"], ["The", "cat", "is", "black"], ["My", "father", "is", "kind"],
+  ["I", "like", "red", "apples"], ["The", "sun", "is", "bright"], ["We", "are", "good", "friends"],
+];
+const kalimatUrut: TopikDef = {
+  id: "eng-kalimat-urut", label: "Susun kalimat sederhana",
+  gen: (_lv, R) => {
+    const s = pick(R, KALIMAT_EN);
+    return {
+      q: "Susun kata-kata berikut menjadi kalimat yang benar!",
+      a: s.join(" "),
+      kind: "urut",
+      words: acakArray(R, s),
+    };
+  },
+};
+
+/** kosakata pilihan ganda: pengecoh diambil dari kelompok yang sama */
+const kosakataPG: TopikDef = {
+  id: "eng-vok-pg", label: "Kosakata (pilihan ganda)",
+  gen: (_lv, R) => {
+    const grup = pick(R, Object.keys(VOK));
+    const [id, en] = pick(R, VOK[grup]);
+    const pengecoh = acakArray(R, VOK[grup].filter((v) => v[1] !== en)).slice(0, 3).map((v) => v[1]);
+    const opsi = acakArray(R, [en, ...pengecoh]);
+    return {
+      q: `«${id}» in English is …`,
+      a: PG_LETTERS[opsi.indexOf(en)],
+      kind: "pg",
+      options: opsi,
+    };
+  },
+};
+
 export const TOPIK_ENGLISH: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [abjad, angkaDasar, engWarna, engSapaan],
-    "2": [engHewan, engBuah, angkaDasar, engSapaan],
-    "3": [engKeluarga, engTubuh, engHewan, engBuah],
-    "4": [engTubuh, engKelas, hariInggris, engKeluarga],
-    "5": [engKerja, engKelas, hariInggris, puluhan],
-    "6": [engKerja, puluhan, tobe, hariInggris],
+    "1": [abjad, angkaDasar, engWarna, engSapaan, abjadJodoh, sapaanJodoh],
+    "2": [engHewan, engBuah, angkaDasar, engSapaan, sapaanJodoh],
+    "3": [engKeluarga, engTubuh, engHewan, engBuah, kalimatUrut, kosakataPG],
+    "4": [engTubuh, engKelas, hariInggris, engKeluarga, kalimatUrut, kosakataPG],
+    "5": [engKerja, engKelas, hariInggris, puluhan, kosakataPG],
+    "6": [engKerja, puluhan, tobe, hariInggris, kosakataPG],
   },
 };
 
@@ -783,11 +862,30 @@ export const TOPIK_CODING: Record<string, Record<string, TopikDef[]>> = {
 
 /* ============ pemetaan jenjang → kelas → topik ============ */
 
+/* Pola bilangan: naik / turun dengan lompatan tetap */
+const polaBilangan: TopikDef = {
+  id: "sd-pola-bilangan", label: "Pola Bilangan",
+  gen: (lv, R) => {
+    if (lv === 1) {
+      const s = ri(R, 1, 2), a = ri(R, 1, 5);
+      return { q: `Lanjutkan pola: ${a}, ${a + s}, ${a + 2 * s}, ${a + 3 * s}, …, …`, a: `${a + 4 * s}, ${a + 5 * s}` };
+    }
+    const naik = lv === 3 ? R() < 0.6 : true;
+    if (naik) {
+      const s = ri(R, 2, S(lv, 6, 0.5)), a = ri(R, 1, 9);
+      return { q: `Lanjutkan pola: ${a}, ${a + s}, ${a + 2 * s}, ${a + 3 * s}, …, …`, a: `${a + 4 * s}, ${a + 5 * s}` };
+    }
+    const a = ri(R, 30, 80);
+    const s = ri(R, 2, Math.max(2, Math.min(9, Math.floor((a - 5) / 5))));
+    return { q: `Lanjutkan pola: ${a}, ${a - s}, ${a - 2 * s}, ${a - 3 * s}, …, …`, a: `${a - 4 * s}, ${a - 5 * s}` };
+  },
+};
+
 export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [tambah20, kurang20, campur20],
-    "2": [tambah100, kurang100, kaliDasar],
-    "3": [kaliBag, tambah1000, kurang1000],
+    "1": [tambah20, kurang20, campur20, polaBilangan],
+    "2": [tambah100, kurang100, kaliDasar, polaBilangan],
+    "3": [kaliBag, tambah1000, kurang1000, polaBilangan],
     "4": [operasiCampur, kali2digit, bagiSisa],
     "5": [pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
     "6": [persen, kpkfpb, desimalKali, cacahCampur],
@@ -873,10 +971,35 @@ export function generateQuestions(
   while (out.length < n && guard < n * 40) {
     guard++;
     const s = topik.gen(kesulitan, Math.random);
-    const key = s.q;
+    const key =
+      s.q + (s.options ? "|" + s.options.join("~") : "") +
+      (s.pairs ? "|" + s.pairs.map((p) => p.join("=")).join("~") : "") +
+      (s.words ? "|" + s.words.join("~") : "");
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(s);
+  }
+  return out;
+}
+
+/** Buat "paket campuran": semua topik kelas ini jadi seksi A/B/C.
+    Topik menjodohkan cukup 1 papan per seksi. Mengembalikan soal + nama seksi. */
+export function generateMixed(
+  mapel: GenMapel,
+  jenjang: string,
+  kelas: string,
+  total: number,
+  kesulitan: Kesulitan
+): (GenSoal & { section: string })[] {
+  const topiks = TOPIK_GENERATOR[mapel]?.[jenjang]?.[kelas] ?? [];
+  if (!topiks.length) return [];
+  const biasa = topiks.filter((t) => !t.id.endsWith("-jodoh"));
+  const perTopik = Math.max(2, Math.ceil(total / Math.max(1, biasa.length)));
+  const out: (GenSoal & { section: string })[] = [];
+  for (const t of topiks) {
+    const n = t.id.endsWith("-jodoh") ? 1 : perTopik;
+    const soal = generateQuestions(mapel, t.id, jenjang, kelas, n, kesulitan);
+    for (const s of soal) out.push({ ...s, section: t.label });
   }
   return out;
 }

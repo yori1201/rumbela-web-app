@@ -1,9 +1,10 @@
 "use client";
 
 /* Generator Soal & Worksheet Rumbela — khusus penggunaan internal admin.
-   • Mode otomatis: bank generator Matematika per jenjang/kelas/topik
-   • Mode tulis-sendiri: semua mata pelajaran (PG / isian / uraian)
-   • Template khusus Rumbela berlogo → cetak PDF & unduh PNG
+   • Mode otomatis: 4 bank generator (Matematika, Calistung, Inggris, Coding)
+     + paket campuran (semua topik kelas jadi seksi A/B/C)
+   • Mode tulis-sendiri: semua mapel (PG / isian / uraian / menjodohkan / susun kata)
+   • Template anak warna-warni sesuai referensi → cetak PDF & unduh PNG
    • Arsip worksheet tersimpan otomatis di Google Drive */
 
 import { useMemo, useState } from "react";
@@ -14,10 +15,13 @@ import {
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
-  GEN_MAPEL, KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_GENERATOR, generateQuestions, kelasTersedia, topikLabel,
+  GEN_MAPEL, KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_GENERATOR, generateMixed, generateQuestions, kelasTersedia, topikLabel,
   type GenMapel, type Kesulitan,
 } from "@/lib/generatorSoal";
 import { renderWorksheetCanvas, slugify } from "@/lib/renderWorksheet";
+import {
+  LETTERS, SECTION_PALETTE, WS, answerOf, groupSections, isEquationLike, sectionLetter, shuffledOrder,
+} from "@/lib/worksheetTheme";
 import { canvasToBlob } from "@/lib/renderLaporan";
 import { todayStr, uid } from "@/lib/constants";
 import type { SoalKind, Worksheet, WorksheetQ } from "@/lib/types";
@@ -34,110 +38,344 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 const JENJANG = ["SD", "SMP", "SMA"] as const;
-const JUMLAH_OPSI = [5, 8, 10, 15, 20, 25];
-const LETTERS = ["a", "b", "c", "d"];
-const KIND_LABEL: Record<SoalKind, string> = { pg: "Pilihan Ganda", isian: "Isian Singkat", uraian: "Uraian" };
+const JUMLAH_OPSI = [1, 2, 3, 5, 8, 10, 15, 20, 25];
+const KIND_LABEL: Record<SoalKind, string> = {
+  pg: "Pilihan Ganda",
+  isian: "Isian Singkat",
+  uraian: "Uraian",
+  jodoh: "Menjodohkan",
+  urut: "Susun Kata",
+};
+const JODOH_PETUNJUK = "Pasangkan pernyataan di kiri dengan jawaban yang tepat!";
+const URUT_PETUNJUK = "Susun kata-kata berikut menjadi kalimat yang benar!";
+const petunjukKind = (k: SoalKind): string =>
+  k === "jodoh" ? JODOH_PETUNJUK : k === "urut" ? URUT_PETUNJUK : "";
 
 function blankQ(kind: SoalKind = "isian"): WorksheetQ {
-  return { id: uid(), text: "", kind, answer: "", ...(kind === "pg" ? { options: ["", "", "", ""] } : {}) };
+  const base: WorksheetQ = { id: uid(), text: petunjukKind(kind), kind, answer: "" };
+  if (kind === "pg") return { ...base, options: ["", "", "", ""] };
+  if (kind === "jodoh") return { ...base, pairs: [] };
+  if (kind === "urut") return { ...base, words: [] };
+  return base;
+}
+
+/* ================= Hiasan SVG ================= */
+
+function Bintang({ size = 22, color = WS.star, className }: { size?: number; color?: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} className={className} aria-hidden>
+      <path d="M12 2l2.9 6.3 6.6 1-4.75 4.4 1.15 6.6L12 17.1l-5.9 3.2 1.15-6.6L2.5 9.3l6.6-1z" fill={color} />
+    </svg>
+  );
+}
+
+function Awan({ className, opacity = 0.85 }: { className?: string; opacity?: number }) {
+  return (
+    <svg viewBox="0 0 120 54" width="120" height="54" className={className} opacity={opacity} aria-hidden>
+      <g fill="#FFFFFF">
+        <circle cx="34" cy="34" r="20" />
+        <circle cx="62" cy="24" r="16" />
+        <circle cx="88" cy="36" r="14" />
+        <rect x="14" y="34" width="94" height="19" rx="9" />
+      </g>
+    </svg>
+  );
+}
+
+function Hati({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+      <path d="M12 21s-8.4-5.3-10.5-10A5.6 5.6 0 0 1 12 6.2 5.6 5.6 0 0 1 22.5 11C20.4 15.7 12 21 12 21z" fill={WS.star} />
+    </svg>
+  );
+}
+
+function Rumput() {
+  return (
+    <svg viewBox="0 0 794 40" className="absolute inset-x-0 bottom-0 h-10 w-full" preserveAspectRatio="none" opacity="0.45" aria-hidden>
+      <path d="M0 40V18q25-22 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0v22z" fill="#BFE6C8" />
+    </svg>
+  );
 }
 
 /* ================= Lembar A4 (HTML — tampilan & cetak) =================
-   Layout sesuai referensi brand: logo Rumbela penuh kiri atas, halaman
-   bersih minimal, footer tengah "Rumbela <tahun>". */
+   Layout anak warna-warni sesuai referensi: latar langit, banner biru,
+   kotak identitas, kartu seksi pastel A/B/C, pita footer biru-hijau. */
 
-function AnswerLines({ n }: { n: number }) {
+function BarisJawaban() {
+  return <div className="mt-2.5 border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />;
+}
+
+function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECTION_PALETTE)[number] }) {
   return (
-    <div className="mt-1.5 space-y-5">
-      {Array.from({ length: n }).map((_, i) => (
-        <div key={i} className="border-b-[1.5px] border-dotted border-slate-400" />
-      ))}
+    <div className="mt-4 flex gap-2.5 first:mt-1">
+      <span
+        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-extrabold text-white"
+        style={{ background: pal.badge }}
+      >
+        {no}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-semibold leading-relaxed" style={{ color: WS.ink }}>{q.text}</p>
+
+        {q.kind === "pg" && q.options?.length ? (
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {q.options.slice(0, 4).map((opt, oi) => (
+              <span
+                key={oi}
+                className="flex items-center gap-2 rounded-[10px] border-2 bg-white px-3 py-1.5 text-[14px] font-semibold"
+                style={{ borderColor: pal.border, color: WS.ink }}
+              >
+                <span
+                  className="grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-2 bg-white text-[11px] font-extrabold"
+                  style={{ borderColor: pal.badge, color: pal.badge }}
+                >
+                  {LETTERS[oi]}
+                </span>
+                <span className="min-w-0 truncate">{opt}</span>
+              </span>
+            ))}
+          </div>
+        ) : q.kind === "uraian" ? (
+          <div className="mt-2 space-y-7">
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+          </div>
+        ) : q.kind === "jodoh" && q.pairs?.length ? (
+          <div className="mt-3 grid grid-cols-2 gap-7">
+            <div className="space-y-2.5">
+              {q.pairs.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-[10px] border-2 bg-white px-3 py-2 text-[14px] font-semibold"
+                  style={{ borderColor: pal.border, color: WS.ink }}
+                >
+                  <span className="text-[13px] font-extrabold" style={{ color: pal.badge }}>{i + 1}.</span>
+                  <span className="min-w-0">{p[0]}</span>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2.5">
+              {(() => {
+                const order = shuffledOrder(q.pairs.length, q.id);
+                return q.pairs.map((p, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 rounded-[10px] border-2 bg-white px-3 py-2 text-[14px] font-semibold"
+                    style={{ borderColor: pal.border, color: WS.ink }}
+                  >
+                    <span className="text-[13px] font-extrabold" style={{ color: pal.badge }}>{LETTERS[order.indexOf(i)]}.</span>
+                    <span className="min-w-0 flex-1">{p[1]}</span>
+                    <span
+                      className="h-[24px] w-[24px] shrink-0 rounded-full border-2 border-dashed"
+                      style={{ borderColor: pal.badge }}
+                    />
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        ) : q.kind === "urut" && q.words?.length ? (
+          <>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {q.words.map((w, i) => (
+                <span
+                  key={i}
+                  className="rounded-[10px] border-2 border-solid bg-white px-3.5 py-1.5 text-[14.5px] font-bold"
+                  style={{ borderColor: pal.border, color: WS.ink }}
+                >
+                  {w}
+                </span>
+              ))}
+            </div>
+            <BarisJawaban />
+          </>
+        ) : isEquationLike(q) ? (
+          <span
+            className="ml-2 inline-block h-9 w-[132px] rounded-[10px] border-2 border-dashed align-middle"
+            style={{ borderColor: WS.idBoxBorder }}
+          />
+        ) : (
+          <BarisJawaban />
+        )}
+      </div>
     </div>
+  );
+}
+
+function KartuSeksi({ si, label, children }: { si: number; label: string; children: React.ReactNode }) {
+  const pal = SECTION_PALETTE[si % SECTION_PALETTE.length];
+  return (
+    <section
+      className="relative mt-8 rounded-[22px] border-[3px] p-5 pt-7"
+      style={{ background: pal.bg, borderColor: pal.border }}
+    >
+      <div
+        className="absolute -top-[21px] left-4 flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-5 shadow-sm"
+        style={{ background: pal.badge }}
+      >
+        <span
+          className="grid h-[30px] w-[30px] place-items-center rounded-full bg-white text-[16px] font-black"
+          style={{ color: pal.badge }}
+        >
+          {sectionLetter(si)}
+        </span>
+        <span className="text-[15px] font-black text-white">{sectionLetter(si)}. {label}</span>
+      </div>
+      {children}
+    </section>
   );
 }
 
 function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
   const tahun = new Date().getFullYear();
+  const sections = groupSections(ws);
+  const kunci = jenis === "kunci";
+  const meta = [ws.jenjang, ws.kelas ? `Kelas ${ws.kelas}` : "", `${ws.questions.length} soal`]
+    .filter(Boolean).join("  ·  ");
+
   return (
-    <div className="sheet relative mx-auto w-[794px] shrink-0 rounded-xl bg-white p-12 text-slate-800 shadow-lg ring-1 ring-slate-200" style={{ minHeight: 1123 }}>
-      {/* kop: logo penuh kiri atas + tanggal kanan atas */}
-      <div className="flex items-start justify-between">
-        <Image src="/logo.webp" alt="Rumbela — Rumah Belajar Anak" width={225} height={207} className="h-auto w-[225px]" />
-        <p className="pt-1 text-[11px] font-medium text-slate-400">
-          {new Date(ws.createdAt + "T00:00:00").toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
-        </p>
+    <div
+      className="sheet relative mx-auto w-[794px] shrink-0 overflow-hidden rounded-2xl p-10 text-slate-800 shadow-lg ring-1 ring-slate-200"
+      style={{
+        minHeight: 1123,
+        background: kunci ? WS.kunciBg : WS.pageBg,
+        printColorAdjust: "exact",
+        WebkitPrintColorAdjust: "exact",
+      }}
+    >
+      {/* hiasan latar */}
+      <Awan className="pointer-events-none absolute -left-3 top-[120px]" opacity={0.7} />
+      <Awan className="pointer-events-none absolute -right-4 top-[170px]" opacity={0.55} />
+      <Bintang size={20} className="pointer-events-none absolute left-4 top-[70px]" color={WS.star} />
+      <Bintang size={16} className="pointer-events-none absolute right-6 top-[92px]" color="#F2A0BE" />
+      <Bintang size={14} className="pointer-events-none absolute right-[150px] top-[56px]" color="#7CC4EF" />
+      {!kunci && <Rumput />}
+
+      {/* ===== kop ===== */}
+      <div className="relative flex items-start justify-between gap-3">
+        <Image src="/logo.webp" alt="Rumbela — Rumah Belajar Anak" width={150} height={138} className="h-auto w-[150px] shrink-0" priority />
+
+        <div className="min-w-0 flex-1 text-center">
+          <div
+            className="rounded-2xl px-6 py-3 text-white shadow"
+            style={{ background: `linear-gradient(90deg, ${(kunci ? WS.bannerKunciGrad : WS.bannerGrad).join(", ")})` }}
+          >
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/85">
+              {kunci ? "Kunci Jawaban" : "Worksheet"} · {ws.mapel || "—"}
+            </p>
+            <h3 className="truncate text-[26px] font-black leading-tight">{ws.topik || "Latihan"}</h3>
+          </div>
+          <span
+            className="mt-2 inline-block rounded-full px-4 py-1 text-[12.5px] font-extrabold"
+            style={{ background: WS.pillYellow, color: WS.pillYellowInk }}
+          >
+            {meta}
+          </span>
+        </div>
+
+        <div className="relative w-[150px] shrink-0">
+          <div
+            className="relative rounded-xl border-[2.5px] bg-white px-3 py-2.5 text-center text-[11.5px] font-extrabold leading-snug"
+            style={{ borderColor: "#F2A0BE", color: "#EC5F94" }}
+          >
+            <Bintang size={15} className="absolute -right-1.5 -top-2" />
+            {kunci ? "Khusus tutor — jangan dibocorkan, ya!" : "Ayo, kerjakan dengan teliti, ya!"}
+          </div>
+          <div
+            className="absolute -bottom-[9px] left-6 h-4 w-4 rotate-45 border-b-[2.5px] border-r-[2.5px] bg-white"
+            style={{ borderColor: "#F2A0BE" }}
+          />
+        </div>
       </div>
 
-      {jenis === "soal" ? (
+      {kunci ? (
         <>
-          {/* judul */}
-          <div className="mt-3 flex items-end justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Worksheet · {ws.mapel || "—"}</p>
-              <h3 className="truncate text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
-              <p className="mt-0.5 text-[13px] font-semibold text-slate-500">
-                {[ws.jenjang, ws.kelas ? `Kelas ${ws.kelas}` : "", `${ws.questions.length} soal`].filter(Boolean).join("  ·  ")}
-              </p>
-            </div>
-            <p className="shrink-0 text-[13px] font-black text-emerald-600">Selamat mengerjakan!</p>
-          </div>
-          <div className="mt-5 flex gap-10 text-[15px] font-semibold">
-            <span className="flex flex-1 items-end gap-2">Nama : <span className="flex-1 border-b-[1.5px] border-dotted border-slate-400" /></span>
-            <span className="flex w-56 items-end gap-2">Kelas : <span className="flex-1 border-b-[1.5px] border-dotted border-slate-400" /></span>
-          </div>
-          {ws.petunjuk && (
-            <div className="mt-4 rounded-xl bg-sky-50 px-5 py-3 text-[13.5px] font-semibold leading-relaxed text-sky-900">
-              {ws.petunjuk}
-            </div>
-          )}
-          <ol className="mt-5 space-y-5">
-            {ws.questions.map((q, i) => (
-              <li key={q.id} className="flex gap-2 text-[15px] leading-relaxed">
-                <span className="font-black text-sky-700">{i + 1}.</span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{q.text}</p>
-                  {q.kind === "pg" && q.options?.length ? (
-                    <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2">
-                      {q.options.slice(0, 4).map((opt, oi) => (
-                        <span key={oi} className="flex items-center gap-2 font-semibold">
-                          <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border-[1.5px] border-slate-400 text-[10px] font-bold text-slate-500">{LETTERS[oi]}</span>
-                          {opt}
-                        </span>
-                      ))}
-                    </div>
-                  ) : q.kind === "uraian" ? (
-                    <AnswerLines n={3} />
-                  ) : (
-                    <AnswerLines n={1} />
-                  )}
+          {/* ===== kunci jawaban ===== */}
+          {sections.map((s, i) => {
+            const pal = SECTION_PALETTE[i % SECTION_PALETTE.length];
+            return (
+              <div key={s.label + i} className="mt-8">
+                <div
+                  className="inline-flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-5 shadow-sm"
+                  style={{ background: pal.badge }}
+                >
+                  <span
+                    className="grid h-[30px] w-[30px] place-items-center rounded-full bg-white text-[16px] font-black"
+                    style={{ color: pal.badge }}
+                  >
+                    {sectionLetter(i)}
+                  </span>
+                  <span className="text-[15px] font-black text-white">{sectionLetter(i)}. {s.label}</span>
                 </div>
-              </li>
-            ))}
-          </ol>
+                <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2.5">
+                  {s.questions.map((q, qi) => (
+                    <p key={q.id} className="flex gap-2 text-[14.5px] leading-snug">
+                      <span className="shrink-0 font-extrabold" style={{ color: pal.badge }}>{qi + 1}.</span>
+                      <span className="font-bold" style={{ color: WS.ink }}>{answerOf(q)}</span>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </>
       ) : (
         <>
-          <div className="mt-3">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Kunci Jawaban · {ws.mapel || "—"}</p>
-            <h3 className="text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
-            <p className="mt-0.5 text-[16px] font-black text-emerald-600">KUNCI JAWABAN</p>
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-x-10 gap-y-4">
-            {ws.questions.map((q, i) => (
-              <p key={q.id} className="flex gap-2 text-[15px]">
-                <span className="font-black text-sky-700">{i + 1}.</span>
-                <span className="font-bold text-slate-800">
-                  {q.kind === "pg" && q.options?.length ? q.answer.toUpperCase() : q.answer || "—"}
-                </span>
-              </p>
+          {/* ===== kotak identitas ===== */}
+          <div
+            className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 rounded-2xl border-[3px] bg-white px-6 py-4"
+            style={{ borderColor: WS.idBoxBorder }}
+          >
+            {["Nama Anak", "Kelas", "Tanggal", "Nilai"].map((label) => (
+              <span key={label} className="flex items-end gap-2 text-[14.5px] font-extrabold" style={{ color: WS.ink }}>
+                {label} :
+                <span className="flex-1 border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+              </span>
             ))}
           </div>
+
+          {/* ===== petunjuk ===== */}
+          {ws.petunjuk?.trim() ? (
+            <div
+              className="mt-4 flex items-center gap-3 rounded-xl border-2 px-4 py-2.5 text-[13.5px] font-semibold"
+              style={{ background: WS.petunjukBg, borderColor: WS.petunjukBorder, color: WS.petunjukInk }}
+            >
+              <Bintang size={18} color="#F2B84B" className="shrink-0" />
+              <span>{ws.petunjuk}</span>
+            </div>
+          ) : null}
+
+          {/* ===== seksi soal ===== */}
+          {sections.map((s, i) => {
+            const pal = SECTION_PALETTE[i % SECTION_PALETTE.length];
+            return (
+              <KartuSeksi key={s.label + i} si={i} label={s.label}>
+                {s.questions.map((q, qi) => (
+                  <SoalItem key={q.id} q={q} no={qi + 1} pal={pal} />
+                ))}
+              </KartuSeksi>
+            );
+          })}
         </>
       )}
 
-      {/* footer sesuai referensi: Rumbela <tahun> tengah bawah */}
-      <div className="absolute inset-x-12 bottom-7 text-center">
-        <p className="text-[13px] font-medium text-slate-400">Rumbela {tahun}</p>
+      {/* ===== footer pita ===== */}
+      <div className="mt-10 flex flex-col items-center">
+        <div
+          className="flex items-center gap-3.5 rounded-full px-8 py-3 text-white shadow"
+          style={{ background: `linear-gradient(90deg, ${WS.footerGrad.join(", ")})` }}
+        >
+          <Hati />
+          <span className="text-[19px] font-black">
+            {kunci ? "Kunci tersimpan, jangan lupa beri semangat!" : "Belajar di Rumbela, Yuk!"}
+          </span>
+          <Hati />
+        </div>
+        <p className="mt-3 text-[12px] font-medium" style={{ color: WS.mut }}>
+          Rumbela — Rumah Belajar Anak · Curup · {tahun}
+        </p>
       </div>
     </div>
   );
@@ -157,6 +395,7 @@ export function SoalView() {
   const [topikId, setTopikId] = useState<string>(
     TOPIK_GENERATOR.matematika.SD?.["1"]?.[0]?.id ?? ""
   );
+  const [campuran, setCampuran] = useState(false);
   const [topikText, setTopikText] = useState<string>("");
   const [jumlah, setJumlah] = useState<number>(10);
   const [kesulitan, setKesulitan] = useState<Kesulitan>(2);
@@ -194,30 +433,81 @@ export function SoalView() {
     setTopikId(TOPIK_GENERATOR[genMapel]?.[j]?.[kk]?.[0]?.id ?? "");
   };
 
+  const gantiTopik = (id: string) => {
+    setTopikId(id);
+    // topik menjodohkan: satu papan sudah berisi 5 pasangan
+    if (id.endsWith("-jodoh")) setJumlah(1);
+  };
+
   const buat = () => {
     if (mode === "otomatis") {
-      const gen = generateQuestions(genMapel, topikId, jenjang, kelas, jumlah, kesulitan);
-      if (!gen.length) {
-        toast({ title: "Topik belum tersedia", description: "Pilih topik generator untuk jenjang & kelas ini." });
+      if (campuran) {
+        const gen = generateMixed(genMapel, jenjang, kelas, jumlah, kesulitan);
+        if (!gen.length) {
+          toast({ title: "Topik belum tersedia", description: "Pilih kelas yang punya bank generator." });
+          return;
+        }
+        setSheet({
+          id: "", createdAt: todayStr(), mapel: GEN_MAPEL.find((g) => g.id === genMapel)?.label ?? "Matematika",
+          jenjang, kelas, topik: `Paket Campuran Kelas ${kelas}`, petunjuk, kunci,
+          questions: gen.map((g) => ({
+            id: uid(), text: g.q, kind: (g.kind ?? "isian") as SoalKind, answer: g.a,
+            options: g.kind === "pg" ? g.options : undefined,
+            pairs: g.kind === "jodoh" ? g.pairs : undefined,
+            words: g.kind === "urut" ? g.words : undefined,
+            section: g.section,
+          })),
+        });
+      } else {
+        const gen = generateQuestions(genMapel, topikId, jenjang, kelas, jumlah, kesulitan);
+        if (!gen.length) {
+          toast({ title: "Topik belum tersedia", description: "Pilih topik generator untuk jenjang & kelas ini." });
+          return;
+        }
+        setSheet({
+          id: "", createdAt: todayStr(), mapel: GEN_MAPEL.find((g) => g.id === genMapel)?.label ?? "Matematika",
+          jenjang, kelas, topik: topikLabel(genMapel, topikId, jenjang, kelas), petunjuk, kunci,
+          questions: gen.map((g) => ({
+            id: uid(), text: g.q, kind: (g.kind ?? "isian") as SoalKind, answer: g.a,
+            options: g.kind === "pg" ? g.options : undefined,
+            pairs: g.kind === "jodoh" ? g.pairs : undefined,
+            words: g.kind === "urut" ? g.words : undefined,
+          })),
+        });
+      }
+    } else {
+      let dilewati = 0;
+      const qs: WorksheetQ[] = [];
+      for (const q of manualQs) {
+        if (!q.text.trim() && !petunjukKind(q.kind)) continue;
+        if (q.kind === "jodoh") {
+          const pairs = (q.pairs ?? []).filter((p) => p[0]?.trim() && p[1]?.trim());
+          if (pairs.length < 2) { dilewati++; continue; }
+          qs.push({ ...q, text: q.text.trim() || JODOH_PETUNJUK, pairs, answer: "" });
+        } else if (q.kind === "urut") {
+          const words = (q.words ?? []).map((w) => w.trim()).filter(Boolean);
+          if (words.length < 2 || !q.answer.trim()) { dilewati++; continue; }
+          qs.push({ ...q, text: q.text.trim() || URUT_PETUNJUK, words, answer: q.answer.trim() });
+        } else {
+          qs.push({
+            ...q,
+            text: q.text.trim(),
+            answer: q.kind === "pg" ? q.answer.toLowerCase() : q.answer.trim(),
+            options: q.kind === "pg" ? (q.options ?? []).map((o) => o.trim()) : undefined,
+            pairs: undefined,
+            words: undefined,
+          });
+        }
+      }
+      if (!qs.length) {
+        toast({ title: "Belum ada soal", description: "Tulis minimal satu soal lengkap pada mode Tulis sendiri." });
         return;
       }
-      setSheet({
-        id: "", createdAt: todayStr(), mapel: GEN_MAPEL.find((g) => g.id === genMapel)?.label ?? "Matematika", jenjang, kelas,
-        topik: topikLabel(genMapel, topikId, jenjang, kelas), petunjuk, kunci,
-        questions: gen.map((g) => ({ id: uid(), text: g.q, kind: "isian" as SoalKind, answer: g.a })),
-      });
-    } else {
-      const qs = manualQs
-        .filter((q) => q.text.trim())
-        .map((q) => ({
-          ...q,
-          text: q.text.trim(),
-          answer: q.kind === "pg" ? q.answer.toLowerCase() : q.answer.trim(),
-          options: q.kind === "pg" ? (q.options ?? []).map((o) => o.trim()) : undefined,
-        }));
-      if (!qs.length) {
-        toast({ title: "Belum ada soal", description: "Tulis minimal satu soal pada mode Tulis sendiri." });
-        return;
+      if (dilewati) {
+        toast({
+          title: `${dilewati} soal dilewati`,
+          description: "Menjodohkan butuh ≥ 2 pasangan; susun kata butuh ≥ 2 kata + kunci.",
+        });
       }
       setSheet({
         id: "", createdAt: todayStr(), mapel, jenjang, kelas,
@@ -273,6 +563,9 @@ export function SoalView() {
     window.print();
   };
 
+  const ubahQ = (id: string, fn: (q: WorksheetQ) => WorksheetQ) =>
+    setManualQs((arr) => arr.map((x) => (x.id === id ? fn(x) : x)));
+
   return (
     <div className="space-y-5">
       <div className="grid gap-5 xl:grid-cols-[400px,1fr]">
@@ -280,7 +573,7 @@ export function SoalView() {
         <div className="space-y-4">
           <SectionCard
             title="Susun worksheet"
-            desc="Penggunaan internal Rumbela — lembar latihan bergambar khusus"
+            desc="Penggunaan internal Rumbela — lembar latihan ceria khusus"
           >
             {/* mode */}
             <div className="grid grid-cols-2 gap-2">
@@ -368,31 +661,43 @@ export function SoalView() {
             </div>
 
             {/* topik */}
-            <div className="mt-3 space-y-1.5">
-              <Label>Topik soal</Label>
-              {mode === "otomatis" ? (
-                <Select value={topikId} onValueChange={setTopikId}>
-                  <SelectTrigger className="w-full"><SelectValue placeholder="Pilih topik" /></SelectTrigger>
-                  <SelectContent>
-                    {topikList.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
+            {mode === "otomatis" && (
+              <div className="mt-3 space-y-1.5">
+                <Label>Topik soal</Label>
+                {campuran ? (
+                  <div className="rounded-lg border-2 border-dashed border-emerald-200 bg-emerald-50/60 px-3 py-2.5 text-xs font-semibold text-emerald-700">
+                    Paket campuran aktif — semua topik kelas {jenjang} {kelas} digabung jadi seksi A, B, C…
+                  </div>
+                ) : (
+                  <Select value={topikId} onValueChange={gantiTopik}>
+                    <SelectTrigger className="w-full"><SelectValue placeholder="Pilih topik" /></SelectTrigger>
+                    <SelectContent>
+                      {topikList.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
+
+            {/* mode manual: topik bebas */}
+            {mode === "manual" && (
+              <div className="mt-3 space-y-1.5">
+                <Label>Topik soal</Label>
                 <Input
                   value={topikText}
                   onChange={(e) => setTopikText(e.target.value)}
                   placeholder="cth. Teks Deskripsi, Perkalian Pecahan…"
                 />
-              )}
-            </div>
+              </div>
+            )}
 
             {/* jumlah & kesulitan (otomatis) */}
             {mode === "otomatis" && (
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Jumlah soal</Label>
+                  <Label>{campuran ? "Total soal (±)" : "Jumlah soal"}</Label>
                   <Select value={String(jumlah)} onValueChange={(v) => setJumlah(Number(v))}>
                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -419,6 +724,17 @@ export function SoalView() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* paket campuran */}
+            {mode === "otomatis" && (
+              <label className="mt-3 flex cursor-pointer items-center justify-between gap-3 rounded-xl border-2 border-emerald-100 bg-emerald-50/60 px-4 py-3">
+                <span>
+                  <span className="block text-sm font-bold text-emerald-800">Paket campuran</span>
+                  <span className="block text-xs text-emerald-700/80">Semua topik kelas ini jadi bagian A, B, C… seperti buku latihan</span>
+                </span>
+                <Switch checked={campuran} onCheckedChange={setCampuran} />
+              </label>
             )}
 
             {/* petunjuk */}
@@ -457,11 +773,19 @@ export function SoalView() {
           {mode === "manual" && (
             <SectionCard
               title={`Daftar soal (${manualQs.filter((q) => q.text.trim()).length} terisi)`}
-              desc="Pilih jenis tiap soal; kunci untuk pilihan ganda diisi lewat tombol huruf"
+              desc="Pilih jenis tiap soal; kunci PG lewat tombol huruf"
               action={
-                <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setManualQs((q) => [...q, blankQ("pg")])}>
-                  <Plus className="h-4 w-4" /> Soal
-                </Button>
+                <div className="flex gap-1.5">
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setManualQs((q) => [...q, blankQ("jodoh")])}>
+                    <Plus className="h-4 w-4" /> Jodoh
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setManualQs((q) => [...q, blankQ("urut")])}>
+                    <Plus className="h-4 w-4" /> Susun
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => setManualQs((q) => [...q, blankQ("pg")])}>
+                    <Plus className="h-4 w-4" /> Soal
+                  </Button>
+                </div>
               }
             >
               <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
@@ -472,7 +796,14 @@ export function SoalView() {
                       <Select
                         value={q.kind}
                         onValueChange={(v) =>
-                          setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, kind: v as SoalKind, options: v === "pg" ? (x.options ?? ["", "", "", ""]) : undefined } : x))
+                          ubahQ(q.id, (x) => ({
+                            ...x,
+                            kind: v as SoalKind,
+                            options: v === "pg" ? (x.options ?? ["", "", "", ""]) : undefined,
+                            pairs: v === "jodoh" ? (x.pairs ?? []) : undefined,
+                            words: v === "urut" ? (x.words ?? []) : undefined,
+                            text: !x.text.trim() ? petunjukKind(v as SoalKind) || x.text : x.text,
+                          }))
                         }
                       >
                         <SelectTrigger className="h-8 w-[170px] text-xs"><SelectValue /></SelectTrigger>
@@ -493,7 +824,7 @@ export function SoalView() {
                     </div>
                     <Textarea
                       value={q.text}
-                      onChange={(e) => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, text: e.target.value } : x))}
+                      onChange={(e) => ubahQ(q.id, (x) => ({ ...x, text: e.target.value }))}
                       rows={2}
                       placeholder={`Tulis soal nomor ${i + 1}…`}
                       className="bg-white"
@@ -504,7 +835,7 @@ export function SoalView() {
                           <div key={oi} className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] } : x))}
+                              onClick={() => ubahQ(q.id, (x) => ({ ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] }))}
                               className={cn(
                                 "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
                                 q.answer === LETTERS[oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"
@@ -516,12 +847,11 @@ export function SoalView() {
                             <Input
                               value={opt}
                               onChange={(e) =>
-                                setManualQs((arr) => arr.map((x) => {
-                                  if (x.id !== q.id) return x;
+                                ubahQ(q.id, (x) => {
                                   const opts = [...(x.options ?? ["", "", "", ""])];
                                   opts[oi] = e.target.value;
                                   return { ...x, options: opts };
-                                }))
+                                })
                               }
                               placeholder={`Opsi ${LETTERS[oi]}`}
                               className="h-8 bg-white text-sm"
@@ -530,10 +860,48 @@ export function SoalView() {
                         ))}
                       </div>
                     )}
-                    {q.kind !== "pg" && (
+                    {q.kind === "jodoh" && (
+                      <Textarea
+                        value={(q.pairs ?? []).map((p) => p.join(" = ")).join("\n")}
+                        onChange={(e) =>
+                          ubahQ(q.id, (x) => ({
+                            ...x,
+                            pairs: e.target.value
+                              .split("\n")
+                              .map((ln) => {
+                                const idx = ln.indexOf("=");
+                                return idx === -1 ? [ln, ""] : [ln.slice(0, idx), ln.slice(idx + 1)];
+                              })
+                              .map((p) => [p[0].trim(), p[1].trim()]),
+                          }))
+                        }
+                        rows={5}
+                        placeholder={"Satu pasangan per baris (kiri = kanan):\nSelamat pagi = Good morning\nSampai jumpa = Good bye"}
+                        className="mt-2 bg-white font-mono text-[13px]"
+                      />
+                    )}
+                    {q.kind === "urut" && (
+                      <div className="mt-2 space-y-1.5">
+                        <Input
+                          value={(q.words ?? []).join(", ")}
+                          onChange={(e) =>
+                            ubahQ(q.id, (x) => ({ ...x, words: e.target.value.split(",").map((w) => w.trim()) }))
+                          }
+                          placeholder="Kata acak, pisahkan koma — cth. am, I, student, a"
+                          className="h-8 bg-white text-sm"
+                        />
+                        <Input
+                          value={q.answer}
+                          onChange={(e) => ubahQ(q.id, (x) => ({ ...x, answer: e.target.value }))}
+                          placeholder="Kunci: kalimat utuh — cth. I am a student"
+                          className="h-8 bg-white text-sm"
+                        />
+                      </div>
+                    )}
+                    {q.kind !== "pg" && q.kind !== "jodoh" && q.kind !== "urut" && (
                       <Input
                         value={q.answer}
-                        onChange={(e) => setManualQs((arr) => arr.map((x) => x.id === q.id ? { ...x, answer: e.target.value } : x))}
+                        onChange={(e) => ubahQ(q.id, (x) => ({ ...x, answer: e.target.value }))}
                         placeholder="Kunci jawaban (untuk lembar kunci)…"
                         className="mt-2 h-8 bg-white text-sm"
                       />
@@ -549,7 +917,7 @@ export function SoalView() {
         <div className="space-y-4">
           <SectionCard
             title="Pratinjau & cetak"
-            desc="Template khusus Rumbela — ukuran A4"
+            desc="Template ceria Rumbela — ukuran A4"
             action={
               sheet ? (
                 <div className="flex flex-wrap gap-2">
