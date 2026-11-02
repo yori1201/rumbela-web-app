@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 
 export function AuthGate() {
   const { loginGoogle, loginDemo, connecting, sync } = useApp();
+  // Domain yang sudah terdaftar di Authorized JavaScript origins Google Cloud.
+  // Tambahkan domain custom di sini DAN di Google Cloud Console → Credentials.
+  const KNOWN_HOSTS =
+    /rumbela\.netlify\.app$|\.vercel\.app$|^localhost$|^127\.0\.0\.1$/i;
   const nonProd =
-    typeof window !== "undefined" &&
-    !/rumbela\.netlify\.app$|^localhost/.test(window.location.hostname);
+    typeof window !== "undefined" && !KNOWN_HOSTS.test(window.location.hostname);
 
   return (
     <div className="grid min-h-screen place-items-center bg-gradient-to-br from-orange-50 via-[#fdf8f3] to-emerald-50 px-4">
@@ -58,9 +61,9 @@ export function AuthGate() {
 
         {nonProd && (
           <p className="mt-4 text-xs leading-relaxed text-slate-400">
-            Catatan: login Google hanya aktif di domain resmi
-            (mis. rumbela.netlify.app). Untuk melihat-lihat aplikasi ini, gunakan{" "}
-            <b>Mode Demo</b>.
+            Catatan: login Google hanya aktif di domain yang terdaftar di Google
+            Cloud (mis. rumbela.netlify.app atau alamat Vercel Anda). Untuk
+            melihat-lihat aplikasi ini, gunakan <b>Mode Demo</b>.
           </p>
         )}
 

@@ -56,34 +56,52 @@ bun run dev        # atau: npm run dev
 
 Buka `http://localhost:3000` → **Mode Demo** bisa dicoba tanpa login.
 
-## ☁️ Deploy ke Netlify (via GitHub)
+## ☁️ Deploy ke Vercel (via GitHub)
 
 1. Push repo ini ke GitHub (lihat langkah di bawah).
-2. Netlify → *Add new site* → *Import an existing project* → pilih repo.
-3. Netlify otomatis mendeteksi Next.js (build: `npm run build`). Deploy.
-4. Buka **Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID** milik Rumbela
-   → tambahkan domain baru ke **Authorized JavaScript origins**:
+2. Buka [vercel.com](https://vercel.com) → login → **Add New… → Project**.
+3. **Import** repo `rumbela-web-app` — Vercel otomatis mendeteksi Next.js
+   (build command `next build`, tanpa konfigurasi tambahan) → **Deploy**.
+4. Setelah selesai, aplikasi online di `https://<nama-proyek>.vercel.app`.
+5. **PENTING — aktifkan login Google di domain baru**: buka **Google Cloud Console →
+   APIs & Services → Credentials → OAuth 2.0 Client ID** milik Rumbela → tambahkan ke
+   **Authorized JavaScript origins**:
    - `https://rumbela.netlify.app` (sudah ada)
-   - `https://<nama-site>.netlify.app` (domain baru Anda)
-5. Pastikan **Google Drive API** berstatus *Enabled* di project yang sama.
+   - `https://<nama-proyek>.vercel.app` (domain Vercel Anda)
+   - `https://domain-custom.com` (bila memakai domain sendiri di Vercel)
+6. Pastikan **Google Drive API** berstatus *Enabled* di project yang sama.
+
+> 💡 Tanpa langkah 5, tombol "Masuk dengan Google" gagal di domain Vercel — Google hanya
+> mengizinkan origin terdaftar. **Mode Demo** tetap bisa dipakai untuk mencoba aplikasi.
 
 ### Push ke GitHub
 
 ```bash
 git remote add origin https://github.com/yori1201/rumbela-web-app.git
 git branch -M main
-git push -u origin main
+git push -u origin main --force
 ```
+
+(`--force` aman dipakai sekali ini karena repo target masih berisi README otomatis GitHub.)
+
+<details>
+<summary>Alternatif: deploy ke Netlify</summary>
+
+Netlify → *Add new site* → *Import an existing project* → pilih repo → deploy
+(dideteksi otomatis sebagai Next.js). Origin domain Netlify juga perlu didaftarkan
+di Google Cloud Console seperti langkah 5.
+
+</details>
 
 ## 🔧 Konfigurasi Google (ringkas)
 
-- **OAuth Client ID** sudah tertanam (milik project Rumbela). Bila membuat client baru: jenis *Web application*, origin sesuai domain deploy.
+- **OAuth Client ID** sudah tertanam (milik project Rumbela). Bila membuat client baru: jenis *Web application*, origin sesuai domain deploy (Vercel / Netlify / custom).
 - **Scope**: `https://www.googleapis.com/auth/drive.file`.
 - Token akses berlaku ±1 jam; setelah itu banner *Sambung ulang* muncul di header — data terakhir tetap tampil dari cache perangkat.
 
 ## 🧱 Teknologi
 
-Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui · Google Identity Services + Drive API v3 · Canvas API (render laporan)
+Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui · Google Identity Services + Drive API v3 · Canvas API (render laporan) · deploy: Vercel / Netlify
 
 ## 🗺️ Rencana lanjutan
 
