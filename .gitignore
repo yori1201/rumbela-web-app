@@ -1,0 +1,30 @@
+# deps / build
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts.bak
+
+# env & secret
+.env
+.env*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# logs & lokal
+dev.log
+server.log
+*.log
+
+# database lokal (tidak dipakai aplikasi — data ada di Google Drive)
+db/*.db
+db/*.sqlite
+
+# misc
+*.tsbuildinfo
+.vercel
+.netlify
