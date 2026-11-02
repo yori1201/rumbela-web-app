@@ -88,7 +88,7 @@ export function JadwalView() {
             <Button size="sm" variant="outline" onClick={() => setSlotsOpen(true)}>
               <Clock className="h-4 w-4" /> Jam pelajaran
             </Button>
-            <Button size="sm" variant="outline" className="border-orange-200 text-orange-600" onClick={() => setAddOpen(true)}>
+            <Button size="sm" variant="outline" className="border-sky-200 text-sky-700" onClick={() => setAddOpen(true)}>
               <Plus className="h-4 w-4" /> Kelas
             </Button>
           </div>
@@ -107,7 +107,7 @@ export function JadwalView() {
                     onClick={() => setActiveKelas(name)}
                     className={cn(
                       "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
-                      k === name ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-orange-100 hover:text-orange-600"
+                      k === name ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-700"
                     )}
                     aria-pressed={k === name}
                   >
@@ -151,7 +151,7 @@ export function JadwalView() {
                               onClick={() => openCell(h, si)}
                               className={cn(
                                 "grid h-16 w-full place-items-center rounded-xl border text-left transition-all hover:scale-[1.02] active:scale-95",
-                                it ? "border-transparent text-white shadow-sm" : "border-dashed border-slate-200 bg-slate-50/60 text-slate-300 hover:border-orange-300 hover:text-orange-300"
+                                it ? "border-transparent text-white shadow-sm" : "border-dashed border-slate-200 bg-slate-50/60 text-slate-300 hover:border-sky-300 hover:text-sky-300"
                               )}
                               style={it ? { backgroundColor: it.warna } : undefined}
                               aria-label={`${h} slot ${si + 1}: ${it ? it.program : "kosong"}`}
@@ -183,7 +183,7 @@ export function JadwalView() {
                     onClick={() => setHariMobile(h)}
                     className={cn(
                       "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-bold",
-                      hariMobile === h ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-600"
+                      hariMobile === h ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-600"
                     )}
                     aria-pressed={hariMobile === h}
                   >
@@ -227,7 +227,7 @@ export function JadwalView() {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-orange-500" />
+              <CalendarDays className="h-4 w-4 text-sky-600" />
               {cell?.hari} · Slot {(cell?.slot ?? 0) + 1} ({cell ? slots[cell.slot]?.mulai : ""}–{cell ? slots[cell.slot]?.selesai : ""})
             </DialogTitle>
             <DialogDescription>Kelas {cell?.kelas}</DialogDescription>
@@ -254,7 +254,7 @@ export function JadwalView() {
           </DialogHeader>
           <Input value={newKelas} onChange={(e) => setNewKelas(e.target.value)} placeholder="Nama kelas" onKeyDown={(e) => e.key === "Enter" && addKelas()} />
           <DialogFooter>
-            <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={addKelas} disabled={!newKelas.trim()}>
+            <Button className="w-full bg-sky-600 hover:bg-sky-700" onClick={addKelas} disabled={!newKelas.trim()}>
               Tambah
             </Button>
           </DialogFooter>
@@ -311,7 +311,7 @@ function CellForm({
             <Trash2 className="h-4 w-4" /> Kosongkan
           </Button>
         ) : <span />}
-        <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna)} disabled={!program.trim()}>
+        <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna)} disabled={!program.trim()}>
           Simpan
         </Button>
       </DialogFooter>
@@ -369,7 +369,7 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
           )}
         </div>
         <DialogFooter>
-          <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={apply}>Terapkan</Button>
+          <Button className="w-full bg-sky-600 hover:bg-sky-700" onClick={apply}>Terapkan</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

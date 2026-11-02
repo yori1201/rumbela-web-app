@@ -142,11 +142,11 @@ export function JurnalView() {
               <li key={dstr}>
                 <button
                   onClick={() => pickDate(dstr)}
-                  className="w-full rounded-lg px-1 py-2.5 text-left hover:bg-orange-50/60"
+                  className="w-full rounded-lg px-1 py-2.5 text-left hover:bg-sky-50/60"
                 >
                   <p className="text-sm font-bold text-slate-700">
                     {fmtDate(dstr)}
-                    {dstr === todayStr() && <span className="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] text-orange-700">hari ini</span>}
+                    {dstr === todayStr() && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] text-sky-800">hari ini</span>}
                   </p>
                   <p className="line-clamp-1 text-xs text-muted-foreground">{e.activity || e.progress || "—"}</p>
                 </button>

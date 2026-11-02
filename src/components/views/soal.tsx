@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
-  KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_MATEMATIKA, generateQuestions, topikLabel,
-  type Kesulitan,
+  GEN_MAPEL, KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_GENERATOR, generateQuestions, kelasTersedia, topikLabel,
+  type GenMapel, type Kesulitan,
 } from "@/lib/generatorSoal";
 import { renderWorksheetCanvas, slugify } from "@/lib/renderWorksheet";
 import { canvasToBlob } from "@/lib/renderLaporan";
@@ -74,12 +74,12 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
           <div className="mt-3 flex items-end justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Worksheet · {ws.mapel || "—"}</p>
-              <h3 className="truncate text-[26px] font-black leading-tight text-orange-600">{ws.topik || "Latihan"}</h3>
+              <h3 className="truncate text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
               <p className="mt-0.5 text-[13px] font-semibold text-slate-500">
                 {[ws.jenjang, ws.kelas ? `Kelas ${ws.kelas}` : "", `${ws.questions.length} soal`].filter(Boolean).join("  ·  ")}
               </p>
             </div>
-            <p className="shrink-0 text-[13px] font-black text-sky-500">Selamat mengerjakan!</p>
+            <p className="shrink-0 text-[13px] font-black text-emerald-600">Selamat mengerjakan!</p>
           </div>
           <div className="mt-5 flex gap-10 text-[15px] font-semibold">
             <span className="flex flex-1 items-end gap-2">Nama : <span className="flex-1 border-b-[1.5px] border-dotted border-slate-400" /></span>
@@ -93,7 +93,7 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
           <ol className="mt-5 space-y-5">
             {ws.questions.map((q, i) => (
               <li key={q.id} className="flex gap-2 text-[15px] leading-relaxed">
-                <span className="font-black text-orange-600">{i + 1}.</span>
+                <span className="font-black text-sky-700">{i + 1}.</span>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{q.text}</p>
                   {q.kind === "pg" && q.options?.length ? (
@@ -119,13 +119,13 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
         <>
           <div className="mt-3">
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Kunci Jawaban · {ws.mapel || "—"}</p>
-            <h3 className="text-[26px] font-black leading-tight text-orange-600">{ws.topik || "Latihan"}</h3>
+            <h3 className="text-[26px] font-black leading-tight text-sky-700">{ws.topik || "Latihan"}</h3>
             <p className="mt-0.5 text-[16px] font-black text-emerald-600">KUNCI JAWABAN</p>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-x-10 gap-y-4">
             {ws.questions.map((q, i) => (
               <p key={q.id} className="flex gap-2 text-[15px]">
-                <span className="font-black text-orange-600">{i + 1}.</span>
+                <span className="font-black text-sky-700">{i + 1}.</span>
                 <span className="font-bold text-slate-800">
                   {q.kind === "pg" && q.options?.length ? q.answer.toUpperCase() : q.answer || "—"}
                 </span>
@@ -150,10 +150,13 @@ export function SoalView() {
   const peng = db.pengaturan;
 
   const [mode, setMode] = useState<"otomatis" | "manual">("otomatis");
+  const [genMapel, setGenMapel] = useState<GenMapel>("matematika");
   const [mapel, setMapel] = useState<string>("Matematika");
   const [jenjang, setJenjang] = useState<string>("SD");
   const [kelas, setKelas] = useState<string>("1");
-  const [topikId, setTopikId] = useState<string>(TOPIK_MATEMATIKA.SD["1"]?.[0]?.id ?? "");
+  const [topikId, setTopikId] = useState<string>(
+    TOPIK_GENERATOR.matematika.SD?.["1"]?.[0]?.id ?? ""
+  );
   const [topikText, setTopikText] = useState<string>("");
   const [jumlah, setJumlah] = useState<number>(10);
   const [kesulitan, setKesulitan] = useState<Kesulitan>(2);
@@ -165,27 +168,42 @@ export function SoalView() {
   const [busy, setBusy] = useState(false);
 
   const topikList = useMemo(
-    () => TOPIK_MATEMATIKA[jenjang]?.[kelas] ?? [],
-    [jenjang, kelas]
+    () => TOPIK_GENERATOR[genMapel]?.[jenjang]?.[kelas] ?? [],
+    [genMapel, jenjang, kelas]
   );
+  const kelasOpsi = useMemo(
+    () => (mode === "otomatis" ? kelasTersedia(genMapel, jenjang) : KELAS_BY_JENJANG[jenjang] ?? []),
+    [mode, genMapel, jenjang]
+  );
+
+  const gantiGenMapel = (m: GenMapel) => {
+    setGenMapel(m);
+    const def = GEN_MAPEL.find((g) => g.id === m);
+    const j = def?.jenjang[0] ?? "SD";
+    const kk = kelasTersedia(m, j)[0] ?? "1";
+    setJenjang(j);
+    setKelas(kk);
+    setTopikId(TOPIK_GENERATOR[m]?.[j]?.[kk]?.[0]?.id ?? "");
+  };
 
   const gantiJenjangKelas = (j: string, k?: string) => {
     setJenjang(j);
-    const kk = k && KELAS_BY_JENJANG[j]?.includes(k) ? k : KELAS_BY_JENJANG[j]?.[0] || "1";
+    const opsi = mode === "otomatis" ? kelasTersedia(genMapel, j) : KELAS_BY_JENJANG[j] ?? [];
+    const kk = k && opsi.includes(k) ? k : opsi[0] || "1";
     setKelas(kk);
-    setTopikId(TOPIK_MATEMATIKA[j]?.[kk]?.[0]?.id ?? "");
+    setTopikId(TOPIK_GENERATOR[genMapel]?.[j]?.[kk]?.[0]?.id ?? "");
   };
 
   const buat = () => {
     if (mode === "otomatis") {
-      const gen = generateQuestions(topikId, jenjang, kelas, jumlah, kesulitan);
+      const gen = generateQuestions(genMapel, topikId, jenjang, kelas, jumlah, kesulitan);
       if (!gen.length) {
         toast({ title: "Topik belum tersedia", description: "Pilih topik generator untuk jenjang & kelas ini." });
         return;
       }
       setSheet({
-        id: "", createdAt: todayStr(), mapel: "Matematika", jenjang, kelas,
-        topik: topikLabel(topikId, jenjang, kelas), petunjuk, kunci,
+        id: "", createdAt: todayStr(), mapel: GEN_MAPEL.find((g) => g.id === genMapel)?.label ?? "Matematika", jenjang, kelas,
+        topik: topikLabel(genMapel, topikId, jenjang, kelas), petunjuk, kunci,
         questions: gen.map((g) => ({ id: uid(), text: g.q, kind: "isian" as SoalKind, answer: g.a })),
       });
     } else {
@@ -271,18 +289,18 @@ export function SoalView() {
                 onClick={() => setMode("otomatis")}
                 className={cn(
                   "rounded-xl border-2 px-3 py-2.5 text-left text-sm font-bold transition-colors",
-                  mode === "otomatis" ? "border-orange-400 bg-orange-50 text-orange-700" : "border-slate-200 text-slate-500 hover:border-orange-200"
+                  mode === "otomatis" ? "border-sky-400 bg-sky-50 text-sky-700" : "border-slate-200 text-slate-500 hover:border-sky-200"
                 )}
               >
                 <Wand2 className="mb-1 h-4 w-4" /> Otomatis
-                <span className="block text-[11px] font-semibold opacity-75">Generator Matematika</span>
+                <span className="block text-[11px] font-semibold opacity-75">4 bank generator mapel</span>
               </button>
               <button
                 type="button"
                 onClick={() => setMode("manual")}
                 className={cn(
                   "rounded-xl border-2 px-3 py-2.5 text-left text-sm font-bold transition-colors",
-                  mode === "manual" ? "border-orange-400 bg-orange-50 text-orange-700" : "border-slate-200 text-slate-500 hover:border-orange-200"
+                  mode === "manual" ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500 hover:border-emerald-200"
                 )}
               >
                 <BookPlus className="mb-1 h-4 w-4" /> Tulis sendiri
@@ -294,10 +312,12 @@ export function SoalView() {
             <div className="mt-4 space-y-1.5">
               <Label>Mata pelajaran</Label>
               {mode === "otomatis" ? (
-                <Select value="Matematika" onValueChange={() => {}}>
+                <Select value={genMapel} onValueChange={(v) => gantiGenMapel(v as GenMapel)}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Matematika">Matematika (generator otomatis)</SelectItem>
+                    {GEN_MAPEL.map((g) => (
+                      <SelectItem key={g.id} value={g.id}>{g.label} — {g.rentang}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               ) : (
@@ -315,19 +335,23 @@ export function SoalView() {
               <div className="space-y-1.5">
                 <Label>Jenjang</Label>
                 <div className="flex overflow-hidden rounded-lg border border-slate-200">
-                  {JENJANG.map((j) => (
-                    <button
-                      key={j}
-                      type="button"
-                      onClick={() => gantiJenjangKelas(j)}
-                      className={cn(
-                        "flex-1 py-2 text-sm font-bold transition-colors",
-                        jenjang === j ? "bg-orange-500 text-white" : "bg-white text-slate-500 hover:bg-orange-50"
-                      )}
-                    >
-                      {j}
-                    </button>
-                  ))}
+                  {JENJANG.map((j) => {
+                    const tersedia = mode === "manual" || (GEN_MAPEL.find((g) => g.id === genMapel)?.jenjang ?? []).includes(j);
+                    return (
+                      <button
+                        key={j}
+                        type="button"
+                        disabled={!tersedia}
+                        onClick={() => gantiJenjangKelas(j)}
+                        className={cn(
+                          "flex-1 py-2 text-sm font-bold transition-colors",
+                          jenjang === j ? "bg-sky-600 text-white" : tersedia ? "bg-white text-slate-500 hover:bg-sky-50" : "cursor-not-allowed bg-slate-100 text-slate-300"
+                        )}
+                      >
+                        {j}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -335,7 +359,7 @@ export function SoalView() {
                 <Select value={kelas} onValueChange={(k) => gantiJenjangKelas(jenjang, k)}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {(KELAS_BY_JENJANG[jenjang] ?? []).map((k) => (
+                    {kelasOpsi.map((k) => (
                       <SelectItem key={k} value={k}>Kelas {k}</SelectItem>
                     ))}
                   </SelectContent>
@@ -386,7 +410,7 @@ export function SoalView() {
                         onClick={() => setKesulitan(Number(v) as Kesulitan)}
                         className={cn(
                           "flex-1 py-2 text-xs font-bold transition-colors",
-                          kesulitan === Number(v) ? "bg-sky-500 text-white" : "bg-white text-slate-500 hover:bg-sky-50"
+                          kesulitan === Number(v) ? "bg-emerald-500 text-white" : "bg-white text-slate-500 hover:bg-emerald-50"
                         )}
                       >
                         {l}
@@ -418,7 +442,7 @@ export function SoalView() {
             </div>
 
             <div className="mt-4 flex gap-2">
-              <Button onClick={buat} className="flex-1 gap-2 rounded-xl bg-orange-500 font-bold hover:bg-orange-600">
+              <Button onClick={buat} className="flex-1 gap-2 rounded-xl bg-sky-600 font-bold hover:bg-sky-700">
                 <Sparkles className="h-4 w-4" /> {sheet ? "Perbarui worksheet" : "Buat worksheet"}
               </Button>
               {sheet && (
@@ -444,7 +468,7 @@ export function SoalView() {
                 {manualQs.map((q, i) => (
                   <div key={q.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
                     <div className="mb-2 flex items-center gap-2">
-                      <span className="grid h-6 w-6 place-items-center rounded-full bg-orange-100 text-xs font-black text-orange-700">{i + 1}</span>
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-black text-sky-800">{i + 1}</span>
                       <Select
                         value={q.kind}
                         onValueChange={(v) =>
@@ -529,7 +553,7 @@ export function SoalView() {
             action={
               sheet ? (
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" className="gap-1.5 rounded-lg bg-orange-500 font-bold hover:bg-orange-600" onClick={cetak}>
+                  <Button size="sm" className="gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700" onClick={cetak}>
                     <Printer className="h-4 w-4" /> Cetak / PDF
                   </Button>
                   <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("soal")} disabled={busy}>
@@ -580,7 +604,7 @@ export function SoalView() {
               <ul className="divide-y divide-slate-100">
                 {db.worksheets.map((ws) => (
                   <li key={ws.id} className="flex flex-wrap items-center gap-3 py-2.5">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-orange-100 text-orange-600">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-sky-100 text-sky-700">
                       <FileQuestion className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">

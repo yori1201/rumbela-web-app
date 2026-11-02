@@ -92,7 +92,7 @@ export function SiswaView() {
         title={`Daftar siswa (${filtered.length})`}
         desc="Semua data tersimpan otomatis"
         action={
-          <Button size="sm" className="bg-orange-500 hover:bg-orange-600" onClick={openNew}>
+          <Button size="sm" className="bg-sky-600 hover:bg-sky-700" onClick={openNew}>
             <UserPlus className="h-4 w-4" /> Tambah siswa
           </Button>
         }
@@ -128,7 +128,7 @@ export function SiswaView() {
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-extrabold text-slate-800">{s.name}</h3>
                   <div className="mt-1 flex flex-wrap gap-1.5">
-                    <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-700">{s.program}</span>
+                    <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800">{s.program}</span>
                     <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-700">
                       {s.level}{s.grade ? ` · kls ${s.grade}` : ""}
                     </span>
@@ -246,7 +246,7 @@ export function SiswaView() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-            <Button className="bg-orange-500 hover:bg-orange-600" onClick={save}>
+            <Button className="bg-sky-600 hover:bg-sky-700" onClick={save}>
               {editing ? "Simpan perubahan" : "Tambah siswa"}
             </Button>
           </DialogFooter>

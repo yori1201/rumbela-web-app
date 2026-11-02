@@ -20,7 +20,7 @@ import { toast } from "@/hooks/use-toast";
 import { readSession } from "@/lib/gdrive";
 
 const TYPE_BADGE: Record<string, string> = {
-  Dokumen: "bg-orange-100 text-orange-700",
+  Dokumen: "bg-sky-100 text-sky-800",
   Video: "bg-rose-100 text-rose-700",
   Tautan: "bg-sky-100 text-sky-700",
 };
@@ -81,7 +81,7 @@ export function MateriView() {
         title={`Bank Materi (${filtered.length})`}
         desc="Kumpulan tautan & berkas belajar — bisa dibagikan ke orang tua"
         action={
-          <Button size="sm" className="bg-orange-500 hover:bg-orange-600" onClick={() => setOpen(true)}>
+          <Button size="sm" className="bg-sky-600 hover:bg-sky-700" onClick={() => setOpen(true)}>
             <Link2 className="h-4 w-4" /> Tambah materi
           </Button>
         }
@@ -117,7 +117,7 @@ export function MateriView() {
               {m.desc && <p className="mt-1 line-clamp-2 flex-1 text-sm text-muted-foreground">{m.desc}</p>}
               <div className="mt-3 flex items-center justify-between">
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">{m.program}</span>
-                <a href={m.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:underline">
+                <a href={m.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:underline">
                   Buka <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
@@ -163,7 +163,7 @@ export function MateriView() {
             </div>
             <div className="grid gap-1.5">
               <Label>atau unggah berkas {authMode === "gdrive" ? "" : "(login Google dulu)"}</Label>
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 hover:border-orange-300 hover:text-orange-600">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 hover:border-sky-300 hover:text-sky-700">
                 <FileUp className="h-4 w-4" />
                 {uploading ? "Mengunggah…" : "Pilih berkas dari perangkat"}
                 <input
@@ -185,7 +185,7 @@ export function MateriView() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-            <Button className="bg-orange-500 hover:bg-orange-600" onClick={save} disabled={uploading}>Simpan</Button>
+            <Button className="bg-sky-600 hover:bg-sky-700" onClick={save} disabled={uploading}>Simpan</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

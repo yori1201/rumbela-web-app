@@ -11,7 +11,7 @@ import type { Pengaturan, Worksheet, WorksheetQ } from "./types";
 const W = 1000;
 const PAD = 70;
 
-const OR = "#ea580c"; // orange-600
+const OR = "#0369a1"; // sky-700 — biru sesuai tema dashboard
 const SKY = "#0284c7";
 const INK = "#1e293b";
 const MUT = "#94a3b8"; // slate-400

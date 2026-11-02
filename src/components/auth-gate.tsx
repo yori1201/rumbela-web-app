@@ -15,7 +15,7 @@ export function AuthGate() {
     typeof window !== "undefined" && !KNOWN_HOSTS.test(window.location.hostname);
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gradient-to-br from-orange-50 via-[#fdf8f3] to-emerald-50 px-4">
+    <div className="grid min-h-screen place-items-center bg-gradient-to-br from-sky-50 via-[#f0f9f4] to-emerald-50 px-4">
       <div className="w-full max-w-sm text-center">
         <Image
           src="/logo.webp"
@@ -36,7 +36,7 @@ export function AuthGate() {
         <div className="mt-6 space-y-2.5">
           <Button
             size="lg"
-            className="w-full gap-2 rounded-xl bg-orange-500 text-base font-bold hover:bg-orange-600"
+            className="w-full gap-2 rounded-xl bg-sky-600 text-base font-bold hover:bg-sky-700"
             onClick={() => void loginGoogle()}
             disabled={connecting}
           >

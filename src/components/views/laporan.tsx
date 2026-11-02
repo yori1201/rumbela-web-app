@@ -177,7 +177,7 @@ export function LaporanView() {
                 onClick={() => setTemplate(t.id)}
                 className={cn(
                   "rounded-xl border-2 p-3 text-left transition-all",
-                  template === t.id ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-orange-200"
+                  template === t.id ? "border-sky-400 bg-sky-50" : "border-slate-200 hover:border-sky-200"
                 )}
                 aria-pressed={template === t.id}
               >
@@ -217,7 +217,7 @@ export function LaporanView() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 text-xs text-orange-600"
+                    className="h-7 text-xs text-sky-700"
                     onClick={() => {
                       setNote(suggestNote(db, siswa, mk));
                     }}
@@ -247,7 +247,7 @@ export function LaporanView() {
           {rendering && <p className="mt-2 text-center text-xs text-muted-foreground">Merender…</p>}
           {siswa && (
             <div className="mt-3 grid gap-2">
-              <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => void download()}>
+              <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => void download()}>
                 <Download className="h-4 w-4" /> Unduh gambar PNG
               </Button>
               <Button variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50" onClick={sendWa}>

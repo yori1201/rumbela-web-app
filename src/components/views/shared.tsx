@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function StatCard({ label, value, sub, accent = "orange" }: { label: string; value: string; sub?: string; accent?: "orange" | "sky" | "emerald" | "rose" }) {
   const accents: Record<string, string> = {
-    orange: "bg-orange-50 text-orange-700 border-orange-100",
+    orange: "bg-sky-50 text-sky-800 border-sky-100",
     sky: "bg-sky-50 text-sky-700 border-sky-100",
     emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
     rose: "bg-rose-50 text-rose-700 border-rose-100",

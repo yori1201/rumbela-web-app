@@ -91,7 +91,7 @@ export function PengaturanView() {
               onClick={() => setLaporan({ template: t.id })}
               className={cn(
                 "rounded-xl border-2 p-3 text-left transition-all",
-                p.laporan.template === t.id ? "border-orange-400 bg-orange-50" : "border-slate-200 hover:border-orange-200"
+                p.laporan.template === t.id ? "border-sky-400 bg-sky-50" : "border-slate-200 hover:border-sky-200"
               )}
               aria-pressed={p.laporan.template === t.id}
             >
@@ -180,7 +180,7 @@ export function PengaturanView() {
       <SectionCard title="Tentang" desc="Rumbela v2.0">
         <div className="space-y-1.5 text-sm text-muted-foreground">
           <p className="flex items-start gap-2">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
             Database: satu file <b>rumbela-database.json</b> di Google Drive pribadi (scope drive.file — aplikasi hanya dapat melihat file buatannya sendiri).
           </p>
           <p>Auto-save aktif dengan jeda 1,2 detik setiap perubahan; flush otomatis saat tab ditutup.</p>

@@ -99,7 +99,7 @@ export function IuranView() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {db.students.map((s) => (
-                <tr key={s.id} className="hover:bg-orange-50/40">
+                <tr key={s.id} className="hover:bg-sky-50/40">
                   <td className="sticky left-0 z-10 max-w-[220px] bg-white px-4 py-2.5">
                     <p className="truncate font-bold text-slate-700">{s.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{s.program} · {rp(s.fee)}</p>
@@ -117,7 +117,7 @@ export function IuranView() {
                           className={cn(
                             "mx-auto grid h-8 w-9 place-items-center rounded-lg text-xs font-extrabold transition-transform active:scale-90",
                             CELL[st],
-                            isNow && "ring-2 ring-orange-400 ring-offset-1"
+                            isNow && "ring-2 ring-sky-400 ring-offset-1"
                           )}
                         >
                           {SHORT[st]}
@@ -151,7 +151,7 @@ export function IuranView() {
           </span>
         ))}
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded ring-2 ring-orange-400" /> bulan berjalan
+          <span className="h-3 w-3 rounded ring-2 ring-sky-400" /> bulan berjalan
         </span>
       </div>
       <span className="hidden">{CYCLE.length}</span>
