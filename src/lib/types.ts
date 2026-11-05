@@ -103,6 +103,10 @@ export interface Pengaturan {
   alamat: string;
   telepon: string;
   emailAdmin: string;
+  /** iuran: tanggal jatuh tempo setiap bulan (1–31) */
+  iuran?: { jatuhTempo: number };
+  /** jurnal: template teks laporan harian WA (placeholder {kurung}) */
+  jurnal?: { templateWa: string };
   laporan: {
     template: TemplateLaporan;
     pesanPenutup: string;
@@ -123,7 +127,7 @@ export interface Database {
   worksheets: Worksheet[];
 }
 
-import { DEFAULT_SLOTS, todayStr } from "./constants";
+import { DEFAULT_SLOTS, DEFAULT_TEMPLATE_WA, todayStr } from "./constants";
 
 export function defaultPengaturan(): Pengaturan {
   return {
@@ -132,6 +136,8 @@ export function defaultPengaturan(): Pengaturan {
     alamat: "Curup, Bengkulu",
     telepon: "",
     emailAdmin: "",
+    iuran: { jatuhTempo: 5 },
+    jurnal: { templateWa: DEFAULT_TEMPLATE_WA },
     laporan: {
       template: "ceria",
       pesanPenutup:
@@ -270,6 +276,16 @@ export function normalizeDB(raw: unknown): Database {
       telepon: STR(p.telepon),
       emailAdmin: STR(p.emailAdmin),
     };
+    if (isObj(p.iuran)) {
+      const iu = p.iuran as Record<string, unknown>;
+      const jt = Math.min(31, Math.max(1, Math.round(NUM(iu.jatuhTempo, 5))));
+      db.pengaturan.iuran = { jatuhTempo: jt };
+    }
+    if (isObj(p.jurnal)) {
+      const ju = p.jurnal as Record<string, unknown>;
+      const t = STR(ju.templateWa).trim();
+      if (t) db.pengaturan.jurnal = { templateWa: t };
+    }
     if (isObj(p.laporan)) {
       const l = p.laporan as Record<string, unknown>;
       db.pengaturan.laporan = {

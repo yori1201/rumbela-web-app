@@ -1,9 +1,12 @@
 "use client";
 
-import { BookOpen, CalendarCheck2, ClipboardList, UserPlus, Wallet } from "lucide-react";
+import { BookOpen, CalendarCheck2, CalendarClock, ClipboardList, UserPlus, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { attStatsInMonth, payStatus } from "@/lib/laporan";
-import { currentMonthKey, greeting, MONTHS, rp, todayStr, waLink, DAYS } from "@/lib/constants";
+import {
+  currentMonthKey, greeting, MONTHS, rp, todayStr, waLink, DAYS,
+  dueDateOf, fmtDayDate,
+} from "@/lib/constants";
 import { EmptyState, SectionCard, StatCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import type { ViewId } from "@/components/app-shell";
@@ -25,6 +28,15 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
   }, 0);
   const belumLunas = db.students.filter((s) => payStatus(db, s.id, mk) !== "lunas");
   const jurnalHariIni = db.journal[today];
+
+  /* jatuh tempo iuran berikutnya (tanggal tiap bulan bisa diatur di menu Iuran) */
+  const jt = Math.min(31, Math.max(1, db.pengaturan.iuran?.jatuhTempo ?? 5));
+  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const due =
+    belumLunas.length > 0
+      ? dueDateOf(now.getFullYear(), now.getMonth(), jt)
+      : dueDateOf(now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), (now.getMonth() + 1) % 12, jt);
+  const dueInDays = Math.round((due.getTime() - today0.getTime()) / 86400000);
 
   return (
     <div className="space-y-5">
@@ -60,13 +72,21 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SectionCard
           title="Iuran belum lunas"
-          desc={`${MONTHS[now.getMonth()]} ${now.getFullYear()}`}
+          desc={`${MONTHS[now.getMonth()]} ${now.getFullYear()} · jatuh tempo ${fmtDayDate(due)}`}
           action={
             <Button size="sm" variant="ghost" className="text-sky-700" onClick={() => setView("iuran")}>
               Kelola <Wallet className="ml-1 h-4 w-4" />
             </Button>
           }
         >
+          <p className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-800">
+            <CalendarClock className="h-3.5 w-3.5" />
+            {dueInDays < 0
+              ? `Terlambat ${-dueInDays} hari dari ${fmtDayDate(due)}`
+              : dueInDays === 0
+                ? "Jatuh tempo hari ini"
+                : `Pembayaran berikutnya ${dueInDays} hari lagi`}
+          </p>
           {belumLunas.length === 0 ? (
             <p className="text-sm text-emerald-600">Semua iuran bulan ini sudah lunas 🎉</p>
           ) : (
@@ -84,7 +104,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                     <a
                       href={waLink(
                         s.wa,
-                        `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* mengingatkan iuran bulan *${MONTHS[now.getMonth()]} ${now.getFullYear()}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*. Terima kasih atas perhatiannya 🙏`
+                        `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* mengingatkan iuran bulan *${MONTHS[now.getMonth()]} ${now.getFullYear()}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.\n\nBatas pembayaran: *${fmtDayDate(due)}*${dueInDays < 0 ? ` — telah terlewat ${-dueInDays} hari, mohon segera dilunasi` : dueInDays === 0 ? " (hari ini)" : ""}. Terima kasih atas perhatiannya 🙏`
                       )}
                       target="_blank"
                       rel="noreferrer"

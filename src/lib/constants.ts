@@ -79,6 +79,47 @@ export function fmtDateShort(iso?: string): string {
   return `${Number(p[2])} ${MONTHS_SHORT[Number(p[1]) - 1]}`;
 }
 
+/** Tanggal jatuh tempo iuran pada tahun y bulan m (0-index) — diklem ke jumlah hari bulan itu. */
+export function dueDateOf(y: number, m: number, day: number): Date {
+  const last = new Date(y, m + 1, 0).getDate();
+  return new Date(y, m, Math.min(Math.max(1, day), last));
+}
+
+/** "Senin, 9 November 2026" */
+export function fmtDayDate(d: Date): string {
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** "Sen, 9 Nov" */
+export function fmtDayDateShort(d: Date): string {
+  return `${DAYS[d.getDay()].slice(0, 3)}, ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+}
+
+/** Template bawaan laporan harian WA (fitur Jurnal). */
+export const DEFAULT_TEMPLATE_WA = `Assalamu'alaikum Bapak/Ibu {orangtua},
+
+Berikut laporan harian ananda *{nama}* ({program}) — *{hari}, {tanggal}* di {lembaga}:
+
+• Kehadiran: {kehadiran}
+• Kegiatan: {kegiatan}
+• Catatan progres: {progres}
+{rekap}
+Terima kasih atas dukungannya di rumah 🙏`;
+
+/** Ganti semua {placeholder} dalam template lalu rapikan spasi/baris kosong. */
+export function fillTemplate(tpl: string, vars: Record<string, string>): string {
+  let out = tpl || "";
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.split(`{${k}}`).join(v ?? "");
+  }
+  return out
+    .split("\n")
+    .map((l) => l.replace(/[ \t]+$/, ""))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function monthLabel(mk: string): string {
   const [y, m] = mk.split("-");
   return `${MONTHS[Number(m) - 1]} ${y}`;
