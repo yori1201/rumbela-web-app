@@ -51,6 +51,7 @@ export function PengaturanView() {
       d.students = d.students.filter((s) => !s.sample);
       sampleIds.forEach((id) => {
         delete d.payments[id];
+        delete d.payDates[id];
         Object.keys(d.reports).forEach((k) => k.startsWith(id + "@") && delete d.reports[k]);
         Object.keys(d.attendance).forEach((t) => delete d.attendance[t][id]);
       });

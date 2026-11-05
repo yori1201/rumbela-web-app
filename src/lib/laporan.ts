@@ -30,6 +30,11 @@ export function payStatus(db: Database, siswaId: string, mk: string): PayStatus 
   return db.payments[siswaId]?.[mk] ?? "belum";
 }
 
+/** Tanggal pembayaran (YYYY-MM-DD) seorang siswa pada bulan tertentu, bila tercatat. */
+export function payDate(db: Database, siswaId: string, mk: string): string | null {
+  return db.payDates?.[siswaId]?.[mk] ?? null;
+}
+
 export function getReport(db: Database, siswaId: string, mk: string): ReportRec {
   return db.reports[`${siswaId}@${mk}`] ?? { scores: {}, note: "", sent: false };
 }

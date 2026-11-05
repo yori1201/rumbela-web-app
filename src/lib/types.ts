@@ -118,6 +118,8 @@ export interface Pengaturan {
 export interface Database {
   students: Siswa[];
   payments: Record<string, Record<string, PayStatus>>;
+  /** tanggal pembayaran ("YYYY-MM-DD") per siswa per bulan — sejajar dgn payments */
+  payDates: Record<string, Record<string, string>>;
   attendance: Record<string, Record<string, AttStatus>>;
   reports: Record<string, ReportRec>;
   materials: Materi[];
@@ -152,6 +154,7 @@ export function emptyDB(): Database {
   return {
     students: [],
     payments: {},
+    payDates: {},
     attendance: {},
     reports: {},
     materials: [],
@@ -193,6 +196,20 @@ export function normalizeDB(raw: unknown): Database {
         }))
       : [],
     payments: isObj(d.payments) ? (d.payments as Database["payments"]) : {},
+    payDates: isObj(d.payDates)
+      ? Object.fromEntries(
+          Object.entries(d.payDates as Record<string, unknown>)
+            .filter(([, mm]) => isObj(mm))
+            .map(([sid, mm]) => [
+              sid,
+              Object.fromEntries(
+                Object.entries(mm as Record<string, unknown>)
+                  .filter(([, v]) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v as string))
+                  .map(([mk, v]) => [mk, v as string])
+              ),
+            ])
+        )
+      : {},
     attendance: isObj(d.attendance) ? (d.attendance as Database["attendance"]) : {},
     reports: isObj(d.reports) ? (d.reports as Database["reports"]) : {},
     materials: Array.isArray(d.materials)

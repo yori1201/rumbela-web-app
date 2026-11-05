@@ -35,6 +35,14 @@ export function demoDB(): Database {
   db.payments[s[4].id] = { [thisMk]: "lunas" };
   db.payments[s[5].id] = { [lastMk]: "lunas", [thisMk]: "belum" };
 
+  // Tanggal pembayaran (contoh)
+  const tgl = (day: number) => `${y}-${pad2(m + 1)}-${pad2(Math.min(day, 28))}`;
+  db.payDates = {
+    [s[0].id]: { [lastMk]: `${lastY}-${pad2(m === 0 ? 12 : m)}-04`, [thisMk]: tgl(3) },
+    [s[1].id]: { [thisMk]: tgl(2) },
+    [s[4].id]: { [thisMk]: tgl(1) },
+  };
+
   // Absensi 12 hari kerja terakhir
   const d = new Date();
   let added = 0;
