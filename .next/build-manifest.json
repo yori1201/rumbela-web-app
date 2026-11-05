@@ -4,11 +4,11 @@
   },
   "devFiles": [],
   "polyfillFiles": [
-    "static/chunks/664adc71bc2617c2.js"
+    "static/chunks/a6dad97d9634a72d.js"
   ],
   "lowPriorityFiles": [
-    "static/cZXBa3RGz08ZOBkzsOWnX/_ssgManifest.js",
-    "static/cZXBa3RGz08ZOBkzsOWnX/_buildManifest.js"
+    "static/fUsxl6RtYYNUhNR1p9RLF/_ssgManifest.js",
+    "static/fUsxl6RtYYNUhNR1p9RLF/_buildManifest.js"
   ],
   "rootMainFiles": [
     "static/chunks/556c8b59b4c9a879.js",

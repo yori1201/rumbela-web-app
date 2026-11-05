@@ -1,8 +1,5 @@
-[00:00:00.894] Server  LOG     ✓ Ready in 693ms
-[00:00:03.910] Server  LOG     ○ Compiling / ...
-[00:06:34.670] Server  LOG     ✓ Compiled in 369ms
-[00:06:34.970] Server  LOG     ✓ Compiled in 172ms
-[00:06:35.446] Server  LOG     ✓ Compiled in 371ms
-[00:06:35.913] Server  LOG     ✓ Compiled in 288ms
-[00:15:56.658] Server  LOG     ✓ Compiled in 186ms
-[00:16:03.534] Server  LOG     ✓ Compiled in 147ms
+[00:00:00.896] Server  LOG     ✓ Ready in 704ms
+[00:00:03.913] Server  LOG     ○ Compiling / ...
+[00:00:52.648] Server  ERROR   Error: write EIO
+[00:00:52.655] Server  ERROR   ⨯ "uncaughtException:" Error: write EIO
+[00:00:52.659] Server  ERROR   ⨯ "uncaughtException: " Error: write EIO
