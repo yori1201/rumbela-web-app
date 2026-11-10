@@ -140,6 +140,25 @@ export function rp(n: number): string {
   return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
+/** Angka → kata bahasa Indonesia (untuk terbilang kuitansi): 150000 → "seratus lima puluh ribu". */
+export function terbilang(n: number): string {
+  const v = Math.floor(Math.abs(Number(n) || 0));
+  if (v === 0) return "nol";
+  const dasar = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+  const kata = (x: number): string => {
+    if (x < 12) return dasar[x];
+    if (x < 20) return kata(x - 10) + " belas";
+    if (x < 100) return kata(Math.floor(x / 10)) + " puluh" + (x % 10 ? " " + kata(x % 10) : "");
+    if (x < 200) return "seratus" + (x % 100 ? " " + kata(x % 100) : "");
+    if (x < 1000) return kata(Math.floor(x / 100)) + " ratus" + (x % 100 ? " " + kata(x % 100) : "");
+    if (x < 2000) return "seribu" + (x % 1000 ? " " + kata(x % 1000) : "");
+    if (x < 1_000_000) return kata(Math.floor(x / 1000)) + " ribu" + (x % 1000 ? " " + kata(x % 1000) : "");
+    if (x < 1_000_000_000) return kata(Math.floor(x / 1_000_000)) + " juta" + (x % 1_000_000 ? " " + kata(x % 1_000_000) : "");
+    return kata(Math.floor(x / 1_000_000_000)) + " miliar" + (x % 1_000_000_000 ? " " + kata(x % 1_000_000_000) : "");
+  };
+  return kata(v);
+}
+
 /** Ringkas: 150.000 → "150rb", 1.500.000 → "1,5jt" — untuk chip/label matriks iuran. */
 export function rpShort(n: number): string {
   const v = Number(n || 0);

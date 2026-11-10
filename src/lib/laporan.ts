@@ -3,7 +3,7 @@
 /* Perhitungan statistik untuk Laporan Perkembangan Siswa. */
 
 import type { Database, PayStatus, ReportRec, Siswa } from "./types";
-import { pad2 } from "./constants";
+import { dueDateOf, pad2 } from "./constants";
 
 export interface AttStats {
   h: number;
@@ -49,6 +49,33 @@ export function payEffective(db: Database, siswa: Siswa, mk: string): number {
   const amt = payAmount(db, siswa.id, mk);
   if (st === "lunas") return amt ?? siswa.fee;
   return amt ?? Math.round(siswa.fee / 2);
+}
+
+/** Tanggal jatuh tempo iuran seorang siswa untuk bulan mk ("YYYY-MM").
+ *  Siklus per siswa — mengikuti tanggal input pembayaran terakhirnya SEBELUM bulan tsb,
+ *  sehingga siswa yang bayar tgl 20 berikutnya ditagih tgl 20 bulan berikutnya.
+ *  Belum pernah bayar → mengikuti tanggal masuk (s.start);
+ *  tidak ada keduanya → jatuh tempo global (pengaturan.iuran.jatuhTempo). */
+export function dueDateForStudent(db: Database, siswa: Siswa, mk: string): Date {
+  const p = mk.split("-");
+  const y = Number(p[0]);
+  const m = Number(p[1]) - 1; // 0-index
+  // 1) tanggal pembayaran terakhir sebelum awal bulan mk
+  let lastPay: string | null = null;
+  const dates = db.payDates?.[siswa.id] ?? {};
+  for (const dstr of Object.values(dates)) {
+    if (typeof dstr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dstr) && dstr < `${mk}-01`) {
+      if (!lastPay || dstr > lastPay) lastPay = dstr;
+    }
+  }
+  if (lastPay) return dueDateOf(y, m, Number(lastPay.split("-")[2]));
+  // 2) tanggal masuk siswa
+  const st = (siswa.start || "").split("-");
+  if (st.length === 3 && Number(st[2]) >= 1 && Number(st[2]) <= 31) {
+    return dueDateOf(y, m, Number(st[2]));
+  }
+  // 3) jatuh tempo global
+  return dueDateOf(y, m, Math.min(31, Math.max(1, db.pengaturan.iuran?.jatuhTempo ?? 5)));
 }
 
 export function getReport(db: Database, siswaId: string, mk: string): ReportRec {

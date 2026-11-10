@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { CalendarClock, MessageCircle, Wallet } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CalendarClock, Copy, Download, MessageCircle, Receipt, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { payAmount, payDate, payEffective, payStatus } from "@/lib/laporan";
+import { dueDateForStudent, payAmount, payDate, payEffective, payStatus } from "@/lib/laporan";
+import { kuitansiWaLink, kuitansiWaText, renderKuitansi } from "@/lib/renderKuitansi";
 import {
   MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, rpShort, waLink, todayStr,
-  dueDateOf, fmtDayDate, fmtDayDateShort, fmtDate, fmtDateShort,
+  fmtDayDate, fmtDayDateShort, fmtDate, fmtDateShort,
 } from "@/lib/constants";
 import type { PayStatus, Siswa } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
@@ -65,9 +66,10 @@ export function IuranView() {
   const target = db.students.reduce((a, s) => a + s.fee, 0);
   const belumCount = db.students.length - lunasCount;
 
-  /** Jatuh tempo pembayaran berikutnya seorang siswa:
-   *  bulan berjalan belum lunas → tanggal jt bulan ini;
-   *  sudah lunas → tanggal jt bulan depan. */
+  /** Jatuh tempo pembayaran berikutnya seorang siswa — siklus per siswa:
+   *  mengikuti tanggal pembayaran terakhirnya masing-masing.
+   *  Bulan berjalan belum lunas → jatuh tempo bulan ini;
+   *  sudah lunas → jatuh tempo bulan depan. */
   const nextDue = (s: Siswa): DueInfo => {
     const st = payStatus(db, s.id, thisMk);
     let y = now.getFullYear();
@@ -76,19 +78,25 @@ export function IuranView() {
       y += m === 11 ? 1 : 0;
       m = (m + 1) % 12;
     }
-    const date = dueDateOf(y, m, jt);
+    const date = dueDateForStudent(db, s, monthKey(y, m));
     const inDays = Math.round((date.getTime() - today0.getTime()) / 86400000);
     return { date, inDays, overdue: st !== "lunas" && inDays < 0 ? -inDays : 0, lunas: st === "lunas" };
   };
   const dueInfo = new Map(db.students.map((s) => [s.id, nextDue(s)]));
 
-  /** jatuh tempo umum: bulan ini bila masih ada yang belum lunas, selain itu bulan depan */
+  /** jatuh tempo terdekat: paling awal di antara siswa yang belum lunas bulan ini
+   *  (tiap siswa punya siklus sendiri); semua lunas → jatuh tempo terdekat bulan depan */
   const groupDue: DueInfo = (() => {
+    const unpaid = db.students.filter((s) => payStatus(db, s.id, thisMk) !== "lunas");
     const nmY = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
     const nmM = (now.getMonth() + 1) % 12;
-    const date = belumCount > 0 ? dueDateOf(now.getFullYear(), now.getMonth(), jt) : dueDateOf(nmY, nmM, jt);
+    const times = unpaid.length
+      ? unpaid.map((s) => dueDateForStudent(db, s, thisMk).getTime())
+      : db.students.map((s) => dueDateForStudent(db, s, monthKey(nmY, nmM)).getTime());
+    const date = new Date(times.length ? Math.min(...times) : today0.getTime());
     const inDays = Math.round((date.getTime() - today0.getTime()) / 86400000);
-    return { date, inDays, overdue: belumCount > 0 && inDays < 0 ? -inDays : 0, lunas: belumCount === 0 };
+    const overdueCount = unpaid.filter((s) => dueDateForStudent(db, s, thisMk).getTime() < today0.getTime()).length;
+    return { date, inDays, overdue: unpaid.length ? overdueCount : 0, lunas: unpaid.length === 0 };
   })();
 
   /* ---------- dialog status + tanggal + jumlah pembayaran ---------- */
@@ -162,6 +170,56 @@ export function IuranView() {
     setEditPay({ sid, mk: year === now.getFullYear() ? thisMk : `${year}-01`, quick: true });
   };
 
+  /* ---------- kuitansi / bukti pembayaran ---------- */
+  const [kuit, setKuit] = useState<{ sid: string; mk: string } | null>(null);
+  const [kuitCanvas, setKuitCanvas] = useState<HTMLCanvasElement | null>(null);
+  const kuitBoxRef = useRef<HTMLDivElement>(null);
+  const kuitSiswa = kuit ? db.students.find((s) => s.id === kuit.sid) ?? null : null;
+
+  const openKuit = (sid: string, mk: string = thisMk) => {
+    if (payStatus(db, sid, mk) === "belum") {
+      toast({
+        title: "Belum ada pembayaran tercatat",
+        description: `Catat bayaran ${monthLabel(mk)} dulu untuk membuat kuitansi.`,
+      });
+      return;
+    }
+    setKuitCanvas(null);
+    setKuit({ sid, mk });
+  };
+
+  useEffect(() => {
+    if (!kuit || !kuitSiswa) return;
+    let alive = true;
+    void renderKuitansi(db, kuitSiswa, kuit.mk).then((c) => {
+      if (!alive) return;
+      c.className = "w-full h-auto rounded-lg bg-white shadow-sm";
+      setKuitCanvas(c);
+      kuitBoxRef.current?.replaceChildren(c);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [db, kuit, kuitSiswa]);
+
+  const unduhKuit = () => {
+    if (!kuitCanvas || !kuitSiswa || !kuit) return;
+    const a = document.createElement("a");
+    a.href = kuitCanvas.toDataURL("image/png");
+    a.download = `Kuitansi-${kuitSiswa.name.replace(/\s+/g, "-")}-${kuit.mk}.png`;
+    a.click();
+  };
+
+  const salinKuit = async () => {
+    if (!kuitSiswa || !kuit) return;
+    try {
+      await navigator.clipboard.writeText(kuitansiWaText(db, kuitSiswa, kuit.mk));
+      toast({ title: "Teks kuitansi disalin", description: "Tempel di chat WhatsApp bapak/ibu." });
+    } catch {
+      toast({ title: "Gagal menyalin", description: "Gunakan tombol Kirim WA sebagai gantinya." });
+    }
+  };
+
   const remindText = (sid: string) => {
     const s = db.students.find((x) => x.id === sid)!;
     const st = payStatus(db, sid, thisMk);
@@ -215,17 +273,20 @@ export function IuranView() {
           </span>
           {groupDue.overdue > 0 ? (
             <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">
-              terlambat {groupDue.overdue} hari · {belumCount} siswa
+              terlambat · {groupDue.overdue} siswa lewat jatuh tempo
             </span>
           ) : groupDue.inDays === 0 ? (
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">jatuh tempo hari ini</span>
           ) : (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
-              {groupDue.lunas ? "semua lunas — bulan depan" : `${groupDue.inDays} hari lagi`}
+              {groupDue.lunas ? "semua lunas — bulan depan" : `${groupDue.inDays} hari lagi · ${belumCount} siswa belum lunas`}
             </span>
           )}
-          <label className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-            Jatuh tempo tiap tanggal
+          <label
+            className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground"
+            title="Dipakai hanya bila siswa belum pernah mencatat pembayaran dan tidak punya tanggal masuk"
+          >
+            Jatuh tempo bawaan: tanggal
             <Input
               type="number"
               min={1}
@@ -247,7 +308,7 @@ export function IuranView() {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> di samping nama siswa untuk mengisi tanggal & jumlah pembayaran.
+          Jatuh tempo tiap siswa kini <b>mengikuti tanggal pembayarannya sendiri</b> — tanggal pembayaran terakhir, atau tanggal masuk bila belum pernah bayar. Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal &amp; jumlah pembayaran lalu mengirim kuitansinya ke WA.
         </p>
       </SectionCard>
 
@@ -324,7 +385,7 @@ export function IuranView() {
                     const pd = payDate(db, s.id, mk);
                     const am = payAmount(db, s.id, mk);
                     const isNow = mk === thisMk;
-                    const dueM = dueDateOf(year, mi, jt);
+                    const dueM = dueDateForStudent(db, s, mk);
                     return (
                       <td key={mk} className="px-1 py-2.5 text-center">
                         <button
@@ -352,15 +413,24 @@ export function IuranView() {
                     );
                   })}
                   <td className="px-3 py-2.5 text-center">
-                    <a
-                      href={remindText(s.id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      title="Ingatkan via WhatsApp"
-                      className="inline-grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </a>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        onClick={() => openKuit(s.id)}
+                        title={`Kuitansi & kirim bukti WA — ${monthLabel(thisMk)}`}
+                        className="inline-grid h-8 w-8 place-items-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
+                      >
+                        <Receipt className="h-4 w-4" />
+                      </button>
+                      <a
+                        href={remindText(s.id)}
+                        target="_blank"
+                        rel="noreferrer"
+                        title="Ingatkan via WhatsApp"
+                        className="inline-grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 );
@@ -502,6 +572,20 @@ export function IuranView() {
           </div>
 
           <DialogFooter>
+            {editSt !== "belum" && (
+              <Button
+                variant="outline"
+                className="mr-auto border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                onClick={() => {
+                  const { sid, mk } = editPay!;
+                  setEditPay(null);
+                  setAmountDraft(null);
+                  openKuit(sid, mk);
+                }}
+              >
+                <Receipt className="h-4 w-4" /> Kuitansi &amp; kirim WA
+              </Button>
+            )}
             <Button
               className="bg-sky-600 hover:bg-sky-700"
               onClick={() => {
@@ -511,6 +595,37 @@ export function IuranView() {
             >
               Selesai
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* dialog: kuitansi / bukti pembayaran */}
+      <Dialog open={!!kuit && !!kuitSiswa} onOpenChange={(o) => !o && setKuit(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Kuitansi — {kuitSiswa?.name}</DialogTitle>
+            <DialogDescription>
+              {kuit ? monthLabel(kuit.mk) : ""} · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative grid min-h-[220px] place-items-center overflow-hidden rounded-xl bg-slate-100 p-2">
+            <div ref={kuitBoxRef} className="w-full" />
+            {!kuitCanvas && <p className="absolute p-8 text-sm text-muted-foreground">Menyiapkan kuitansi…</p>}
+          </div>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Button variant="outline" onClick={unduhKuit} disabled={!kuitCanvas} className="sm:mr-auto">
+              <Download className="h-4 w-4" /> Unduh PNG
+            </Button>
+            <Button variant="ghost" onClick={() => void salinKuit()}>
+              <Copy className="h-4 w-4" /> Salin teks
+            </Button>
+            {kuitSiswa && (
+              <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                <a href={kuitansiWaLink(db, kuitSiswa, kuit!.mk)} target="_blank" rel="noreferrer">
+                  <MessageCircle className="h-4 w-4" /> Kirim WA
+                </a>
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
