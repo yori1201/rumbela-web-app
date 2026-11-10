@@ -1,5 +1,0 @@
-[00:00:00.896] Server  LOG     ✓ Ready in 704ms
-[00:00:03.913] Server  LOG     ○ Compiling / ...
-[00:00:52.648] Server  ERROR   Error: write EIO
-[00:00:52.655] Server  ERROR   ⨯ "uncaughtException:" Error: write EIO
-[00:00:52.659] Server  ERROR   ⨯ "uncaughtException: " Error: write EIO

@@ -1,2 +1,23 @@
-skills/
+# dependensi
 node_modules/
+
+# artefak build
+.next/
+out/
+*.tsbuildinfo
+
+# environment & rahasia
+.env
+.env.*
+!.env.example
+
+# internal ruang kerja
+skills/
+tool-results/
+audit/
+upload/
+.zscripts/
+
+# sistem
+.DS_Store
+*.log

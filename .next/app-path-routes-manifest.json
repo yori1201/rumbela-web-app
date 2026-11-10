@@ -1,9 +1,0 @@
-{
-  "/_global-error/page": "/_global-error",
-  "/_not-found/page": "/_not-found",
-  "/api/route": "/api",
-  "/apple-icon.png/route": "/apple-icon.png",
-  "/icon.png/route": "/icon.png",
-  "/manifest.webmanifest/route": "/manifest.webmanifest",
-  "/page": "/"
-}
