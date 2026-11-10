@@ -860,6 +860,183 @@ export const TOPIK_CODING: Record<string, Record<string, TopikDef[]>> = {
   },
 };
 
+/* ================= Worksheet Kiddo (sumber materi: kiddoworksheets.com) =================
+   Bank mengikuti kategori lembar kerja kiddoworksheets.com — Alphabets, Numbers,
+   Maths, Vocabulary (scramble / sight words / matching), Shapes, Colors, Patterns,
+   Telling Time, Body Parts (GK), Find the Difference — disesuaikan menjadi
+   5 jenis soal Rumbela (PG / isian / uraian / menjodohkan / susun). */
+
+const KATA_ANAK: string[] = ["bola", "mata", "kuda", "ikan", "buku", "sapi", "roti", "nasi", "baju", "roda", "kaki", "gigi"];
+
+const hurufHilangKiddo: TopikDef = {
+  id: "kiddo-huruf-hilang", label: "Huruf yang hilang (A–Z)",
+  gen: (lv, R) => {
+    const besar = R() < 0.7;
+    const abj = besar ? ABJAD : ABJAD.map((h) => h.toLowerCase());
+    const len = lv === 1 ? 4 : 6;
+    const start = ri(R, 0, ABJAD.length - 1 - len);
+    const gap = ri(R, 1, len - 2);
+    const deret = Array.from({ length: len }, (_, i) => abj[start + i]);
+    const jawab = deret[gap];
+    deret[gap] = "__";
+    return { q: `Lengkapi huruf yang hilang:  ${deret.join("   ")}`, a: jawab };
+  },
+};
+
+const angkaHilangKiddo: TopikDef = {
+  id: "kiddo-angka-hilang", label: "Angka yang hilang",
+  gen: (lv, R) => {
+    const lang = lv === 1 ? 1 : pick(R, [1, 2, 5, 10]);
+    const mulai = ri(R, 1, lang === 1 ? (lv === 3 ? 60 : 25) : 10);
+    const gap = ri(R, 1, 3);
+    const deret = Array.from({ length: 5 }, (_, i) => mulai + i * lang);
+    const jawab = deret[gap];
+    deret[gap] = -1;
+    return { q: `Lengkapi urutan angka:  ${deret.map((n) => (n < 0 ? "…" : n)).join(", ")}`, a: `${jawab}` };
+  },
+};
+
+const hitungBendaKiddo: TopikDef = {
+  id: "kiddo-hitung-benda", label: "Berhitung benda",
+  gen: (lv, R) => {
+    const [sim, nama] = pick(R, [["★", "bintang"], ["●", "bulatan"], ["■", "kotak"], ["▲", "segitiga"], ["♥", "hati"]] as [string, string][]);
+    const n = ri(R, 2, lv === 1 ? 7 : 14);
+    return { q: `Hitung jumlah ${nama}:  ${Array.from({ length: n }, () => sim).join(" ")}`, a: `${n}` };
+  },
+};
+
+const WARNA_BENDA: [string, string][] = [
+  ["Pisang", "kuning"], ["Daun", "hijau"], ["Langit", "biru"], ["Tomat", "merah"], ["Susu", "putih"],
+  ["Wortel", "oranye"], ["Anggur", "ungu"], ["Cabai", "merah"], ["Jagung", "kuning"], ["Laut", "biru"],
+];
+const warnaJodohKiddo: TopikDef = {
+  ...jodohDari(WARNA_BENDA, "Pasangkan benda di kiri dengan warnanya di kanan!"),
+  id: "kiddo-warna-jodoh", label: "Warna benda (pasangkan)",
+};
+
+const BENTUK_KIDDO: [string, string][] = [
+  ["Segitiga", "3 sisi"], ["Persegi", "4 sisi sama"], ["Lingkaran", "tanpa sudut"],
+  ["Bintang", "5 ujung"], ["Belah ketupat", "4 sisi miring"],
+];
+const bentukJodohKiddo: TopikDef = {
+  ...jodohDari(BENTUK_KIDDO, "Pasangkan bangun di kiri dengan ciri-cirinya di kanan!"),
+  id: "kiddo-bentuk-jodoh", label: "Bentuk & bangun (pasangkan)",
+};
+
+const susunHurufKiddo: TopikDef = {
+  id: "kiddo-susun-huruf", label: "Susun huruf (spelling)",
+  gen: (_lv, R) => {
+    const kata = pick(R, KATA_ANAK);
+    const acak = acakArray(R, kata.split(""));
+    if (acak.join("") === kata) [acak[0], acak[acak.length - 1]] = [acak[acak.length - 1], acak[0]];
+    return { q: "Susun huruf-huruf berikut menjadi sebuah kata!", a: kata, kind: "urut", words: acak };
+  },
+};
+
+const BENDA_CERITA: [string, string][] = [
+  ["apel", "apel"], ["kelereng", "kelereng"], ["balon", "balon"], ["buku", "buku"], ["kue", "kue"],
+];
+const tambahKurangKiddo: TopikDef = {
+  id: "kiddo-tambah-kurang", label: "Cerita tambah & kurang",
+  gen: (lv, R) => {
+    const [benda] = pick(R, BENDA_CERITA);
+    const m = S(lv, 6, 0.5);
+    if (R() < 0.6) {
+      const a = ri(R, 1, m), b = ri(R, 1, m);
+      return { q: `Ali punya ${a} ${benda}, lalu dibelikan ${b} ${benda} lagi. Semua ${benda} Ali sekarang ada …`, a: `${a + b}` };
+    }
+    const a = ri(R, m + 1, m * 2), b = ri(R, 1, m);
+    return { q: `Ada ${a} ${benda} di meja, ${b} ${benda} dimakan. Sisa ${benda} di meja ada …`, a: `${a - b}` };
+  },
+};
+
+const KEL_BEDA: [string[], string[]][] = [
+  [["kucing", "sapi", "ayam", "kambing", "bebek"], ["jeruk", "mangga", "pisang", "semangka"]],
+  [["jeruk", "mangga", "pisang", "semangka", "anggur"], ["kucing", "sapi", "ayam", "kambing"]],
+  [["sepeda", "bus", "kapal", "pesawat", "becak"], ["meja", "kursi", "lemari", "jendela"]],
+  [["pensil", "penghapus", "penggaris", "buku", "krayon"], ["sepatu", "sandal", "kemeja", "topi"]],
+];
+const cariBedaKiddo: TopikDef = {
+  id: "kiddo-cari-beda", label: "Cari yang berbeda (GK)",
+  gen: (_lv, R) => {
+    const [utama, lain] = pick(R, KEL_BEDA);
+    const ganjil = pick(R, lain);
+    const pilihan = acakArray(R, [...acakArray(R, utama).slice(0, 3), ganjil]);
+    return { q: `Lingkari yang TIDAK sekelompok:  ${pilihan.join(", ")}`, a: ganjil };
+  },
+};
+
+const POLA_SIMBOL: [string, string][] = [["●", "bulatan"], ["▲", "segitiga"], ["■", "kotak"], ["★", "bintang"]];
+const polaKiddo: TopikDef = {
+  id: "kiddo-pola", label: "Pola berulang",
+  gen: (lv, R) => {
+    const c = lv === 1 ? 2 : 3;
+    const dipakai = acakArray(R, POLA_SIMBOL).slice(0, c);
+    const deret = Array.from({ length: 6 }, (_, i) => dipakai[i % c][0]).join(" ");
+    const lanjut = dipakai[6 % c];
+    return { q: `Lanjutkan pola:  ${deret}  … Bentuk berikutnya adalah …`, a: lanjut[1] };
+  },
+};
+
+const VOK_KIDDO: [string, string][] = [
+  ["kereta", "train"], ["pesawat", "airplane"], ["kapal", "ship"], ["sepeda", "bicycle"], ["becak", "rickshaw"],
+  ["hujan", "rain"], ["panas", "hot"], ["berawan", "cloudy"], ["berangin", "windy"], ["bersalju", "snowy"],
+  ["kemeja", "shirt"], ["celana", "trousers"], ["sepatu", "shoes"], ["topi", "hat"], ["sabuk", "belt"],
+];
+const kosakataJodohKiddo: TopikDef = {
+  ...jodohDari(VOK_KIDDO, "Match the words on the left with the English meaning on the right!"),
+  id: "kiddo-vok-jodoh", label: "Kosakata Inggris (pasangkan)",
+};
+
+const SIGHT_WORDS: [string, string][] = [
+  ["I … a student.", "am"], ["She … my sister.", "is"], ["They … happy.", "are"], ["We … at school.", "are"],
+  ["It … a cat.", "is"], ["You … my friend.", "are"], ["He … tall.", "is"], ["The dog … big.", "is"],
+];
+const sightWordsKiddo: TopikDef = {
+  id: "kiddo-sight-words", label: "Sight words (is / am / are)",
+  gen: (_lv, R) => {
+    const [kalimat, jawab] = pick(R, SIGHT_WORDS);
+    return { q: `Lengkapi kalimatnya: “${kalimat}”  (is / am / are)`, a: jawab };
+  },
+};
+
+const TUBUH_KIDDO: [string, string][] = [
+  ["Mata", "untuk melihat"], ["Telinga", "untuk mendengar"], ["Hidung", "untuk mencium"],
+  ["Tangan", "untuk memegang"], ["Kaki", "untuk berjalan"], ["Mulut", "untuk makan & bicara"],
+];
+const tubuhJodohKiddo: TopikDef = {
+  ...jodohDari(TUBUH_KIDDO, "Pasangkan bagian tubuh di kiri dengan fungsinya di kanan!"),
+  id: "kiddo-tubuh-jodoh", label: "Bagian tubuh (pasangkan)",
+};
+
+const susunKalimatEnKiddo: TopikDef = {
+  id: "kiddo-kalimat-en", label: "Scramble kalimat Inggris",
+  gen: (_lv, R) => {
+    const s = pick(R, KALIMAT_EN);
+    return { q: "Susun kata-kata berikut menjadi kalimat yang benar!", a: s.join(" "), kind: "urut", words: acakArray(R, s) };
+  },
+};
+
+const lompatHitungKiddo: TopikDef = {
+  id: "kiddo-lompat-hitung", label: "Berhitung lompat",
+  gen: (lv, R) => {
+    const lang = lv === 1 ? pick(R, [2, 5]) : pick(R, [2, 3, 4, 5, 10]);
+    const mulai = ri(R, 1, 9);
+    const deret = Array.from({ length: 5 }, (_, i) => mulai + i * lang);
+    const jawab = deret[4];
+    deret[4] = -1;
+    return { q: `Lengkapi berhitung lompat-${lang}:  ${deret.map((n) => (n < 0 ? "…" : n)).join(", ")}`, a: `${jawab}` };
+  },
+};
+
+export const TOPIK_KIDDO: Record<string, Record<string, TopikDef[]>> = {
+  SD: {
+    "1": [hurufHilangKiddo, angkaHilangKiddo, hitungBendaKiddo, warnaJodohKiddo, bentukJodohKiddo],
+    "2": [susunHurufKiddo, tambahKurangKiddo, cariBedaKiddo, polaKiddo, angkaHilangKiddo],
+    "3": [susunKalimatEnKiddo, sightWordsKiddo, kosakataJodohKiddo, tubuhJodohKiddo, lompatHitungKiddo],
+  },
+};
+
 /* ============ pemetaan jenjang → kelas → topik ============ */
 
 /* Pola bilangan: naik / turun dengan lompatan tetap */
@@ -909,7 +1086,10 @@ export const KELAS_BY_JENJANG: Record<string, string[]> = {
 };
 
 /** Mapel yang punya bank generator otomatis */
-export type GenMapel = "matematika" | "calistung" | "english" | "coding";
+export type GenMapel = "matematika" | "calistung" | "english" | "coding" | "kiddo";
+
+/** Sumber materi bank Worksheet Kiddo */
+export const KIDDO_SOURCE = "https://www.kiddoworksheets.com";
 
 export interface GenMapelDef {
   id: GenMapel;
@@ -923,6 +1103,7 @@ export const GEN_MAPEL: GenMapelDef[] = [
   { id: "calistung", label: "Calistung Ceria", rentang: "SD kelas 1–3", jenjang: ["SD"] },
   { id: "english", label: "Bahasa Inggris Dasar", rentang: "SD kelas 1–6", jenjang: ["SD"] },
   { id: "coding", label: "Worksheet Coding", rentang: "SD 4–6 · SMP", jenjang: ["SD", "SMP"] },
+  { id: "kiddo", label: "Worksheet Kiddo", rentang: "TK · SD 1–3 · kiddoworksheets", jenjang: ["SD"] },
 ];
 
 export const TOPIK_GENERATOR: Record<GenMapel, Record<string, Record<string, TopikDef[]>>> = {
@@ -930,6 +1111,7 @@ export const TOPIK_GENERATOR: Record<GenMapel, Record<string, Record<string, Top
   calistung: TOPIK_CALISTUNG,
   english: TOPIK_ENGLISH,
   coding: TOPIK_CODING,
+  kiddo: TOPIK_KIDDO,
 };
 
 /** daftar kelas yang punya topik generator untuk mapel+jenjang */

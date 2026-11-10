@@ -35,12 +35,17 @@ export function demoDB(): Database {
   db.payments[s[4].id] = { [thisMk]: "lunas" };
   db.payments[s[5].id] = { [lastMk]: "lunas", [thisMk]: "belum" };
 
-  // Tanggal pembayaran (contoh)
+  // Tanggal & jumlah pembayaran (contoh)
   const tgl = (day: number) => `${y}-${pad2(m + 1)}-${pad2(Math.min(day, 28))}`;
   db.payDates = {
     [s[0].id]: { [lastMk]: `${lastY}-${pad2(m === 0 ? 12 : m)}-04`, [thisMk]: tgl(3) },
     [s[1].id]: { [thisMk]: tgl(2) },
     [s[4].id]: { [thisMk]: tgl(1) },
+  };
+  db.payAmounts = {
+    [s[0].id]: { [lastMk]: 200000, [thisMk]: 200000 },
+    [s[1].id]: { [thisMk]: 110000 },
+    [s[4].id]: { [thisMk]: 200000 },
   };
 
   // Absensi 12 hari kerja terakhir
@@ -60,16 +65,24 @@ export function demoDB(): Database {
     d.setDate(d.getDate() - 1);
   }
 
-  // Jurnal beberapa hari
+  // Jurnal beberapa hari (kegiatan & progres umum + progres per siswa)
   db.journal[todayStr()] = {
     activity: "Calistung Grup A — latihan membaca suku kata terbuka & dikte kata sederhana. Matematika Grup B — operasi hitung campuran.",
     progress: "Aisyah makin lancar membaca kata tiga suku kata; Bima sudah paham urutan operasi hitung, perlu latihan soal cerita.",
+    siswa: {
+      [s[0].id]: "Aisyah makin lancar membaca kata tiga suku kata, dikte 8 dari 10 kata benar.",
+      [s[1].id]: "Bima sudah paham urutan operasi hitung; perlu latihan soal cerita.",
+    },
   };
   const yst = new Date(now.getTime() - 86400000);
   const ystKey = `${yst.getFullYear()}-${pad2(yst.getMonth() + 1)}-${pad2(yst.getDate())}`;
   db.journal[ystKey] = {
     activity: "Pendampingan PR Citra & Dimas — matematika pecahan. Bahasa Inggris Fajar — vocabulary daily activities.",
     progress: "Citra mulai berani mengerjakan di papan; pengucapan bahasa Inggris Fajar semakin percaya diri.",
+    siswa: {
+      [s[2].id]: "Citra mulai berani mengerjakan pecahan di papan tanpa dituntun.",
+      [s[5].id]: "Pengucapan bahasa Inggris Fajar semakin percaya diri.",
+    },
   };
 
   // Laporan bulan lalu (skor aspek)

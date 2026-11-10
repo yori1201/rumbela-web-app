@@ -127,7 +127,7 @@ export function JadwalView() {
 
             {/* Desktop: grid lengkap */}
             <div className="hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[640px] border-separate border-spacing-1.5">
+              <table className="w-full min-w-[760px] border-separate border-spacing-1.5">
                 <thead>
                   <tr>
                     <th className="w-24" />
@@ -338,16 +338,26 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
     onOpenChange(false);
   };
 
+  /** slot baru: lanjut 1 jam setelah slot terakhir (cth. …–15:00 → 15:00–16:00) */
+  const slotBerikutnya = () => {
+    const terakhir = draft[draft.length - 1];
+    const mulai = terakhir?.selesai || "15:00";
+    const [h, mnt] = mulai.split(":").map(Number);
+    const selesai = `${String(Math.min(23, (h || 8) + 1)).padStart(2, "0")}:${String(mnt || 0).padStart(2, "0")}`;
+    return { mulai, selesai };
+  };
+
   return (
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Atur jam pelajaran</DialogTitle>
-          <DialogDescription>Maksimal 6 slot. Jadwal di slot yang dihapus akan dikosongkan.</DialogDescription>
+          <DialogDescription>Slot dipakai per 1 jam (cth. 08:00–09:00) · maksimal 12 slot. Jadwal di slot yang dihapus akan dikosongkan.</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           {draft.map((s, i) => (
             <div key={i} className="flex items-center gap-2">
+              <span className="w-12 shrink-0 text-center text-xs font-bold text-slate-400">Slot {i + 1}</span>
               <Input type="time" value={s.mulai} onChange={(e) => setDraft(draft.map((x, j) => (j === i ? { ...x, mulai: e.target.value } : x)))} />
               <span className="text-slate-400">–</span>
               <Input type="time" value={s.selesai} onChange={(e) => setDraft(draft.map((x, j) => (j === i ? { ...x, selesai: e.target.value } : x)))} />
@@ -362,9 +372,9 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
               </Button>
             </div>
           ))}
-          {draft.length < 6 && (
-            <Button variant="outline" className="w-full" onClick={() => setDraft([...draft, { mulai: "15:30", selesai: "17:00" }])}>
-              <Plus className="h-4 w-4" /> Tambah slot
+          {draft.length < 12 && (
+            <Button variant="outline" className="w-full" onClick={() => setDraft([...draft, slotBerikutnya()])}>
+              <Plus className="h-4 w-4" /> Tambah slot 1 jam
             </Button>
           )}
         </div>

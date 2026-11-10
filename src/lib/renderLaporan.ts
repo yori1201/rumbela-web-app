@@ -91,6 +91,17 @@ function chip(ctx: CanvasRenderingContext2D, text: string, x: number, y: number,
   return wText + padX * 2;
 }
 
+/** Kecilkan ukuran font hingga teks muat pada rentang [leftX, rightX] —
+ *  mencegah judul laporan menimpa keterangan bulan/tanggal di sisi kanan header. */
+function fitFont(ctx: CanvasRenderingContext2D, text: string, weight: number, px: number, leftX: number, rightX: number): number {
+  let size = px;
+  for (; size > 16; size -= 1) {
+    ctx.font = `${weight} ${size}px Nunito`;
+    if (ctx.measureText(text).width <= rightX - leftX) break;
+  }
+  return size;
+}
+
 export async function renderReportCanvas(
   db: Database,
   siswa: Siswa,
@@ -134,19 +145,23 @@ export async function renderReportCanvas(
       ctx.arc(117, 115, 47, 0, Math.PI * 2);
       ctx.stroke();
     }
-    ctx.textAlign = "left";
-    ctx.fillStyle = fg;
-    ctx.font = "800 36px Nunito";
-    ctx.fillText("Laporan Perkembangan Belajar", logo ? 190 : 80, 112);
-    ctx.font = "600 22px Nunito";
-    ctx.globalAlpha = 0.92;
-    ctx.fillText(`${nama} — ${tagline}`, logo ? 190 : 80, 148);
-    ctx.globalAlpha = 1;
+    // bulan laporan di kanan-atas — baris sendiri agar tak tertimpa judul
     ctx.fillStyle = sub;
-    ctx.font = "700 24px Nunito";
+    ctx.font = "700 22px Nunito";
     ctx.textAlign = "right";
-    ctx.fillText(monthLabel(mk), W - 76, 115);
+    ctx.fillText(monthLabel(mk), W - 76, 84);
     ctx.textAlign = "left";
+    // judul + subjudul di kiri (logo), otomatis mengecil bila ruang sempit
+    const leftX = logo ? 190 : 80;
+    const judul = "Laporan Perkembangan Belajar";
+    const tSize = fitFont(ctx, judul, 800, 36, leftX, W - 96);
+    ctx.fillStyle = fg;
+    ctx.font = `800 ${tSize}px Nunito`;
+    ctx.fillText(judul, leftX, 126);
+    ctx.font = "600 21px Nunito";
+    ctx.globalAlpha = 0.92;
+    ctx.fillText(`${nama} — ${tagline}`, leftX, 160);
+    ctx.globalAlpha = 1;
   };
 
   if (opts.template === "ceria") {
@@ -281,18 +296,22 @@ export async function renderReportCanvas(
       ctx.drawImage(logo, 60, 38, 94, 94);
       ctx.restore();
     }
-    ctx.fillStyle = "#ffffff";
+    // bulan laporan di kanan-atas — baris sendiri agar tak tertimpa judul panjang
+    ctx.fillStyle = "#d4a72c";
+    ctx.textAlign = "right";
+    ctx.font = "700 22px Nunito";
+    ctx.fillText(monthLabel(mk), W - 60, 64);
     ctx.textAlign = "left";
-    ctx.font = "800 38px Nunito";
-    ctx.fillText("LAPORAN PERKEMBANGAN BELAJAR", logo ? 180 : 60, 100);
+    ctx.fillStyle = "#ffffff";
+    const judul = "LAPORAN PERKEMBANGAN BELAJAR";
+    const leftX = logo ? 180 : 60;
+    const tSize = fitFont(ctx, judul, 800, 38, leftX, W - 80);
+    ctx.font = `800 ${tSize}px Nunito`;
+    ctx.fillText(judul, leftX, 106);
     ctx.font = "600 23px Nunito";
     ctx.globalAlpha = 0.9;
-    ctx.fillText(`${nama} — ${tagline}`, logo ? 180 : 60, 138);
+    ctx.fillText(`${nama} — ${tagline}`, leftX, 142);
     ctx.globalAlpha = 1;
-    ctx.textAlign = "right";
-    ctx.font = "700 24px Nunito";
-    ctx.fillText(monthLabel(mk), W - 60, 100);
-    ctx.textAlign = "left";
 
     let y = 240;
     const row = (label: string, value: string, strong = false) => {

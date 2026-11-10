@@ -37,6 +37,17 @@ export const WARNA_JADWAL = [
 ];
 
 export const DEFAULT_SLOTS = [
+  { mulai: "08:00", selesai: "09:00" },
+  { mulai: "09:00", selesai: "10:00" },
+  { mulai: "10:00", selesai: "11:00" },
+  { mulai: "11:00", selesai: "12:00" },
+  { mulai: "13:00", selesai: "14:00" },
+  { mulai: "14:00", selesai: "15:00" },
+  { mulai: "15:00", selesai: "16:00" },
+];
+
+/** Slot bawaan lama (2 jam) — dipakai untuk migrasi otomatis ke slot 1 jam. */
+export const LEGACY_SLOTS = [
   { mulai: "08:00", selesai: "10:00" },
   { mulai: "10:00", selesai: "12:00" },
   { mulai: "13:00", selesai: "15:00" },
@@ -127,6 +138,17 @@ export function monthLabel(mk: string): string {
 
 export function rp(n: number): string {
   return "Rp " + Number(n || 0).toLocaleString("id-ID");
+}
+
+/** Ringkas: 150.000 → "150rb", 1.500.000 → "1,5jt" — untuk chip/label matriks iuran. */
+export function rpShort(n: number): string {
+  const v = Number(n || 0);
+  if (v >= 1_000_000) {
+    const jt = v / 1_000_000;
+    return `${jt.toLocaleString("id-ID", { maximumFractionDigits: 1 })}jt`;
+  }
+  if (v >= 1_000) return `${Math.round(v / 1_000)}rb`;
+  return String(v);
 }
 
 /** Normalisasi nomor WA Indonesia: 08xx → 628xx */

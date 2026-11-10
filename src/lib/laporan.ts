@@ -35,23 +35,41 @@ export function payDate(db: Database, siswaId: string, mk: string): string | nul
   return db.payDates?.[siswaId]?.[mk] ?? null;
 }
 
+/** Jumlah uang yang dibayar seorang siswa pada bulan tertentu (null bila belum dicatat). */
+export function payAmount(db: Database, siswaId: string, mk: string): number | null {
+  const v = db.payAmounts?.[siswaId]?.[mk];
+  return typeof v === "number" && v > 0 ? v : null;
+}
+
+/** Jumlah terkumpul efektif seorang siswa pada suatu bulan: pakai jumlah riil bila ada,
+ *  selain itu setengah iuran untuk status "sebagian" (perilaku lama). */
+export function payEffective(db: Database, siswa: Siswa, mk: string): number {
+  const st = payStatus(db, siswa.id, mk);
+  if (st === "belum") return 0;
+  const amt = payAmount(db, siswa.id, mk);
+  if (st === "lunas") return amt ?? siswa.fee;
+  return amt ?? Math.round(siswa.fee / 2);
+}
+
 export function getReport(db: Database, siswaId: string, mk: string): ReportRec {
   return db.reports[`${siswaId}@${mk}`] ?? { scores: {}, note: "", sent: false };
 }
 
-export function jurnalOfMonth(db: Database, mk: string): { date: string; activity: string; progress: string }[] {
+export function jurnalOfMonth(db: Database, mk: string): { date: string; activity: string; progress: string; siswa?: Record<string, string> }[] {
   return Object.entries(db.journal)
     .filter(([date]) => date.startsWith(mk + "-"))
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, e]) => ({ date, activity: e.activity || "", progress: e.progress || "" }));
+    .map(([date, e]) => ({ date, activity: e.activity || "", progress: e.progress || "", siswa: e.siswa }));
 }
 
-/** Usulan catatan otomatis dari jurnal bulan tsb (bila catatan manual kosong). */
+/** Usulan catatan otomatis dari jurnal bulan tsb (bila catatan manual kosong).
+ *  Utamakan progres khusus siswa (fitur pilih siswa di Jurnal), selain itu progres umum. */
 export function suggestNote(db: Database, siswa: Siswa, mk: string): string {
   const entries = jurnalOfMonth(db, mk);
   const parts: string[] = [];
   for (const e of entries) {
-    if (e.progress.trim()) parts.push(e.progress.trim());
+    const p = (siswa && e.siswa?.[siswa.id]?.trim()) || e.progress.trim();
+    if (p) parts.push(p);
   }
   const stats = attStatsInMonth(db, siswa.id, mk);
   if (stats.pct !== null) {

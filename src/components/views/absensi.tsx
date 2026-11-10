@@ -30,6 +30,16 @@ export function AbsensiView() {
   const students = db.students.filter((s) => fProgram === "all" || s.program === fProgram);
 
   const setStatus = (sid: string, st: AttStatus) => {
+    // klik status yang sama dua kali → batalkan (hapus catatan kehadiran)
+    if (day[sid] === st) {
+      mutate((d) => {
+        if (d.attendance[date]) {
+          delete d.attendance[date][sid];
+          if (!Object.keys(d.attendance[date]).length) delete d.attendance[date];
+        }
+      });
+      return;
+    }
     mutate((d) => {
       d.attendance[date] ??= {};
       d.attendance[date][sid] = st;
@@ -78,6 +88,9 @@ export function AbsensiView() {
         <EmptyState title="Belum ada siswa">Tambahkan siswa dulu di menu Siswa.</EmptyState>
       ) : (
         <div className="space-y-2">
+          <p className="px-1 text-xs text-muted-foreground">
+            Ketuk <b>Hadir / Izin / Alpa</b> untuk mencatat — ketuk status yang sama sekali lagi untuk <b>membatalkan</b>.
+          </p>
           {students.map((s) => (
             <div key={s.id} className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
               <div className="min-w-0 flex-1">
@@ -91,6 +104,7 @@ export function AbsensiView() {
                     <button
                       key={o.v}
                       onClick={() => setStatus(s.id, o.v)}
+                      title={on ? `Ketuk sekali lagi untuk membatalkan "${o.label}"` : `Tandai ${o.label}`}
                       className={cn(
                         "rounded-xl px-3.5 py-2 text-sm font-bold transition-all active:scale-95",
                         on ? o.on + " shadow-sm" : o.off

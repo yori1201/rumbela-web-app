@@ -2,7 +2,7 @@
 
 import { BookOpen, CalendarCheck2, CalendarClock, ClipboardList, UserPlus, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { attStatsInMonth, payStatus } from "@/lib/laporan";
+import { attStatsInMonth, payEffective, payStatus } from "@/lib/laporan";
 import {
   currentMonthKey, greeting, MONTHS, rp, todayStr, waLink, DAYS,
   dueDateOf, fmtDayDate,
@@ -22,10 +22,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
   const tercatat = Object.keys(day).length;
   const hadir = Object.values(day).filter((v) => v === "H").length;
   const lunas = db.students.filter((s) => payStatus(db, s.id, mk) === "lunas").length;
-  const terkumpul = db.students.reduce((acc, s) => {
-    const st = payStatus(db, s.id, mk);
-    return acc + (st === "lunas" ? s.fee : st === "sebagian" ? Math.round(s.fee / 2) : 0);
-  }, 0);
+  const terkumpul = db.students.reduce((acc, s) => acc + payEffective(db, s, mk), 0);
   const belumLunas = db.students.filter((s) => payStatus(db, s.id, mk) !== "lunas");
   const jurnalHariIni = db.journal[today];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, MessageCircle, RotateCcw, Settings2 } from "lucide-react";
+import { Check, Copy, MessageCircle, RotateCcw, Save, Settings2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { attStatsInMonth } from "@/lib/laporan";
 import {
@@ -16,6 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 /** Placeholder yang tersedia pada template laporan WA. */
 const TPL_VARS: [string, string][] = [
@@ -36,6 +37,10 @@ export function JurnalView() {
   const [date, setDate] = useState(todayStr());
   // draft === null → tampilkan nilai tersimpan dari database
   const [draft, setDraft] = useState<{ activity: string; progress: string } | null>(null);
+  // siswa yang dipilih untuk catatan progres ("" = catatan umum)
+  const [sid, setSid] = useState("");
+  // draf progres khusus siswa terpilih (belum dikomit)
+  const [progDraft, setProgDraft] = useState<string | null>(null);
   const [waSid, setWaSid] = useState("");
   // editor template laporan WA
   const [tplOpen, setTplOpen] = useState(false);
@@ -47,19 +52,67 @@ export function JurnalView() {
   };
   const { activity, progress } = entry;
 
+  const siswaTerpilih = db.students.find((s) => s.id === sid) || null;
+  const progresSiswaTersimpan = sid ? db.journal[date]?.siswa?.[sid] || "" : "";
+  const progresSiswa = progDraft ?? progresSiswaTersimpan;
+  /** siswa yang sudah punya progres tersimpan pada tanggal ini */
+  const tersimpanHariIni = Object.entries(db.journal[date]?.siswa ?? {})
+    .map(([id, teks]) => ({ s: db.students.find((x) => x.id === id), teks }))
+    .filter((x) => x.s && x.teks.trim());
+
   const tpl = db.pengaturan.jurnal?.templateWa || DEFAULT_TEMPLATE_WA;
   const tplValue = tplDraft ?? tpl;
 
   const pickDate = (d: string) => {
+    autoSaveProgres();
     setDate(d);
     setDraft(null);
+    setProgDraft(null);
   };
 
-  const commit = () => {
-    const cur = db.journal[date] || {};
-    if ((cur.activity || "") === activity && (cur.progress || "") === progress) return;
+  const pilihSiswa = (id: string) => {
+    autoSaveProgres();
+    setSid(id);
+    setProgDraft(null);
+  };
+
+  /** simpan progres khusus siswa terpilih ke jurnal tanggal ini */
+  const simpanProgres = (senyap = false) => {
+    if (!siswaTerpilih) return;
+    const txt = progresSiswa.trim();
+    if (!txt || txt === progresSiswaTersimpan.trim()) return;
+    const nama = siswaTerpilih.name;
     mutate((d) => {
-      d.journal[date] = { activity, progress };
+      const cur = d.journal[date] ?? { activity: "", progress: "" };
+      cur.siswa ??= {};
+      cur.siswa[sid] = txt;
+      d.journal[date] = cur;
+    });
+    if (!senyap) toast({ title: `Progres ${nama} tersimpan`, description: `Jurnal ${fmtDate(date)}` });
+  };
+
+  /** jaga-jaga saat berpindah tanggal/siswa: draf yang sudah diketik ikut tersimpan */
+  const autoSaveProgres = () => {
+    if (progDraft !== null && sid) simpanProgres(true);
+  };
+
+  const commitActivity = () => {
+    const cur = db.journal[date]?.activity || "";
+    if (cur === activity) return;
+    mutate((d) => {
+      const e = d.journal[date] ?? { activity: "", progress: "" };
+      e.activity = activity;
+      d.journal[date] = e;
+    });
+  };
+
+  const commitProgress = () => {
+    const cur = db.journal[date]?.progress || "";
+    if (cur === progress) return;
+    mutate((d) => {
+      const e = d.journal[date] ?? { activity: "", progress: "" };
+      e.progress = progress;
+      d.journal[date] = e;
     });
   };
 
@@ -108,11 +161,12 @@ export function JurnalView() {
   const recent = Object.entries(db.journal).sort(([a], [b]) => b.localeCompare(a)).slice(0, 8);
 
   /** Data otomatis untuk mengisi {placeholder} template. */
-  const dailyVars = (sid: string): Record<string, string> => {
-    const s = db.students.find((x) => x.id === sid);
+  const dailyVars = (targetSid: string): Record<string, string> => {
+    const s = db.students.find((x) => x.id === targetSid);
     if (!s) return {};
-    const att = db.attendance[date]?.[sid];
-    const stats = attStatsInMonth(db, sid, date.slice(0, 7));
+    const att = db.attendance[date]?.[targetSid];
+    const stats = attStatsInMonth(db, targetSid, date.slice(0, 7));
+    const progresKhusus = db.journal[date]?.siswa?.[targetSid]?.trim();
     return {
       nama: s.name,
       orangtua: s.parent,
@@ -121,7 +175,7 @@ export function JurnalView() {
       tanggal: fmtDate(date),
       kehadiran: att === "H" ? "Hadir 👍" : att === "I" ? "Izin" : att === "A" ? "Alpa" : "Belum dicatat",
       kegiatan: activity.trim() || "—",
-      progres: progress.trim() || "—",
+      progres: progresKhusus || progress.trim() || "—",
       rekap: stats.pct !== null ? `Rekap kehadiran bulan ini: ${stats.pct}%.` : "",
       lembaga: db.pengaturan.namaLembaga,
     };
@@ -135,12 +189,28 @@ export function JurnalView() {
     <div className="space-y-4">
       <SectionCard
         title="Catatan harian"
-        desc="Kegiatan & progres — tersimpan otomatis begitu Anda berpindah kolom"
+        desc="Kegiatan umum & progres per siswa — pilih siswa di samping tanggal"
       >
         <div className="grid gap-3">
-          <div className="grid gap-1.5 sm:max-w-xs">
-            <Label htmlFor="jr-date">Tanggal</Label>
-            <Input id="jr-date" type="date" value={date} onChange={(e) => e.target.value && pickDate(e.target.value)} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="jr-date">Tanggal</Label>
+              <Input id="jr-date" type="date" value={date} onChange={(e) => e.target.value && pickDate(e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="jr-siswa">Catat progres untuk</Label>
+              <Select value={sid || "umum"} onValueChange={(v) => pilihSiswa(v === "umum" ? "" : v)}>
+                <SelectTrigger id="jr-siswa" className="w-full">
+                  <SelectValue placeholder="Pilih siswa…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="umum">Umum (tanpa siswa)</SelectItem>
+                  {db.students.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name} — {s.program}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="jr-act">Kegiatan hari ini</Label>
@@ -149,20 +219,60 @@ export function JurnalView() {
               rows={3}
               value={activity}
               onChange={(e) => setDraft({ ...entry, activity: e.target.value })}
-              onBlur={commit}
+              onBlur={commitActivity}
               placeholder="cth. Calistung — latihan membaca suku kata & dikte kata sederhana…"
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="jr-prog">Progres perkembangan</Label>
+            <Label htmlFor="jr-prog">
+              {siswaTerpilih ? `Progres perkembangan — ${siswaTerpilih.name}` : "Progres perkembangan (umum)"}
+            </Label>
             <Textarea
               id="jr-prog"
               rows={3}
-              value={progress}
-              onChange={(e) => setDraft({ ...entry, progress: e.target.value })}
-              onBlur={commit}
-              placeholder="cth. Aisyah mulai lancar membaca kata tiga suku kata…"
+              value={siswaTerpilih ? progresSiswa : progress}
+              onChange={(e) =>
+                siswaTerpilih ? setProgDraft(e.target.value) : setDraft({ ...entry, progress: e.target.value })
+              }
+              onBlur={() => !siswaTerpilih && commitProgress()}
+              placeholder={
+                siswaTerpilih
+                  ? `cth. ${siswaTerpilih.name.split(" ")[0]} makin lancar membaca kata tiga suku kata…`
+                  : "cth. Aisyah mulai lancar membaca kata tiga suku kata…"
+              }
             />
+            {siswaTerpilih && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  className="gap-1.5 rounded-xl bg-emerald-600 font-bold hover:bg-emerald-700"
+                  onClick={() => simpanProgres()}
+                >
+                  <Save className="h-4 w-4" /> Simpan progres {siswaTerpilih.name.split(" ")[0]}
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {progresSiswaTersimpan ? "sudah ada catatan tersimpan" : "belum ada catatan untuk tanggal ini"}
+                </span>
+              </div>
+            )}
+            {tersimpanHariIni.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-bold text-slate-500">Progres tersimpan hari ini:</span>
+                {tersimpanHariIni.map(({ s }) => (
+                  <button
+                    key={s!.id}
+                    type="button"
+                    onClick={() => pilihSiswa(s!.id)}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors",
+                      sid === s!.id ? "bg-emerald-600 text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    )}
+                  >
+                    {s!.name.split(" ")[0]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </SectionCard>
@@ -281,20 +391,28 @@ export function JurnalView() {
           <EmptyState title="Belum ada catatan" />
         ) : (
           <ul className="divide-y divide-slate-100">
-            {recent.map(([dstr, e]) => (
-              <li key={dstr}>
-                <button
-                  onClick={() => pickDate(dstr)}
-                  className="w-full rounded-lg px-1 py-2.5 text-left hover:bg-sky-50/60"
-                >
-                  <p className="text-sm font-bold text-slate-700">
-                    {fmtDate(dstr)}
-                    {dstr === todayStr() && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] text-sky-800">hari ini</span>}
-                  </p>
-                  <p className="line-clamp-1 text-xs text-muted-foreground">{e.activity || e.progress || "—"}</p>
-                </button>
-              </li>
-            ))}
+            {recent.map(([dstr, e]) => {
+              const jumlahSiswa = Object.values(e.siswa ?? {}).filter((t) => t.trim()).length;
+              return (
+                <li key={dstr}>
+                  <button
+                    onClick={() => pickDate(dstr)}
+                    className="w-full rounded-lg px-1 py-2.5 text-left hover:bg-sky-50/60"
+                  >
+                    <p className="text-sm font-bold text-slate-700">
+                      {fmtDate(dstr)}
+                      {dstr === todayStr() && <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] text-sky-800">hari ini</span>}
+                      {jumlahSiswa > 0 && (
+                        <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                          {jumlahSiswa} siswa
+                        </span>
+                      )}
+                    </p>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">{e.activity || e.progress || "—"}</p>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </SectionCard>

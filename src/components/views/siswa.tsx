@@ -79,9 +79,11 @@ export function SiswaView() {
       d.students = d.students.filter((x) => x.id !== s.id);
       delete d.payments[s.id];
       delete d.payDates[s.id];
+      delete d.payAmounts[s.id];
       delete d.reports[`${s.id}@`];
       Object.keys(d.reports).forEach((k) => k.startsWith(s.id + "@") && delete d.reports[k]);
       Object.keys(d.attendance).forEach((t) => delete d.attendance[t][s.id]);
+      Object.values(d.journal).forEach((e) => e.siswa && delete e.siswa[s.id]);
     });
     setDel(null);
     toast({ title: "Siswa dihapus beserta catatannya." });

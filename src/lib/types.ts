@@ -43,6 +43,8 @@ export interface Materi {
 export interface JournalEntry {
   activity: string;
   progress: string;
+  /** progres per siswa pada tanggal ini: id siswa → teks (fitur Jurnal) */
+  siswa?: Record<string, string>;
 }
 
 export interface SlotJam {
@@ -120,6 +122,8 @@ export interface Database {
   payments: Record<string, Record<string, PayStatus>>;
   /** tanggal pembayaran ("YYYY-MM-DD") per siswa per bulan — sejajar dgn payments */
   payDates: Record<string, Record<string, string>>;
+  /** jumlah uang dibayar (rupiah) per siswa per bulan — sejajar dgn payments */
+  payAmounts: Record<string, Record<string, number>>;
   attendance: Record<string, Record<string, AttStatus>>;
   reports: Record<string, ReportRec>;
   materials: Materi[];
@@ -129,7 +133,7 @@ export interface Database {
   worksheets: Worksheet[];
 }
 
-import { DEFAULT_SLOTS, DEFAULT_TEMPLATE_WA, todayStr } from "./constants";
+import { DEFAULT_SLOTS, LEGACY_SLOTS, DEFAULT_TEMPLATE_WA, todayStr } from "./constants";
 
 export function defaultPengaturan(): Pengaturan {
   return {
@@ -155,6 +159,7 @@ export function emptyDB(): Database {
     students: [],
     payments: {},
     payDates: {},
+    payAmounts: {},
     attendance: {},
     reports: {},
     materials: [],
@@ -210,6 +215,20 @@ export function normalizeDB(raw: unknown): Database {
             ])
         )
       : {},
+    payAmounts: isObj(d.payAmounts)
+      ? Object.fromEntries(
+          Object.entries(d.payAmounts as Record<string, unknown>)
+            .filter(([, mm]) => isObj(mm))
+            .map(([sid, mm]) => [
+              sid,
+              Object.fromEntries(
+                Object.entries(mm as Record<string, unknown>)
+                  .map(([mk, v]) => [mk, Math.max(0, Math.round(NUM(v)))] as [string, number])
+                  .filter(([, v]) => v > 0)
+              ),
+            ])
+        )
+      : {},
     attendance: isObj(d.attendance) ? (d.attendance as Database["attendance"]) : {},
     reports: isObj(d.reports) ? (d.reports as Database["reports"]) : {},
     materials: Array.isArray(d.materials)
@@ -224,7 +243,31 @@ export function normalizeDB(raw: unknown): Database {
           fileId: STR(m.fileId) || undefined,
         }))
       : [],
-    journal: isObj(d.journal) ? (d.journal as Database["journal"]) : {},
+    journal: isObj(d.journal)
+      ? Object.fromEntries(
+          Object.entries(d.journal as Record<string, unknown>)
+            .filter(([, v]) => isObj(v))
+            .map(([tgl, v]) => {
+              const e = v as Record<string, unknown>;
+              return [
+                tgl,
+                {
+                  activity: STR(e.activity),
+                  progress: STR(e.progress),
+                  ...(isObj(e.siswa)
+                    ? {
+                        siswa: Object.fromEntries(
+                          Object.entries(e.siswa as Record<string, unknown>)
+                            .filter(([, t]) => typeof t === "string" && t.trim())
+                            .map(([sid, t]) => [sid, t as string])
+                        ),
+                      }
+                    : {}),
+                },
+              ] as [string, JournalEntry];
+            })
+        )
+      : {},
     worksheets: Array.isArray(d.worksheets)
       ? (d.worksheets as Record<string, unknown>[]).map((ws) => ({
           id: STR(ws.id) || Math.random().toString(36).slice(2),
@@ -264,10 +307,15 @@ export function normalizeDB(raw: unknown): Database {
   if (isObj(d.jadwal)) {
     const j = d.jadwal as Record<string, unknown>;
     if (Array.isArray(j.slots) && j.slots.length) {
-      db.jadwal.slots = (j.slots as Record<string, unknown>[]).map((s) => ({
+      const stored = (j.slots as Record<string, unknown>[]).map((s) => ({
         mulai: STR(s.mulai, "08:00"),
         selesai: STR(s.selesai, "10:00"),
       }));
+      // migrasi: slot bawaan lama (2 jam) otomatis menjadi slot 1 jam
+      const legacy =
+        stored.length === LEGACY_SLOTS.length &&
+        stored.every((s, i) => s.mulai === LEGACY_SLOTS[i].mulai && s.selesai === LEGACY_SLOTS[i].selesai);
+      db.jadwal.slots = legacy ? DEFAULT_SLOTS.map((s) => ({ ...s })) : stored;
     }
     if (Array.isArray(j.kelas)) db.jadwal.kelas = (j.kelas as unknown[]).map((k) => STR(k)).filter(Boolean);
     if (Array.isArray(j.items)) {

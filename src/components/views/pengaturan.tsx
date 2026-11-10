@@ -52,8 +52,10 @@ export function PengaturanView() {
       sampleIds.forEach((id) => {
         delete d.payments[id];
         delete d.payDates[id];
+        delete d.payAmounts[id];
         Object.keys(d.reports).forEach((k) => k.startsWith(id + "@") && delete d.reports[k]);
         Object.keys(d.attendance).forEach((t) => delete d.attendance[t][id]);
+        Object.values(d.journal).forEach((e) => e.siswa && delete e.siswa[id]);
       });
       d.materials = d.materials.filter((m) => !m.sample);
     });

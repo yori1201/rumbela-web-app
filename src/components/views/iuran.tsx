@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarClock, MessageCircle } from "lucide-react";
+import { CalendarClock, MessageCircle, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { payDate, payStatus } from "@/lib/laporan";
+import { payAmount, payDate, payEffective, payStatus } from "@/lib/laporan";
 import {
-  MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, waLink, todayStr,
+  MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, rpShort, waLink, todayStr,
   dueDateOf, fmtDayDate, fmtDayDateShort, fmtDate, fmtDateShort,
 } from "@/lib/constants";
 import type { PayStatus, Siswa } from "@/lib/types";
@@ -44,8 +44,10 @@ export function IuranView() {
   const { db, mutate } = useApp();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
-  /** sel bulan yang sedang diedit (status + tanggal pembayaran) */
-  const [editPay, setEditPay] = useState<{ sid: string; mk: string } | null>(null);
+  /** sel bulan yang sedang diedit (status + tanggal + jumlah pembayaran) */
+  const [editPay, setEditPay] = useState<{ sid: string; mk: string; quick?: boolean } | null>(null);
+  /** draf ketikan jumlah bayar (belum dikomit ke database) */
+  const [amountDraft, setAmountDraft] = useState<string | null>(null);
 
   const years = [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1];
   const thisMk = monthKey(now.getFullYear(), now.getMonth());
@@ -58,10 +60,7 @@ export function IuranView() {
       d.pengaturan.iuran = { jatuhTempo: v };
     });
 
-  const terkumpul = db.students.reduce((acc, s) => {
-    const st = payStatus(db, s.id, thisMk);
-    return acc + (st === "lunas" ? s.fee : st === "sebagian" ? Math.round(s.fee / 2) : 0);
-  }, 0);
+  const terkumpul = db.students.reduce((acc, s) => acc + payEffective(db, s, thisMk), 0);
   const lunasCount = db.students.filter((s) => payStatus(db, s.id, thisMk) === "lunas").length;
   const target = db.students.reduce((a, s) => a + s.fee, 0);
   const belumCount = db.students.length - lunasCount;
@@ -92,23 +91,33 @@ export function IuranView() {
     return { date, inDays, overdue: belumCount > 0 && inDays < 0 ? -inDays : 0, lunas: belumCount === 0 };
   })();
 
-  /* ---------- dialog status + tanggal pembayaran ---------- */
+  /* ---------- dialog status + tanggal + jumlah pembayaran ---------- */
   const editStudent = editPay ? db.students.find((x) => x.id === editPay.sid) : null;
   const editSt: PayStatus = editPay ? payStatus(db, editPay.sid, editPay.mk) : "belum";
   const editDate = editPay ? payDate(db, editPay.sid, editPay.mk) : null;
+  const editAmount = editPay ? payAmount(db, editPay.sid, editPay.mk) : null;
   const editMonthName = editPay ? monthLabel(editPay.mk) : "";
 
-  /** ubah status: lunas/sebagian → tanggal bayar otomatis hari ini bila belum ada;
-   *  kembali ke belum → tanggal dihapus. */
+  /** ubah status: lunas/sebagian → tanggal bayar otomatis hari ini + jumlah bayar terisi;
+   *  kembali ke belum → tanggal & jumlah dihapus. */
   const setStatus = (next: PayStatus) => {
     if (!editPay || next === editSt) return;
     const { sid, mk } = editPay;
+    setAmountDraft(null);
     mutate((d) => {
       d.payments[sid] ??= {};
       d.payments[sid][mk] = next;
       d.payDates[sid] ??= {};
-      if (next === "belum") delete d.payDates[sid][mk];
-      else if (!d.payDates[sid][mk]) d.payDates[sid][mk] = todayStr();
+      d.payAmounts[sid] ??= {};
+      if (next === "belum") {
+        delete d.payDates[sid][mk];
+        delete d.payAmounts[sid][mk];
+      } else {
+        if (!d.payDates[sid][mk]) d.payDates[sid][mk] = todayStr();
+        if (!d.payAmounts[sid][mk]) {
+          d.payAmounts[sid][mk] = next === "lunas" ? editStudent?.fee ?? 0 : Math.round((editStudent?.fee ?? 0) / 2);
+        }
+      }
     });
   };
 
@@ -122,17 +131,49 @@ export function IuranView() {
     });
   };
 
+  /** simpan jumlah bayar — status & tanggal ikut disesuaikan otomatis:
+   *  jumlah ≥ iuran → Lunas, 0 < jumlah < iuran → Sebagian, kosong → hapus jumlah. */
+  const commitAmount = (raw: string) => {
+    if (!editPay || !editStudent) return;
+    const { sid, mk } = editPay;
+    const n = Math.max(0, Math.round(Number(raw.replace(/[^0-9]/g, ""))));
+    setAmountDraft(null);
+    mutate((d) => {
+      d.payAmounts[sid] ??= {};
+      d.payments[sid] ??= {};
+      d.payDates[sid] ??= {};
+      if (!n) {
+        delete d.payAmounts[sid][mk];
+        return;
+      }
+      d.payAmounts[sid][mk] = n;
+      d.payments[sid][mk] = n >= editStudent.fee ? "lunas" : "sebagian";
+      if (!d.payDates[sid][mk]) d.payDates[sid][mk] = todayStr();
+    });
+    toast({
+      title: `Pembayaran ${rp(n)} tercatat`,
+      description: `${editStudent.name} · ${monthLabel(mk)}`,
+    });
+  };
+
+  /** buka dialog catat bayar dari baris nama siswa */
+  const openQuick = (sid: string) => {
+    setAmountDraft(null);
+    setEditPay({ sid, mk: year === now.getFullYear() ? thisMk : `${year}-01`, quick: true });
+  };
+
   const remindText = (sid: string) => {
     const s = db.students.find((x) => x.id === sid)!;
     const st = payStatus(db, sid, thisMk);
     const nd = dueInfo.get(sid)!;
     const pd = payDate(db, sid, thisMk);
+    const amt = payAmount(db, sid, thisMk);
     const dueLine = nd.overdue
       ? `\nJatuh tempo *${fmtDayDate(nd.date)}* telah terlewat ${nd.overdue} hari — mohon segera dilunasi.`
       : `\nBatas pembayaran: *${fmtDayDate(nd.date)}*${nd.inDays === 0 ? " (hari ini)" : nd.inDays === 1 ? " (besok)" : ` (${nd.inDays} hari lagi)`}.`;
     const statusLine =
       st === "sebagian"
-        ? `Sudah dibayar sebagian${pd ? ` (diterima ${fmtDate(pd)})` : ""}`
+        ? `Sudah dibayar sebagian${amt ? ` sebesar *${rp(amt)}* dari ${rp(s.fee)}` : ""}${pd ? ` (diterima ${fmtDate(pd)})` : ""}`
         : "Belum lunas";
     return waLink(
       s.wa,
@@ -206,7 +247,7 @@ export function IuranView() {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Ketuk kotak bulan untuk mengatur status <b>L</b> lunas / <b>S</b> sebagian beserta tanggal pembayarannya.
+          Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> di samping nama siswa untuk mengisi tanggal & jumlah pembayaran.
         </p>
       </SectionCard>
 
@@ -229,11 +270,32 @@ export function IuranView() {
               {db.students.map((s) => {
                 const nd = dueInfo.get(s.id)!;
                 const pdThis = payDate(db, s.id, thisMk);
+                const stThis = payStatus(db, s.id, thisMk);
+                const effThis = payEffective(db, s, thisMk);
                 return (
                 <tr key={s.id} className="hover:bg-sky-50/40">
-                  <td className="sticky left-0 z-10 max-w-[220px] bg-white px-4 py-2.5">
+                  <td className="sticky left-0 z-10 max-w-[230px] bg-white px-4 py-2.5">
                     <p className="truncate font-bold text-slate-700">{s.name}</p>
                     <p className="truncate text-xs text-muted-foreground">{s.program} · {rp(s.fee)}</p>
+                    <button
+                      onClick={() => openQuick(s.id)}
+                      title={`Catat tanggal & jumlah pembayaran — ${monthLabel(thisMk)}`}
+                      className={cn(
+                        "mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold transition-colors",
+                        stThis === "lunas"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : stThis === "sebagian"
+                            ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                            : "border-dashed border-sky-300 text-sky-700 hover:bg-sky-50"
+                      )}
+                    >
+                      <Wallet className="h-3 w-3 shrink-0" />
+                      <span className="truncate">
+                        {stThis === "belum"
+                          ? `Catat bayaran ${MONTHS_SHORT[now.getMonth()]}`
+                          : `${pdThis ? fmtDateShort(pdThis) : monthLabel(thisMk)} · ${rpShort(effThis)}`}
+                      </span>
+                    </button>
                   </td>
                   <td className="whitespace-nowrap px-2 py-2.5 text-center">
                     <p className={cn("text-xs font-extrabold", nd.overdue ? "text-rose-600" : "text-slate-700")}>
@@ -246,7 +308,7 @@ export function IuranView() {
                       )}
                     >
                       {nd.lunas && pdThis
-                        ? `dibayar ${fmtDateShort(pdThis)}`
+                        ? `dibayar ${fmtDateShort(pdThis)}${effThis ? ` · ${rpShort(effThis)}` : ""}`
                         : nd.overdue
                           ? `terlambat ${nd.overdue} hr`
                           : nd.inDays === 0
@@ -260,14 +322,15 @@ export function IuranView() {
                     const mk = monthKey(year, mi);
                     const st = payStatus(db, s.id, mk);
                     const pd = payDate(db, s.id, mk);
+                    const am = payAmount(db, s.id, mk);
                     const isNow = mk === thisMk;
                     const dueM = dueDateOf(year, mi, jt);
                     return (
                       <td key={mk} className="px-1 py-2.5 text-center">
                         <button
                           onClick={() => setEditPay({ sid: s.id, mk })}
-                          title={`${MONTHS[mi]} ${year} — ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""} · jatuh tempo ${fmtDayDateShort(dueM)}`}
-                          aria-label={`${MONTHS[mi]} ${year}: ${LABEL[st]}${pd ? `, dibayar ${fmtDate(pd)}` : ""}`}
+                          title={`${MONTHS[mi]} ${year} — ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""}${am ? ` · ${rp(am)}` : ""} · jatuh tempo ${fmtDayDateShort(dueM)}`}
+                          aria-label={`${MONTHS[mi]} ${year}: ${LABEL[st]}${pd ? `, dibayar ${fmtDate(pd)}` : ""}${am ? `, ${rp(am)}` : ""}`}
                           className={cn(
                             "relative mx-auto grid h-8 w-9 place-items-center rounded-lg text-xs font-extrabold transition-transform active:scale-90",
                             CELL[st],
@@ -319,15 +382,38 @@ export function IuranView() {
         </span>
       </div>
 
-      {/* dialog: status & tanggal pembayaran */}
-      <Dialog open={!!editPay && !!editStudent} onOpenChange={(o) => !o && setEditPay(null)}>
+      {/* dialog: status, tanggal & jumlah pembayaran */}
+      <Dialog open={!!editPay && !!editStudent} onOpenChange={(o) => !o && (setEditPay(null), setAmountDraft(null))}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Iuran {editStudent?.name}</DialogTitle>
             <DialogDescription>
-              {editMonthName} · {editStudent ? rp(editStudent.fee) : ""}
+              {editMonthName} · tagihan {editStudent ? rp(editStudent.fee) : ""}
             </DialogDescription>
           </DialogHeader>
+
+          {editPay?.quick && (
+            <div className="grid gap-1.5">
+              <Label>Bulan iuran</Label>
+              <Select
+                value={editPay.mk}
+                onValueChange={(v) => {
+                  setAmountDraft(null);
+                  setEditPay({ ...editPay, mk: v });
+                }}
+              >
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MONTHS_SHORT.map((_, mi) => {
+                    const mk = monthKey(year, mi);
+                    return (
+                      <SelectItem key={mk} value={mk}>{monthLabel(mk)}</SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid gap-2">
             <Label>Status pembayaran</Label>
@@ -367,14 +453,62 @@ export function IuranView() {
               value={editDate ?? ""}
               onChange={(e) => setPaidAt(e.target.value)}
             />
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="pay-amount">Jumlah dibayar</Label>
+            <div className="flex gap-2">
+              <span className="grid h-9 shrink-0 place-items-center rounded-md border border-input bg-slate-50 px-2.5 text-sm font-bold text-slate-500">Rp</span>
+              <Input
+                id="pay-amount"
+                type="text"
+                inputMode="numeric"
+                disabled={editSt === "belum"}
+                value={amountDraft ?? (editAmount ? editAmount.toLocaleString("id-ID") : "")}
+                onChange={(e) => setAmountDraft(e.target.value)}
+                onBlur={(e) => commitAmount(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && commitAmount((e.target as HTMLInputElement).value)}
+                placeholder={editStudent ? String(editStudent.fee) : "0"}
+                className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            {editSt !== "belum" && editStudent && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => commitAmount(String(editStudent.fee))}
+                  className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100"
+                >
+                  Penuh · {rpShort(editStudent.fee)}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => commitAmount(String(Math.round(editStudent.fee / 2)))}
+                  className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700 hover:bg-amber-100"
+                >
+                  Setengah · {rpShort(Math.round(editStudent.fee / 2))}
+                </button>
+                {editAmount && editSt === "sebagian" && (
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    sisa {rp(Math.max(0, editStudent.fee - editAmount))}
+                  </span>
+                )}
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
-              Terisi otomatis hari ini saat status diubah ke Lunas/Sebagian — boleh dikoreksi.
-              Kembali ke “Belum” menghapus tanggalnya.
+              Isi jumlah untuk mencatat bayaran — status &amp; tanggal otomatis menyesuaikan
+              (≥ {editStudent ? rpShort(editStudent.fee) : "…"} lunas, di bawahnya sebagian).
             </p>
           </div>
 
           <DialogFooter>
-            <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => setEditPay(null)}>
+            <Button
+              className="bg-sky-600 hover:bg-sky-700"
+              onClick={() => {
+                if (amountDraft !== null) commitAmount(amountDraft);
+                setEditPay(null);
+              }}
+            >
               Selesai
             </Button>
           </DialogFooter>

@@ -10,12 +10,12 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
-  BookPlus, Download, FileQuestion, Loader2, Pencil, Plus, Printer, Save,
+  BookPlus, Download, ExternalLink, FileQuestion, Loader2, Pencil, Plus, Printer, Save,
   Sparkles, Trash2, Wand2, X,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
-  GEN_MAPEL, KELAS_BY_JENJANG, MAPEL_LIST, TOPIK_GENERATOR, generateMixed, generateQuestions, kelasTersedia, topikLabel,
+  GEN_MAPEL, KELAS_BY_JENJANG, KIDDO_SOURCE, MAPEL_LIST, TOPIK_GENERATOR, generateMixed, generateQuestions, kelasTersedia, topikLabel,
   type GenMapel, type Kesulitan,
 } from "@/lib/generatorSoal";
 import { renderWorksheetCanvas, slugify } from "@/lib/renderWorksheet";
@@ -744,7 +744,7 @@ export function SoalView() {
                 )}
               >
                 <Wand2 className="mb-1 h-4 w-4" /> Otomatis
-                <span className="block text-[11px] font-semibold opacity-75">4 bank generator mapel</span>
+                <span className="block text-[11px] font-semibold opacity-75">5 bank generator mapel</span>
               </button>
               <button
                 type="button"
@@ -835,6 +835,21 @@ export function SoalView() {
                       ))}
                     </SelectContent>
                   </Select>
+                )}
+                {genMapel === "kiddo" && (
+                  <p className="flex flex-wrap items-center gap-1 text-[11px] leading-relaxed text-muted-foreground">
+                    <BookPlus className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    Materi bank Kiddo mengikuti kategori worksheet
+                    <a
+                      href={KIDDO_SOURCE}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-0.5 font-bold text-sky-600 underline decoration-dotted underline-offset-2 hover:text-sky-700"
+                    >
+                      kiddoworksheets.com <ExternalLink className="h-3 w-3" />
+                    </a>
+                    — alphabet, angka, berhitung, kosakata, bentuk, pola, bagian tubuh.
+                  </p>
                 )}
               </div>
             )}
