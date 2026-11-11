@@ -22,7 +22,8 @@ export interface GenSoal {
 export interface TopikDef {
   id: string;
   label: string;
-  gen: (lv: number, R: () => number) => GenSoal;
+  /** kelas = angka kelas (cth. SD 1–6, SMP 7–9) agar rentang soal bisa naik per kelas */
+  gen: (lv: number, R: () => number, kelas: number) => GenSoal;
 }
 
 /** bilangan bulat acak a..s.d. b (inklusif) */
@@ -118,39 +119,69 @@ const kurang1000: TopikDef = {
   },
 };
 
-/** Penjumlahan/pengurangan bersusun (ke bawah). lv1: 2 digit, lv3: 3 digit. */
+/** Penjumlahan/pengurangan bersusun (ke bawah). Jumlah digit naik per kelas:
+ *  kls1: 1 digit → kls2: 2 → kls3: 2–3 → kls4: 3–4 → kls5: 3–4 → kls6: 4 digit.
+ *  Kesulitan memperlebar digit di kelas yang sama; kedua operand dibuat sama panjang. */
+const RENTANG_DIGIT_BERSUSUN: Record<number, [number, number][]> = {
+  1: [[1, 1], [1, 1], [1, 1]],
+  2: [[2, 2], [2, 3], [3, 3]],
+  3: [[2, 3], [3, 3], [3, 3]],
+  4: [[3, 3], [3, 4], [4, 4]],
+  5: [[3, 4], [4, 4], [4, 4]],
+  6: [[4, 4], [4, 4], [4, 4]],
+};
 const bersusunTopik = (id: string, label: string, op: "+" | "−"): TopikDef => ({
   id,
   label,
-  gen: (lv, R) => {
-    const digit = lv === 1 ? 2 : lv === 3 ? 3 : R() < 0.5 ? 2 : 3;
-    const min = digit === 2 ? 10 : 100;
-    const max = digit === 2 ? 99 : 999;
+  gen: (lv, R, kelas = 2) => {
+    const k = Math.min(6, Math.max(1, kelas));
+    const [dMin, dMax] = RENTANG_DIGIT_BERSUSUN[k][lv - 1];
+    const d = ri(R, dMin, dMax);
+    const min = 10 ** (d - 1), max = 10 ** d - 1;
+    // kelas 1 mudah: angka 1–5 agar jumlah tidak melebihi 10
+    const lo = k === 1 && lv === 1 ? 1 : min;
+    const hi = k === 1 && lv === 1 ? 5 : max;
     if (op === "+") {
-      const a = ri(R, min, max), b = ri(R, min, max);
+      const a = ri(R, lo, hi), b = ri(R, lo, hi);
       return { q: `${a} + ${b} = …`, a: `${a + b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
     }
-    const a = ri(R, min + 1, max), b = ri(R, min, a - 1);
+    const a = ri(R, lo + 1, hi), b = ri(R, lo, a - 1);
     return { q: `${a} − ${b} = …`, a: `${a - b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
   },
 });
 const tambahBersusun = bersusunTopik("sd-tambah-bersusun", "Penjumlahan bersusun", "+");
 const kurangBersusun = bersusunTopik("sd-kurang-bersusun", "Pengurangan bersusun", "−");
-/** Perkalian bersusun (ke bawah). lv1: dasar 1–9, lv2+: 2 digit × 1 digit. */
+/** Perkalian bersusun (ke bawah). Naik per kelas: kls2 dasar 1–9 → kls3 2×1 digit
+ *  → kls4 2×1 besar + lv3 mulai 2×2 → kls5–6 dominan 2×2. */
 const kaliBersusun: TopikDef = {
   id: "sd-kali-bersusun", label: "Perkalian bersusun",
-  gen: (lv, R) => {
-    const a = lv === 1 ? ri(R, 2, 9) : ri(R, 11, S(lv, 49, 0.6));
-    const b = lv === 1 ? ri(R, 2, 9) : ri(R, 3, 9);
+  gen: (lv, R, kelas = 3) => {
+    const k = Math.min(6, Math.max(2, kelas));
+    let a: number, b: number;
+    if (k === 2) {
+      a = ri(R, 2, lv === 1 ? 5 : 9); b = ri(R, 2, lv === 1 ? 5 : 9);
+    } else if (k === 3) {
+      a = ri(R, 11, Math.min(99, S(lv, 29, 0.6))); b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
+    } else if (k === 4) {
+      if (lv === 3 && R() < 0.5) { a = ri(R, 11, 29); b = ri(R, 11, 19); }
+      else { a = ri(R, 12, Math.min(99, S(lv, 49, 0.6))); b = ri(R, 3, 9); }
+    } else {
+      if (lv === 1 && R() < 0.5) { a = ri(R, 11, 99); b = ri(R, 3, 9); }
+      else { a = ri(R, 11, lv === 3 ? 79 : 49); b = ri(R, 11, lv === 3 ? 39 : 29); }
+    }
     return { q: `${a} × ${b} = …`, a: `${a * b}`, bersusun: { a: `${a}`, b: `${b}`, op: "×" } };
   },
 };
-/** Pembagian bersusun tanpa sisa (ke bawah): a = hasil kali b × hasil. */
+/** Pembagian bersusun tanpa sisa (ke bawah): a = b × hasil. Hasil naik per kelas:
+ *  kls3 ≤ 12 → kls4 ≤ 20 → kls5 ≤ 40 → kls6 ≤ 90 (dividend maks 810). */
 const bagiBersusun: TopikDef = {
   id: "sd-bagi-bersusun", label: "Pembagian bersusun",
-  gen: (lv, R) => {
+  gen: (lv, R, kelas = 3) => {
+    const k = Math.min(6, Math.max(3, kelas));
     const b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
-    const h = ri(R, lv === 3 ? 5 : 3, lv === 3 ? 20 : 12);
+    const hMin = k === 3 ? 2 : k === 4 ? 3 : k === 5 ? 10 : 20;
+    const hMax = Math.round((k === 3 ? 12 : k === 4 ? 20 : k === 5 ? 40 : 90) * (lv === 3 ? 1 : lv === 2 ? 0.7 : 0.5));
+    const h = ri(R, hMin, Math.max(hMin + 1, hMax));
     return { q: `${b * h} : ${b} = …`, a: `${h}`, bersusun: { a: `${b * h}`, b: `${b}`, op: "÷" } };
   },
 };
@@ -1099,12 +1130,12 @@ const polaBilangan: TopikDef = {
 
 export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [tambah20, kurang20, campur20, polaBilangan],
+    "1": [tambah20, kurang20, campur20, tambahBersusun, kurangBersusun, polaBilangan],
     "2": [tambah100, kurang100, tambahBersusun, kurangBersusun, kaliDasar, kaliBersusun, polaBilangan],
     "3": [kaliBag, tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
-    "4": [operasiCampur, kali2digit, bagiSisa, kaliBersusun, bagiBersusun],
-    "5": [pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
-    "6": [persen, kpkfpb, desimalKali, cacahCampur],
+    "4": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, operasiCampur, kali2digit, bagiSisa],
+    "5": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
+    "6": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, persen, kpkfpb, desimalKali, cacahCampur],
   },
   SMP: {
     "7": [bilBulat, pecahan7, aljabarSederhana, plsv],
@@ -1191,7 +1222,7 @@ export function generateQuestions(
   let guard = 0;
   while (out.length < n && guard < n * 40) {
     guard++;
-    const s = topik.gen(kesulitan, Math.random);
+    const s = topik.gen(kesulitan, Math.random, Number(kelas) || 0);
     const key =
       s.q + (s.options ? "|" + s.options.join("~") : "") +
       (s.pairs ? "|" + s.pairs.map((p) => p.join("=")).join("~") : "") +
