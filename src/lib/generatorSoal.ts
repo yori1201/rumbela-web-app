@@ -15,8 +15,8 @@ export interface GenSoal {
   pairs?: string[][];
   /** kata acak untuk disusun */
   words?: string[];
-  /** hitungan bersusun: a di atas, b di bawah, op di kiri b */
-  bersusun?: { a: string; b: string; op: "+" | "−" };
+  /** hitungan bersusun: a di atas, b di bawah, op di kiri b (4 operasi) */
+  bersusun?: { a: string; b: string; op: "+" | "−" | "×" | "÷" };
 }
 
 export interface TopikDef {
@@ -136,6 +136,24 @@ const bersusunTopik = (id: string, label: string, op: "+" | "−"): TopikDef => 
 });
 const tambahBersusun = bersusunTopik("sd-tambah-bersusun", "Penjumlahan bersusun", "+");
 const kurangBersusun = bersusunTopik("sd-kurang-bersusun", "Pengurangan bersusun", "−");
+/** Perkalian bersusun (ke bawah). lv1: dasar 1–9, lv2+: 2 digit × 1 digit. */
+const kaliBersusun: TopikDef = {
+  id: "sd-kali-bersusun", label: "Perkalian bersusun",
+  gen: (lv, R) => {
+    const a = lv === 1 ? ri(R, 2, 9) : ri(R, 11, S(lv, 49, 0.6));
+    const b = lv === 1 ? ri(R, 2, 9) : ri(R, 3, 9);
+    return { q: `${a} × ${b} = …`, a: `${a * b}`, bersusun: { a: `${a}`, b: `${b}`, op: "×" } };
+  },
+};
+/** Pembagian bersusun tanpa sisa (ke bawah): a = hasil kali b × hasil. */
+const bagiBersusun: TopikDef = {
+  id: "sd-bagi-bersusun", label: "Pembagian bersusun",
+  gen: (lv, R) => {
+    const b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
+    const h = ri(R, lv === 3 ? 5 : 3, lv === 3 ? 20 : 12);
+    return { q: `${b * h} : ${b} = …`, a: `${h}`, bersusun: { a: `${b * h}`, b: `${b}`, op: "÷" } };
+  },
+};
 const operasiCampur: TopikDef = {
   id: "sd-operasi-campur", label: "Operasi hitung campuran",
   gen: (lv, R) => {
@@ -1082,9 +1100,9 @@ const polaBilangan: TopikDef = {
 export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
   SD: {
     "1": [tambah20, kurang20, campur20, polaBilangan],
-    "2": [tambah100, kurang100, tambahBersusun, kurangBersusun, kaliDasar, polaBilangan],
-    "3": [kaliBag, tambah1000, kurang1000, tambahBersusun, kurangBersusun, polaBilangan],
-    "4": [operasiCampur, kali2digit, bagiSisa],
+    "2": [tambah100, kurang100, tambahBersusun, kurangBersusun, kaliDasar, kaliBersusun, polaBilangan],
+    "3": [kaliBag, tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
+    "4": [operasiCampur, kali2digit, bagiSisa, kaliBersusun, bagiBersusun],
     "5": [pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
     "6": [persen, kpkfpb, desimalKali, cacahCampur],
   },

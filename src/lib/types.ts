@@ -83,8 +83,8 @@ export interface WorksheetQ {
   pairs?: string[][];
   /** susun kata: kata acak yang dirangkai jadi kalimat */
   words?: string[];
-  /** hitungan bersusun (penjumlahan/pengurangan ke bawah): a di atas, b di bawah, op di kiri */
-  bersusun?: { a: string; b: string; op: "+" | "−" };
+  /** hitungan bersusun (ke bawah, 4 operasi): a di atas, b di bawah, op di kiri */
+  bersusun?: { a: string; b: string; op: "+" | "−" | "×" | "÷" };
 }
 
 export interface Worksheet {
@@ -310,7 +310,15 @@ export function normalizeDB(raw: unknown): Database {
                         return {
                           a: STR(bz.a),
                           b: STR(bz.b),
-                          op: (op === "−" || op === "-" ? "−" : "+") as "+" | "−",
+                          op: (["+", "−", "×", "÷"].includes(op)
+                            ? (op as "+" | "−" | "×" | "÷")
+                            : op === "-"
+                              ? "−"
+                              : op === "*" || op === "x" || op === "X"
+                                ? "×"
+                                : op === "/" || op === ":"
+                                  ? "÷"
+                                  : "+"),
                         };
                       })(),
                     }
