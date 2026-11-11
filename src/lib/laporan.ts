@@ -2,7 +2,7 @@
 
 /* Perhitungan statistik untuk Laporan Perkembangan Siswa. */
 
-import type { Database, PayStatus, ReportRec, Siswa } from "./types";
+import type { Database, JadwalItem, PayStatus, ReportRec, Siswa } from "./types";
 import { dueDateOf, pad2 } from "./constants";
 
 export interface AttStats {
@@ -118,6 +118,53 @@ export function kelasList(db: Database): string[] {
   db.jadwal.kelas.forEach((k) => set.add(k));
   db.students.forEach((s) => s.group && set.add(s.group));
   return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+/* ===== Jadwal per hari & per siswa (dipakai Absensi, Dashboard, Jadwal) ===== */
+
+/** Daftar item jadwal pada suatu hari, urut slot. */
+export function itemsOnDay(db: Database, hari: string): JadwalItem[] {
+  return db.jadwal.items
+    .filter((i) => i.hari === hari)
+    .sort((a, b) => a.slot - b.slot);
+}
+
+/** Siswa peserta satu item jadwal: daftar eksplisit bila diisi,
+ *  selain itu seluruh siswa dengan grup = kelas item (perilaku lama). */
+export function siswaIdsOfItem(db: Database, it: JadwalItem): string[] {
+  if (it.siswaIds && it.siswaIds.length) return it.siswaIds;
+  return db.students.filter((s) => s.group === it.kelas).map((s) => s.id);
+}
+
+/** Nama peserta satu item jadwal (urut abjad). */
+export function namaSiswaOfItem(db: Database, it: JadwalItem): string[] {
+  const byId = new Map(db.students.map((s) => [s.id, s.name]));
+  return siswaIdsOfItem(db, it)
+    .map((id) => byId.get(id))
+    .filter((n): n is string => !!n)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+/** Semua id siswa yang punya jadwal belajar pada hari tertentu. */
+export function siswaIdsOnDay(db: Database, hari: string): Set<string> {
+  const set = new Set<string>();
+  for (const it of db.jadwal.items) {
+    if (it.hari !== hari) continue;
+    siswaIdsOfItem(db, it).forEach((id) => set.add(id));
+  }
+  return set;
+}
+
+/** Label jam les seorang siswa pada hari tertentu, cth. ["08:00–09:00", "13:00–14:00"]. */
+export function slotLabelsForStudent(db: Database, hari: string, siswaId: string): string[] {
+  const out: string[] = [];
+  for (const it of db.jadwal.items) {
+    if (it.hari !== hari) continue;
+    if (!siswaIdsOfItem(db, it).includes(siswaId)) continue;
+    const sl = db.jadwal.slots[it.slot];
+    out.push(sl ? `${sl.mulai}–${sl.selesai}` : `Slot ${it.slot + 1}`);
+  }
+  return out;
 }
 
 export function datesInMonth(mk: string): string[] {

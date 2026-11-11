@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarDays, Clock, Plus, Trash2 } from "lucide-react";
+import { CalendarDays, Check, Clock, Plus, Trash2, Users } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { kelasList } from "@/lib/laporan";
+import { kelasList, namaSiswaOfItem } from "@/lib/laporan";
 import { HARI, PROGRAMS, uid, WARNA_JADWAL } from "@/lib/constants";
-import type { JadwalItem } from "@/lib/types";
+import type { JadwalItem, Siswa } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,13 @@ interface CellRef {
   item?: JadwalItem;
 }
 
+/** Label peserta untuk sel jadwal: nama bila ≤2 siswa, selain itu "N siswa". */
+function labelSiswa(db: ReturnType<typeof useApp>["db"], it: JadwalItem): string {
+  const nama = namaSiswaOfItem(db, it);
+  if (!nama.length) return "Tanpa siswa";
+  return nama.length <= 2 ? nama.join(", ") : `${nama.length} siswa: ${nama.slice(0, 2).join(", ")}…`;
+}
+
 export function JadwalView() {
   const { db, mutate } = useApp();
   const kelas = useMemo(() => kelasList(db), [db]);
@@ -35,18 +42,22 @@ export function JadwalView() {
   const k = activeKelas || kelas[0] || "";
   const slots = db.jadwal.slots;
   const programs = Array.from(new Set([...PROGRAMS, ...db.students.map((s) => s.program)]));
+  const studentsSorted = useMemo(
+    () => [...db.students].sort((a, b) => a.name.localeCompare(b.name)),
+    [db.students]
+  );
   const items = db.jadwal.items.filter((i) => i.kelas === k);
   const itemAt = (hari: string, slot: number) => items.find((i) => i.hari === hari && i.slot === slot);
 
   const openCell = (hari: string, slot: number) => setCell({ kelas: k, hari, slot, item: itemAt(hari, slot) });
 
-  const saveItem = (program: string, pengajar: string, warna: string) => {
+  const saveItem = (program: string, pengajar: string, warna: string, siswaIds: string[]) => {
     if (!cell) return;
     mutate((d) => {
       d.jadwal.items = d.jadwal.items.filter(
         (i) => !(i.kelas === cell.kelas && i.hari === cell.hari && i.slot === cell.slot)
       );
-      d.jadwal.items.push({ id: uid(), kelas: cell.kelas, hari: cell.hari, slot: cell.slot, program, pengajar, warna });
+      d.jadwal.items.push({ id: uid(), kelas: cell.kelas, hari: cell.hari, slot: cell.slot, program, pengajar, warna, siswaIds });
     });
     setCell(null);
   };
@@ -160,6 +171,7 @@ export function JadwalView() {
                                 <span className="px-2 text-center leading-tight">
                                   <span className="block truncate text-xs font-extrabold">{it.program}</span>
                                   <span className="block truncate text-[11px] opacity-90">{it.pengajar || "—"}</span>
+                                  <span className="block truncate text-[10px] opacity-80">{labelSiswa(db, it)}</span>
                                 </span>
                               ) : (
                                 <Plus className="h-4 w-4" />
@@ -212,6 +224,7 @@ export function JadwalView() {
                           {it ? it.program : "Kosong — ketuk untuk isi"}
                         </span>
                         {it && <span className="block truncate text-xs opacity-90">{it.pengajar || "—"} · s/d {s.selesai}</span>}
+                        {it && <span className="block truncate text-[11px] opacity-80">{labelSiswa(db, it)}</span>}
                       </span>
                     </button>
                   );
@@ -236,6 +249,8 @@ export function JadwalView() {
             key={`${cell?.hari}-${cell?.slot}-${cell?.item?.id ?? "new"}`}
             initial={cell?.item}
             programs={programs}
+            students={studentsSorted}
+            kelasName={cell?.kelas ?? ""}
             onSave={saveItem}
             onDelete={cell?.item ? removeItem : undefined}
           />
@@ -265,16 +280,32 @@ export function JadwalView() {
 }
 
 function CellForm({
-  initial, programs, onSave, onDelete,
+  initial, programs, students, kelasName, onSave, onDelete,
 }: {
   initial?: JadwalItem;
   programs: string[];
-  onSave: (program: string, pengajar: string, warna: string) => void;
+  students: Siswa[];
+  kelasName: string;
+  onSave: (program: string, pengajar: string, warna: string, siswaIds: string[]) => void;
   onDelete?: () => void;
 }) {
   const [program, setProgram] = useState(initial?.program || "");
   const [pengajar, setPengajar] = useState(initial?.pengajar || "");
   const [warna, setWarna] = useState(initial?.warna || WARNA_JADWAL[0]);
+  // siswa peserta: bila item lama tak punya daftar → anggap seluruh siswa kelas ini
+  const [dipilih, setDipilih] = useState<Set<string>>(
+    () => new Set(initial?.siswaIds ?? students.filter((s) => s.group === kelasName).map((s) => s.id))
+  );
+
+  const toggle = (id: string) =>
+    setDipilih((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const pilihSiswaKelas = () => setDipilih(new Set(students.filter((s) => s.group === kelasName).map((s) => s.id)));
+  const bersihkan = () => setDipilih(new Set());
 
   return (
     <div className="grid gap-3">
@@ -288,6 +319,54 @@ function CellForm({
       <div className="grid gap-1.5">
         <Label htmlFor="jd-pengajar">Pengajar</Label>
         <Input id="jd-pengajar" value={pengajar} onChange={(e) => setPengajar(e.target.value)} placeholder="cth. Bu Maya" />
+      </div>
+      <div className="grid gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <Label className="shrink-0">
+            <Users className="mr-1 inline h-3.5 w-3.5 text-sky-600" />
+            Siswa yang les ({dipilih.size})
+          </Label>
+          <div className="flex gap-1">
+            <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={pilihSiswaKelas}>
+              Siswa kelas ini
+            </Button>
+            <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={bersihkan}>
+              Bersihkan
+            </Button>
+          </div>
+        </div>
+        <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border border-slate-100 p-2" aria-label="Daftar siswa peserta slot">
+          {students.length === 0 && <p className="p-2 text-xs text-muted-foreground">Belum ada siswa — tambahkan di menu Siswa.</p>}
+          {students.map((s) => {
+            const on = dipilih.has(s.id);
+            const bedaKelas = s.group && s.group !== kelasName;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => toggle(s.id)}
+                aria-pressed={on}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors",
+                  on ? "bg-sky-50 text-sky-900" : "hover:bg-slate-50 text-slate-600"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-4.5 w-4.5 shrink-0 place-items-center rounded border",
+                    on ? "border-sky-600 bg-sky-600 text-white" : "border-slate-300 bg-white"
+                  )}
+                  style={{ width: 18, height: 18 }}
+                >
+                  {on && <Check className="h-3 w-3" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate font-semibold">{s.name}</span>
+                {bedaKelas && <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">{s.group}</span>}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[11px] text-muted-foreground">Kosongkan semua bila slot ini belum ada pesertanya.</p>
       </div>
       <div className="grid gap-1.5">
         <Label>Warna</Label>
@@ -311,7 +390,7 @@ function CellForm({
             <Trash2 className="h-4 w-4" /> Kosongkan
           </Button>
         ) : <span />}
-        <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna)} disabled={!program.trim()}>
+        <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna, Array.from(dipilih))} disabled={!program.trim()}>
           Simpan
         </Button>
       </DialogFooter>

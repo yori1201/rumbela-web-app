@@ -60,6 +60,8 @@ export interface JadwalItem {
   program: string;
   pengajar: string;
   warna: string;
+  /** siswa peserta slot ini (id). Kosong/tak ada = seluruh siswa dengan grup = kelas item. */
+  siswaIds?: string[];
 }
 
 export type TemplateLaporan = "ceria" | "klasik" | "minimal";
@@ -327,6 +329,11 @@ export function normalizeDB(raw: unknown): Database {
         program: STR(it.program),
         pengajar: STR(it.pengajar),
         warna: STR(it.warna, "#f97316"),
+        ...(Array.isArray(it.siswaIds)
+          ? {
+              siswaIds: (it.siswaIds as unknown[]).map((x) => STR(x)).filter(Boolean),
+            }
+          : {}),
       }));
     }
   }

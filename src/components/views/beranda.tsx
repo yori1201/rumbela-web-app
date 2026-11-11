@@ -1,8 +1,8 @@
 "use client";
 
-import { BookOpen, CalendarCheck2, CalendarClock, ClipboardList, UserPlus, Wallet } from "lucide-react";
+import { BookOpen, CalendarCheck2, CalendarClock, ClipboardList, Clock, UserPlus, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { attStatsInMonth, payEffective, payStatus } from "@/lib/laporan";
+import { attStatsInMonth, itemsOnDay, namaSiswaOfItem, payEffective, payStatus, siswaIdsOnDay } from "@/lib/laporan";
 import {
   currentMonthKey, greeting, MONTHS, rp, todayStr, waLink, DAYS,
   dueDateOf, fmtDayDate,
@@ -26,6 +26,12 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
   const belumLunas = db.students.filter((s) => payStatus(db, s.id, mk) !== "lunas");
   const jurnalHariIni = db.journal[today];
 
+  /* Jadwal les hari ini (siapa saja yang les) */
+  const todayName = DAYS[now.getDay()];
+  const itemsToday = itemsOnDay(db, todayName);
+  const scheduledToday = siswaIdsOnDay(db, todayName);
+  const adaJadwal = db.jadwal.items.length > 0;
+
   /* jatuh tempo iuran berikutnya (tanggal tiap bulan bisa diatur di menu Iuran) */
   const jt = Math.min(31, Math.max(1, db.pengaturan.iuran?.jatuhTempo ?? 5));
   const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -42,7 +48,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
           {greeting()} · {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}
         </p>
         <h2 className="mt-1 text-xl font-extrabold sm:text-2xl">
-          {totalSiswa ? `${totalSiswa} siswa menunggu hari ini 🌱` : "Selamat mengelola Rumbela!"}
+          {totalSiswa ? `${adaJadwal && itemsToday.length ? `${scheduledToday.size} siswa les hari ini` : `${totalSiswa} siswa menunggu hari ini`} 🌱` : "Selamat mengelola Rumbela!"}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" className="bg-white text-sky-700 hover:bg-sky-50" onClick={() => setView("absensi")}>
@@ -58,13 +64,54 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
         <StatCard label="Siswa aktif" value={String(totalSiswa)} sub={`${new Set(db.students.map((s) => s.program)).size} program`} accent="sky" />
         <StatCard
           label="Hadir hari ini"
-          value={tercatat ? `${hadir}/${tercatat}` : "—"}
-          sub={tercatat ? `${Math.round((hadir / tercatat) * 100)}% dari tercatat` : "belum diisi"}
+          value={tercatat ? `${hadir}/${adaJadwal && itemsToday.length ? scheduledToday.size : tercatat}` : "—"}
+          sub={tercatat ? (adaJadwal && itemsToday.length ? "dari siswa terjadwal hari ini" : `${Math.round((hadir / tercatat) * 100)}% dari tercatat`) : "belum diisi"}
           accent="teal"
         />
         <StatCard label="Iuran bulan ini" value={`${lunas}/${totalSiswa}`} sub={`${rp(terkumpul)} terkumpul`} accent="emerald" />
         <StatCard label="Perlu perhatian" value={String(belumLunas.length)} sub="iuran belum lunas" accent="rose" />
       </div>
+
+      <SectionCard
+        title={`Jadwal les hari ini — ${todayName}`}
+        desc={itemsToday.length ? `${itemsToday.length} sesi · ${scheduledToday.size} siswa terjadwal` : "Tidak ada sesi hari ini"}
+        action={
+          <Button size="sm" variant="ghost" className="text-sky-700" onClick={() => setView("jadwal")}>
+            Buka jadwal <Clock className="ml-1 h-4 w-4" />
+          </Button>
+        }
+      >
+        {itemsToday.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {adaJadwal
+              ? `Tidak ada slot les pada ${todayName}. Jadwal lanjut sesuai menu Jadwal.`
+              : "Jadwal mingguan belum diisi — atur slot & siswa di menu Jadwal."}
+          </p>
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {itemsToday.map((it) => {
+              const sl = db.jadwal.slots[it.slot];
+              const nama = namaSiswaOfItem(db, it);
+              return (
+                <div key={it.id} className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm">
+                  <span className="shrink-0 rounded-lg bg-sky-50 px-2 py-1 text-xs font-extrabold text-sky-700">
+                    {sl ? `${sl.mulai}–${sl.selesai}` : `Slot ${it.slot + 1}`}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-slate-700">{it.program}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {it.pengajar || "—"} · {it.kelas}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs font-semibold text-emerald-700">
+                      {nama.length ? nama.join(", ") : "Belum ada peserta"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </SectionCard>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SectionCard
