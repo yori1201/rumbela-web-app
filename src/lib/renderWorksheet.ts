@@ -121,20 +121,6 @@ function star(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, 
   ctx.restore();
 }
 
-/** awan: gabungan lingkaran putih */
-function cloud(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number, alpha = 0.85) {
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = WS.cloud;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 20 * s, 0, Math.PI * 2);
-  ctx.arc(cx + 24 * s, cy + 4 * s, 15 * s, 0, Math.PI * 2);
-  ctx.arc(cx - 24 * s, cy + 5 * s, 14 * s, 0, Math.PI * 2);
-  ctx.arc(cx + 6 * s, cy - 10 * s, 14 * s, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
 /** hati kecil */
 function heart(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number, color: string) {
   ctx.save();
@@ -149,12 +135,47 @@ function heart(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number,
 
 /* ---------- tinggi ruang per jenis soal (untuk estimasi & gambar) ---------- */
 
+/** tinggi konten bersusun: 2 baris angka + garis + kotak jawaban */
+const BERSUSUN_TINGGI = 122;
+
+/** gambar hitungan bersusun (a di atas, b di bawah, op di kiri, garis, kotak jawaban);
+ *  mengembalikan cy bawah konten */
+function gambarBersusun(
+  ctx: CanvasRenderingContext2D, x0: number, cy: number, q: WorksheetQ
+): number {
+  const b = q.bersusun!;
+  ctx.font = font(800, 26);
+  const wA = ctx.measureText(b.a).width;
+  const wB = ctx.measureText(b.b).width;
+  const opW = ctx.measureText(b.op).width + 12;
+  const numW = Math.max(wA, wB);
+  const kanan = Math.min(x0 + numW + opW + 30, PAD + CW - 60);
+  ctx.fillStyle = WS.ink;
+  ctx.textAlign = "right";
+  ctx.fillText(b.a, kanan, cy + 26);
+  ctx.fillText(b.b, kanan, cy + 62);
+  ctx.fillText(b.op, kanan - numW - 12, cy + 62);
+  ctx.textAlign = "left";
+  // garis penghubung
+  ctx.strokeStyle = WS.ink;
+  ctx.lineWidth = 2.6;
+  ctx.beginPath();
+  ctx.moveTo(kanan - numW - opW - 8, cy + 74);
+  ctx.lineTo(kanan + 6, cy + 74);
+  ctx.stroke();
+  // kotak jawaban putus-putus di bawah garis
+  box(ctx, kanan - 132, cy + 86, 132, 36, 10, { fill: "#FFFFFF", stroke: WS.idBoxBorder, lw: 2.2, dash: [6, 5] });
+  return cy + BERSUSUN_TINGGI;
+}
+
 /** tinggi satu soal dalam kartu seksi (lebar teks sudah diketahui) */
 function questionH(ctx: CanvasRenderingContext2D, q: WorksheetQ, textW: number): number {
   ctx.font = font(600, 20);
-  const lines = wrapLines(ctx, q.text, textW);
+  const lines = q.bersusun ? [] : wrapLines(ctx, q.text, textW);
   let h = 14 + lines.length * 29;
-  if (q.kind === "pg" && q.options?.length) {
+  if (q.bersusun) {
+    h += BERSUSUN_TINGGI;
+  } else if (q.kind === "pg" && q.options?.length) {
     const twoCol = q.options.every((o) => ctx.measureText(o).width < textW / 2 - 46);
     h += 16 + Math.ceil(q.options.length / (twoCol ? 2 : 1)) * 44;
   } else if (q.kind === "uraian") {
@@ -358,11 +379,13 @@ function question(
 
   ctx.font = font(600, 20);
   ctx.fillStyle = WS.ink;
-  const lines = wrapLines(ctx, q.text, textW);
+  const lines = q.bersusun ? [] : wrapLines(ctx, q.text, textW);
   lines.forEach((ln, li) => ctx.fillText(ln, x0, y + 22 + li * 29));
   let cy = y + 14 + lines.length * 29;
 
-  if (q.kind === "pg" && q.options?.length) {
+  if (q.bersusun) {
+    cy = gambarBersusun(ctx, x0, cy, q);
+  } else if (q.kind === "pg" && q.options?.length) {
     const twoCol = q.options.every((o) => ctx.measureText(o).width < textW / 2 - 46);
     const colW = (textW - 10) / 2;
     q.options.slice(0, 4).forEach((opt, oi) => {
@@ -515,56 +538,15 @@ function kunciSection(ctx: CanvasRenderingContext2D, y: number, si: number, labe
   return yy + 8;
 }
 
-/* ---------- hiasan latar ---------- */
-
-function decorAtas(ctx: CanvasRenderingContext2D, kunci: boolean) {
-  cloud(ctx, 90, 200, 1.15, 0.7);
-  cloud(ctx, W - 80, 250, 0.9, 0.6);
-  star(ctx, 60, 120, 13, WS.star, -0.4);
-  star(ctx, W - 52, 150, 11, WS.star, 0.5);
-  star(ctx, W - 110, 92, 8, kunci ? "#8CD4AC" : "#F2A0BE", 0.2);
-  star(ctx, 150, 60, 8, kunci ? "#8CD4AC" : "#F2A0BE", 0.9);
-}
-
-function decorBawah(ctx: CanvasRenderingContext2D, H: number) {
-  // rumput bergelombang di tepi paling bawah
-  ctx.save();
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = "#BFE6C8";
-  ctx.beginPath();
-  ctx.moveTo(0, H);
-  ctx.lineTo(0, H - 20);
-  for (let x = 0; x <= W; x += 50) {
-    ctx.quadraticCurveTo(x + 25, H - 38, x + 50, H - 20);
-  }
-  ctx.lineTo(W, H);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-  star(ctx, 70, H - 90, 10, WS.star, 0.3);
-  star(ctx, W - 66, H - 80, 12, WS.star, -0.6);
-  // konfeti titik
-  const dots: [number, number, string][] = [
-    [40, H - 140, "#F2A0BE"], [W - 44, H - 130, "#7CC4EF"], [120, H - 60, "#F2C84B"], [W - 130, H - 55, "#B7A3EE"],
-  ];
-  dots.forEach(([x, y, c]) => {
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = c;
-    ctx.fill();
-  });
-}
-
 /* ---------- orkestrasi ---------- */
 
 function paint(
   ctx: CanvasRenderingContext2D, ws: Worksheet, jenis: "soal" | "kunci", logo: HTMLImageElement | null
 ): number {
   const kunci = jenis === "kunci";
-  // latar
+  // latar putih polos
   ctx.fillStyle = kunci ? WS.kunciBg : WS.pageBg;
   ctx.fillRect(0, 0, W, 40000);
-  decorAtas(ctx, kunci);
 
   const sections = groupSections(ws);
   let y = header(ctx, logo, ws, jenis);
@@ -605,7 +587,6 @@ export async function renderWorksheetCanvas(
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
   paint(ctx, ws, jenis, logo);
-  decorBawah(ctx, H);
   return canvas;
 }
 

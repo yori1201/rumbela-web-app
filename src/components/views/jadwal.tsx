@@ -420,7 +420,7 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
   /** slot baru: lanjut 1 jam setelah slot terakhir (cth. …–15:00 → 15:00–16:00) */
   const slotBerikutnya = () => {
     const terakhir = draft[draft.length - 1];
-    const mulai = terakhir?.selesai || "15:00";
+    const mulai = terakhir?.selesai || "09:00";
     const [h, mnt] = mulai.split(":").map(Number);
     const selesai = `${String(Math.min(23, (h || 8) + 1)).padStart(2, "0")}:${String(mnt || 0).padStart(2, "0")}`;
     return { mulai, selesai };
@@ -431,7 +431,7 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Atur jam pelajaran</DialogTitle>
-          <DialogDescription>Slot dipakai per 1 jam (cth. 08:00–09:00) · maksimal 12 slot. Jadwal di slot yang dihapus akan dikosongkan.</DialogDescription>
+          <DialogDescription>Slot dipakai per 1 jam (cth. 09:00–10:00) · maksimal 12 slot. Jadwal di slot yang dihapus akan dikosongkan.</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           {draft.map((s, i) => (

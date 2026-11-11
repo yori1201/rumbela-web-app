@@ -2,8 +2,8 @@
 
 /* Tema worksheet anak — dipakai bersama oleh pratinjau HTML (soal.tsx)
    dan renderer canvas (renderWorksheet.ts) agar keduanya identik.
-   Palet mengikuti referensi: langit biru muda, kartu seksi pastel
-   warna-warni, aksen kuning, footer pita biru. */
+   Latar halaman PUTIH POLOS tanpa hiasan; aksen warna hanya pada
+   banner judul, kartu seksi pastel, dan pil. */
 
 import type { Worksheet, WorksheetQ } from "./types";
 
@@ -30,10 +30,10 @@ export const SECTION_PALETTE: SectionPalette[] = [
 
 export const LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-/* Warna halaman & elemen tetap */
+/* Warna halaman & elemen tetap (latar putih polos) */
 export const WS = {
-  pageBg: "#EAF6FD",
-  kunciBg: "#EFFBEF",
+  pageBg: "#FFFFFF",
+  kunciBg: "#FFFFFF",
   ink: "#25406B",
   bannerGrad: ["#1E88E9", "#39A7F0"],
   bannerKunciGrad: ["#1F9D55", "#43C680"],

@@ -37,6 +37,18 @@ export const WARNA_JADWAL = [
 ];
 
 export const DEFAULT_SLOTS = [
+  { mulai: "09:00", selesai: "10:00" },
+  { mulai: "10:00", selesai: "11:00" },
+  { mulai: "11:00", selesai: "12:00" },
+  { mulai: "12:00", selesai: "13:00" },
+  { mulai: "13:00", selesai: "14:00" },
+  { mulai: "14:00", selesai: "15:00" },
+  { mulai: "15:00", selesai: "16:00" },
+  { mulai: "16:00", selesai: "17:00" },
+];
+
+/** Slot bawaan sebelumnya (mulai 08:00) — dipakai untuk migrasi otomatis ke jam 09:00–17:00. */
+export const OLD_DEFAULT_SLOTS = [
   { mulai: "08:00", selesai: "09:00" },
   { mulai: "09:00", selesai: "10:00" },
   { mulai: "10:00", selesai: "11:00" },

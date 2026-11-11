@@ -69,19 +69,6 @@ function Bintang({ size = 22, color = WS.star, className }: { size?: number; col
   );
 }
 
-function Awan({ className, opacity = 0.85 }: { className?: string; opacity?: number }) {
-  return (
-    <svg viewBox="0 0 120 54" width="120" height="54" className={className} opacity={opacity} aria-hidden>
-      <g fill="#FFFFFF">
-        <circle cx="34" cy="34" r="20" />
-        <circle cx="62" cy="24" r="16" />
-        <circle cx="88" cy="36" r="14" />
-        <rect x="14" y="34" width="94" height="19" rx="9" />
-      </g>
-    </svg>
-  );
-}
-
 function Hati({ size = 16 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
@@ -90,20 +77,29 @@ function Hati({ size = 16 }: { size?: number }) {
   );
 }
 
-function Rumput() {
-  return (
-    <svg viewBox="0 0 794 40" className="absolute inset-x-0 bottom-0 h-10 w-full" preserveAspectRatio="none" opacity="0.45" aria-hidden>
-      <path d="M0 40V18q25-22 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0v22z" fill="#BFE6C8" />
-    </svg>
-  );
-}
-
 /* ================= Lembar A4 (HTML — tampilan & cetak) =================
-   Layout anak warna-warni sesuai referensi: latar langit, banner biru,
-   kotak identitas, kartu seksi pastel A/B/C, pita footer biru-hijau. */
+   Latar putih polos; aksen warna pada banner judul, kartu seksi pastel
+   A/B/C, pil kuning, dan pita footer. */
 
 function BarisJawaban() {
   return <div className="mt-2.5 border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />;
+}
+
+/** hitungan bersusun: angka kanan-rata, op di kiri baris kedua, garis, kotak jawaban */
+function BersusunHitung({ a, b, op }: { a: string; b: string; op: string }) {
+  return (
+    <div className="mt-1.5 w-fit">
+      <div className="w-fit font-mono text-[24px] font-extrabold leading-tight" style={{ color: WS.ink }}>
+        <div className="text-right" style={{ paddingLeft: 36 }}>{a}</div>
+        <div className="flex items-center">
+          <span className="w-[26px] text-left" style={{ minWidth: 26 }}>{op}</span>
+          <span className="flex-1 text-right">{b}</span>
+        </div>
+      </div>
+      <div className="mt-1 border-t-[3px]" style={{ borderColor: WS.ink }} />
+      <div className="mt-2.5 h-10 w-[132px] rounded-[10px] border-2 border-dashed" style={{ borderColor: WS.idBoxBorder }} />
+    </div>
+  );
 }
 
 function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECTION_PALETTE)[number] }) {
@@ -116,9 +112,13 @@ function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECT
         {no}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[15px] font-semibold leading-relaxed" style={{ color: WS.ink }}>{q.text}</p>
+        {q.bersusun ? (
+          <BersusunHitung a={q.bersusun.a} b={q.bersusun.b} op={q.bersusun.op} />
+        ) : (
+          <>
+            <p className="text-[15px] font-semibold leading-relaxed" style={{ color: WS.ink }}>{q.text}</p>
 
-        {q.kind === "pg" && q.options?.length ? (
+            {q.kind === "pg" && q.options?.length ? (
           <div className="mt-2 grid grid-cols-2 gap-2">
             {q.options.slice(0, 4).map((opt, oi) => (
               <span
@@ -199,6 +199,8 @@ function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECT
         ) : (
           <BarisJawaban />
         )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -245,13 +247,7 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
         WebkitPrintColorAdjust: "exact",
       }}
     >
-      {/* hiasan latar */}
-      <Awan className="pointer-events-none absolute -left-3 top-[120px]" opacity={0.7} />
-      <Awan className="pointer-events-none absolute -right-4 top-[170px]" opacity={0.55} />
-      <Bintang size={20} className="pointer-events-none absolute left-4 top-[70px]" color={WS.star} />
-      <Bintang size={16} className="pointer-events-none absolute right-6 top-[92px]" color="#F2A0BE" />
-      <Bintang size={14} className="pointer-events-none absolute right-[150px] top-[56px]" color="#7CC4EF" />
-      {!kunci && <Rumput />}
+      {/* latar putih polos — tanpa hiasan */}
 
       {/* ===== kop ===== */}
       <div className="relative flex items-start justify-between gap-3">
@@ -592,6 +588,7 @@ export function SoalView() {
             options: g.kind === "pg" ? g.options : undefined,
             pairs: g.kind === "jodoh" ? g.pairs : undefined,
             words: g.kind === "urut" ? g.words : undefined,
+            bersusun: g.bersusun,
             section: g.section,
           })),
         });
@@ -609,6 +606,7 @@ export function SoalView() {
             options: g.kind === "pg" ? g.options : undefined,
             pairs: g.kind === "jodoh" ? g.pairs : undefined,
             words: g.kind === "urut" ? g.words : undefined,
+            bersusun: g.bersusun,
           })),
         });
       }

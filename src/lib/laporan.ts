@@ -155,7 +155,7 @@ export function siswaIdsOnDay(db: Database, hari: string): Set<string> {
   return set;
 }
 
-/** Label jam les seorang siswa pada hari tertentu, cth. ["08:00–09:00", "13:00–14:00"]. */
+/** Label jam les seorang siswa pada hari tertentu, cth. ["09:00–10:00", "13:00–14:00"]. */
 export function slotLabelsForStudent(db: Database, hari: string, siswaId: string): string[] {
   const out: string[] = [];
   for (const it of db.jadwal.items) {

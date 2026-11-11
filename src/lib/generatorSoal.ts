@@ -15,6 +15,8 @@ export interface GenSoal {
   pairs?: string[][];
   /** kata acak untuk disusun */
   words?: string[];
+  /** hitungan bersusun: a di atas, b di bawah, op di kiri b */
+  bersusun?: { a: string; b: string; op: "+" | "−" };
 }
 
 export interface TopikDef {
@@ -115,6 +117,25 @@ const kurang1000: TopikDef = {
     return { q: `${a} − ${b} = …`, a: `${a - b}` };
   },
 };
+
+/** Penjumlahan/pengurangan bersusun (ke bawah). lv1: 2 digit, lv3: 3 digit. */
+const bersusunTopik = (id: string, label: string, op: "+" | "−"): TopikDef => ({
+  id,
+  label,
+  gen: (lv, R) => {
+    const digit = lv === 1 ? 2 : lv === 3 ? 3 : R() < 0.5 ? 2 : 3;
+    const min = digit === 2 ? 10 : 100;
+    const max = digit === 2 ? 99 : 999;
+    if (op === "+") {
+      const a = ri(R, min, max), b = ri(R, min, max);
+      return { q: `${a} + ${b} = …`, a: `${a + b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
+    }
+    const a = ri(R, min + 1, max), b = ri(R, min, a - 1);
+    return { q: `${a} − ${b} = …`, a: `${a - b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
+  },
+});
+const tambahBersusun = bersusunTopik("sd-tambah-bersusun", "Penjumlahan bersusun", "+");
+const kurangBersusun = bersusunTopik("sd-kurang-bersusun", "Pengurangan bersusun", "−");
 const operasiCampur: TopikDef = {
   id: "sd-operasi-campur", label: "Operasi hitung campuran",
   gen: (lv, R) => {
@@ -1061,8 +1082,8 @@ const polaBilangan: TopikDef = {
 export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
   SD: {
     "1": [tambah20, kurang20, campur20, polaBilangan],
-    "2": [tambah100, kurang100, kaliDasar, polaBilangan],
-    "3": [kaliBag, tambah1000, kurang1000, polaBilangan],
+    "2": [tambah100, kurang100, tambahBersusun, kurangBersusun, kaliDasar, polaBilangan],
+    "3": [kaliBag, tambah1000, kurang1000, tambahBersusun, kurangBersusun, polaBilangan],
     "4": [operasiCampur, kali2digit, bagiSisa],
     "5": [pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
     "6": [persen, kpkfpb, desimalKali, cacahCampur],

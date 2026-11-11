@@ -83,6 +83,8 @@ export interface WorksheetQ {
   pairs?: string[][];
   /** susun kata: kata acak yang dirangkai jadi kalimat */
   words?: string[];
+  /** hitungan bersusun (penjumlahan/pengurangan ke bawah): a di atas, b di bawah, op di kiri */
+  bersusun?: { a: string; b: string; op: "+" | "−" };
 }
 
 export interface Worksheet {
@@ -135,7 +137,7 @@ export interface Database {
   worksheets: Worksheet[];
 }
 
-import { DEFAULT_SLOTS, LEGACY_SLOTS, DEFAULT_TEMPLATE_WA, todayStr } from "./constants";
+import { DEFAULT_SLOTS, LEGACY_SLOTS, OLD_DEFAULT_SLOTS, DEFAULT_TEMPLATE_WA, todayStr } from "./constants";
 
 export function defaultPengaturan(): Pengaturan {
   return {
@@ -300,6 +302,19 @@ export function normalizeDB(raw: unknown): Database {
                 words: Array.isArray(q.words)
                   ? (q.words as unknown[]).map((w) => STR(w)).filter(Boolean)
                   : undefined,
+                ...(isObj(q.bersusun)
+                  ? {
+                      bersusun: (() => {
+                        const bz = q.bersusun as Record<string, unknown>;
+                        const op = STR(bz.op, "+");
+                        return {
+                          a: STR(bz.a),
+                          b: STR(bz.b),
+                          op: (op === "−" || op === "-" ? "−" : "+") as "+" | "−",
+                        };
+                      })(),
+                    }
+                  : {}),
               }))
             : [],
         }))
@@ -313,11 +328,21 @@ export function normalizeDB(raw: unknown): Database {
         mulai: STR(s.mulai, "08:00"),
         selesai: STR(s.selesai, "10:00"),
       }));
-      // migrasi: slot bawaan lama (2 jam) otomatis menjadi slot 1 jam
+      // migrasi 1: slot bawaan lama (2 jam) otomatis menjadi slot 1 jam
       const legacy =
         stored.length === LEGACY_SLOTS.length &&
         stored.every((s, i) => s.mulai === LEGACY_SLOTS[i].mulai && s.selesai === LEGACY_SLOTS[i].selesai);
-      db.jadwal.slots = legacy ? DEFAULT_SLOTS.map((s) => ({ ...s })) : stored;
+      // migrasi 2: slot bawaan lama (mulai 08:00) → jam buka baru 09:00–17:00.
+      // Indeks item TIDAK digeser: pelajaran pagi (08:00) ikut naik ke 09:00,
+      // pelajaran siang/sore tetap di jam yang sama.
+      const oldDefault =
+        stored.length === OLD_DEFAULT_SLOTS.length &&
+        stored.every((s, i) => s.mulai === OLD_DEFAULT_SLOTS[i].mulai && s.selesai === OLD_DEFAULT_SLOTS[i].selesai);
+      if (legacy || oldDefault) {
+        db.jadwal.slots = DEFAULT_SLOTS.map((s) => ({ ...s }));
+      } else {
+        db.jadwal.slots = stored;
+      }
     }
     if (Array.isArray(j.kelas)) db.jadwal.kelas = (j.kelas as unknown[]).map((k) => STR(k)).filter(Boolean);
     if (Array.isArray(j.items)) {
