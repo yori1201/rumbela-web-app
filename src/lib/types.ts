@@ -122,16 +122,16 @@ export interface Worksheet {
   kunci: boolean;
 }
 
-/** Template kwitansi: teks WA + label-label yang tampil di kanvas kwitansi.
+/** Template kwitansi: label-label teks yang tampil di kanvas kwitansi.
  *  Semua label mendukung placeholder {kurung} (mis. {orangtua}, {lembaga}). */
 export interface KwitansiTemplate {
-  templateWa: string;
   judul: string;
   subjudul: string;
   labelDari: string;
   labelUntuk: string;
   ucapan: string;
   catatan: string;
+  hormatKami: string;
 }
 
 export interface Pengaturan {
@@ -144,7 +144,7 @@ export interface Pengaturan {
   iuran?: { jatuhTempo: number };
   /** jurnal: template teks laporan harian WA (placeholder {kurung}) */
   jurnal?: { templateWa: string };
-  /** kwitansi: template teks WA + label-label kanvas (placeholder {kurung}).
+  /** kwitansi: label-label teks kanvas (placeholder {kurung}).
    *  Desain kanvas tidak berubah, hanya teksnya yang bisa diedit. */
   kwitansi?: KwitansiTemplate;
   laporan: {
@@ -171,7 +171,7 @@ export interface Database {
   worksheets: Worksheet[];
 }
 
-import { DEFAULT_SLOTS, LEGACY_SLOTS, OLD_DEFAULT_SLOTS, DEFAULT_TEMPLATE_WA, DEFAULT_TEMPLATE_KWITANSI_WA, DEFAULT_KWITANSI_LABELS, todayStr } from "./constants";
+import { DEFAULT_SLOTS, LEGACY_SLOTS, OLD_DEFAULT_SLOTS, DEFAULT_TEMPLATE_WA, DEFAULT_KWITANSI_LABELS, todayStr } from "./constants";
 
 export function defaultPengaturan(): Pengaturan {
   return {
@@ -182,7 +182,7 @@ export function defaultPengaturan(): Pengaturan {
     emailAdmin: "",
     iuran: { jatuhTempo: 5 },
     jurnal: { templateWa: DEFAULT_TEMPLATE_WA },
-    kwitansi: { templateWa: DEFAULT_TEMPLATE_KWITANSI_WA, ...DEFAULT_KWITANSI_LABELS },
+    kwitansi: { ...DEFAULT_KWITANSI_LABELS },
     laporan: {
       template: "ceria",
       pesanPenutup:
@@ -449,13 +449,13 @@ export function normalizeDB(raw: unknown): Database {
       const kw = p.kwitansi as Record<string, unknown>;
       const base = defaultPengaturan().kwitansi!;
       db.pengaturan.kwitansi = {
-        templateWa: STR(kw.templateWa).trim() || base.templateWa,
         judul: STR(kw.judul).trim() || base.judul,
         subjudul: STR(kw.subjudul).trim() || base.subjudul,
         labelDari: STR(kw.labelDari).trim() || base.labelDari,
         labelUntuk: STR(kw.labelUntuk).trim() || base.labelUntuk,
         ucapan: STR(kw.ucapan).trim() || base.ucapan,
         catatan: STR(kw.catatan).trim() || base.catatan,
+        hormatKami: STR(kw.hormatKami).trim() || base.hormatKami,
       };
     }
     if (isObj(p.laporan)) {

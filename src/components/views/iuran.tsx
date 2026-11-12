@@ -148,7 +148,7 @@ export function IuranView() {
       if (!prog.selesai) {
         toast({
           title: "Kwitansi belum tersedia",
-          description: `${kwSiswa.name} baru ${prog.hadir}/${prog.target} pertemuan — kwitansi terbit setelah ${prog.target} pertemuan selesai.`,
+          description: `${kwSiswa.name} baru ${prog.hadir} dari ${prog.target} pertemuan. Kwitansinya terbit setelah ${prog.target} pertemuan selesai.`,
         });
         return;
       }
@@ -196,15 +196,15 @@ export function IuranView() {
     const pd = payDate(db, sid, thisMk);
     const amt = payAmount(db, sid, thisMk);
     const dueLine = prog.selesai
-      ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan (siklus ke-${prog.siklusKe}) — iuran jatuh tempo, mohon segera dilunasi.`
-      : `\nProgres pertemuan ananda: ${prog.hadir}/${prog.target} — iuran jatuh tempo setelah ${prog.target} pertemuan selesai.`;
+      ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan (siklus ke-${prog.siklusKe}). Iuran siklus ini jatuh tempo, mohon segera dilunasi.`
+      : `\nProgres pertemuan ananda: ${prog.hadir} dari ${prog.target}. Iurannya jatuh tempo setelah ${prog.target} pertemuan selesai.`;
     const statusLine =
       st === "sebagian"
         ? `Sudah dibayar sebagian${amt ? ` sebesar *${rp(amt)}* dari ${rp(s.fee)}` : ""}${pd ? ` (diterima ${fmtDate(pd)})` : ""}`
         : "Belum lunas";
     return waLink(
       s.wa,
-      `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* (Curup) mengingatkan iuran siklus ke-${prog.siklusKe} (${prog.target} pertemuan) untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.${dueLine}\n\nStatus saat ini: *${statusLine}*.\nTerima kasih atas perhatian dan kepercayaannya 🙏`
+      `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga}, ${db.pengaturan.tagline}* (Curup) mengingatkan iuran siklus ke-${prog.siklusKe} (${prog.target} pertemuan) untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.${dueLine}\n\nStatus saat ini: *${statusLine}*.\nTerima kasih atas perhatian dan kepercayaannya 🙏`
     );
   };
 
@@ -252,7 +252,7 @@ export function IuranView() {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Jatuh tempo muncul setelah siswa <b>menyelesaikan semua pertemuan dalam satu siklus</b> (12 pertemuan, sesuai isian “Pertemuan / pembayaran” tiap siswa) — bukan hitungan 30 hari atau bulan kalender. Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal &amp; jumlah pembayaran lalu mengirim kwitansinya ke WA.
+          Jatuh tempo muncul setelah siswa <b>menyelesaikan semua pertemuan dalam satu siklus</b>. Satu siklus berisi 12 pertemuan, sesuai isian “Pertemuan / pembayaran” tiap siswa. Ketuk kotak bulan untuk status <b>L</b> lunas atau <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal dan jumlah pembayaran lalu mengirim kwitansinya ke WA.
         </p>
       </SectionCard>
 
@@ -284,7 +284,7 @@ export function IuranView() {
                     <p className="truncate text-xs text-muted-foreground">{s.program} · {rp(s.fee)}</p>
                     <button
                       onClick={() => openQuick(s.id)}
-                      title={`Catat tanggal & jumlah pembayaran — ${monthLabel(thisMk)}`}
+                      title={`Catat tanggal & jumlah pembayaran, ${monthLabel(thisMk)}`}
                       className={cn(
                         "mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold transition-colors",
                         stThis === "lunas"
@@ -329,7 +329,7 @@ export function IuranView() {
                       <td key={mk} className="px-1 py-2.5 text-center">
                         <button
                           onClick={() => setEditPay({ sid: s.id, mk })}
-                          title={`${MONTHS[mi]} ${year} — ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""}${am ? ` · ${rp(am)}` : ""}}`}
+                          title={`${MONTHS[mi]} ${year}: ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""}${am ? ` · ${rp(am)}` : ""}}`}
                           aria-label={`${MONTHS[mi]} ${year}: ${LABEL[st]}${pd ? `, dibayar ${fmtDate(pd)}` : ""}${am ? `, ${rp(am)}` : ""}`}
                           className={cn(
                             "relative mx-auto grid h-8 w-9 place-items-center rounded-lg text-xs font-extrabold transition-transform active:scale-90",
@@ -355,7 +355,7 @@ export function IuranView() {
                     <div className="flex items-center justify-center gap-1.5">
                       <button
                         onClick={() => openKwit(s.id)}
-                        title={`Kwitansi & kirim bukti WA — ${monthLabel(thisMk)}`}
+                        title={`Kwitansi & kirim bukti WA, ${monthLabel(thisMk)}`}
                         className="inline-grid h-8 w-8 place-items-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
                       >
                         <Receipt className="h-4 w-4" />
@@ -505,7 +505,7 @@ export function IuranView() {
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              Isi jumlah untuk mencatat bayaran — status &amp; tanggal otomatis menyesuaikan
+              Isi jumlah untuk mencatat bayaran, status dan tanggal otomatis menyesuaikan
               (≥ {editStudent ? rpShort(editStudent.fee) : "…"} lunas, di bawahnya sebagian).
             </p>
           </div>
@@ -542,7 +542,7 @@ export function IuranView() {
       <Dialog open={!!kwit && !!kwitSiswa} onOpenChange={(o) => !o && setKuit(null)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Kwitansi — {kwitSiswa?.name}</DialogTitle>
+            <DialogTitle>Kwitansi: {kwitSiswa?.name}</DialogTitle>
             <DialogDescription>
               {kwit && kwitSiswa ? `${monthLabel(kwit.mk)} · siklus ke-${progresSiklus(db, kwitSiswa, kwit.mk).siklusKe} (${progresSiklus(db, kwitSiswa, kwit.mk).target} pertemuan) · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.` : ""}
             </DialogDescription>

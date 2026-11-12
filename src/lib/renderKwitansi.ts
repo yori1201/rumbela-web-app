@@ -5,7 +5,7 @@
    dan dilampirkan ke WhatsApp orang tua. Juga menyediakan teks kwitansi
    untuk dikirim via wa.me (gambar dilampirkan manual oleh admin). */
 
-import { DEFAULT_KWITANSI_LABELS, DEFAULT_TEMPLATE_KWITANSI_WA, fillTemplate, fmtDate, monthLabel, rp, terbilang, todayStr, waLink } from "./constants";
+import { DEFAULT_KWITANSI_LABELS, fillTemplate, fmtDate, monthLabel, rp, terbilang, todayStr, waLink } from "./constants";
 import type { Database, Siswa } from "./types";
 import { payAmount, payDate, payEffective, payStatus, progresSiklus } from "./laporan";
 
@@ -49,31 +49,31 @@ export function kwitansiNo(db: Database, siswa: Siswa, mk: string): string {
 }
 
 /** Teks kwitansi untuk dikirim via WhatsApp (gambar PNG dilampirkan manual).
- *  Isi mengikuti template di Pengaturan (pengaturan.kwitansi.templateWa). */
+ *  Teks ini tetap (tidak pakai template) — yang bisa diedit lewat Pengaturan
+ *  hanya teks-teks di layout gambar kwitansi. */
 export function kwitansiWaText(db: Database, siswa: Siswa, mk: string): string {
   const st = payStatus(db, siswa.id, mk);
   const amt = payAmount(db, siswa.id, mk) ?? (st === "lunas" ? siswa.fee : Math.round(siswa.fee / 2));
   const pdIso = payDate(db, siswa.id, mk) || todayStr();
   const sisa = Math.max(0, siswa.fee - payEffective(db, siswa, mk));
   const prog = progresSiklus(db, siswa, mk);
-  const tpl = db.pengaturan.kwitansi?.templateWa || DEFAULT_TEMPLATE_KWITANSI_WA;
   const p = db.pengaturan;
-  return fillTemplate(tpl, {
-    orangtua: siswa.parent,
-    nama: siswa.name,
-    program: siswa.program,
-    jumlah: rp(amt),
-    terbilang: terbilang(amt),
-    tanggal: fmtDate(pdIso),
-    status: st === "lunas" ? "LUNAS" : `sebagian — sisa ${rp(sisa)}`,
-    sisa: rp(sisa),
-    no: kwitansiNo(db, siswa, mk),
-    siklus: String(prog.siklusKe),
-    pertemuan: String(prog.target),
-    bulan: monthLabel(mk),
-    lembaga: p.namaLembaga || "Rumbela",
-    tagline: p.tagline || "Rumah Belajar Anak",
-  });
+  return [
+    `Assalamu'alaikum Bapak/Ibu ${siswa.parent},`,
+    ``,
+    `Terima kasih 🙏 pembayaran iuran ananda *${siswa.name}* telah kami terima:`,
+    ``,
+    `• Program: ${siswa.program}`,
+    `• Untuk pembayaran: Iuran ${siswa.program}, ${prog.target} pertemuan (siklus ke-${prog.siklusKe})`,
+    `• Jumlah dibayar: *${rp(amt)}* (${terbilang(amt)} rupiah)`,
+    `• Tanggal bayar: ${fmtDate(pdIso)}`,
+    st === "lunas" ? `• Status: *LUNAS* ✅` : `• Status: sebagian, sisa *${rp(sisa)}*`,
+    `• No. kwitansi: *${kwitansiNo(db, siswa, mk)}*`,
+    ``,
+    `Bukti kwitansi berupa gambar menyusul di chat ini.`,
+    ``,
+    `${p.namaLembaga || "Rumbela"} (${p.tagline || "Rumah Belajar Anak"}), Curup`,
+  ].join("\n");
 }
 
 export function kwitansiWaLink(db: Database, siswa: Siswa, mk: string): string {
@@ -168,8 +168,8 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
     ctx.fillText(value, 64, y + 31);
   };
 
-  row(L.labelDari, `Bapak/Ibu ${siswa.parent} — orang tua/wali ananda ${siswa.name}`, 268);
-  row(L.labelUntuk, `Iuran ${siswa.program} — ${prog.target} pertemuan (siklus ke-${prog.siklusKe})`, 356);
+  row(L.labelDari, `Bapak/Ibu ${siswa.parent}, orang tua/wali ananda ${siswa.name}`, 268);
+  row(L.labelUntuk, `Iuran ${siswa.program}, ${prog.target} pertemuan (siklus ke-${prog.siklusKe})`, 356);
 
   /* kotak jumlah */
   rr(ctx, 64, 424, W - 128, 106, 20);
@@ -196,7 +196,7 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
     ctx.fillText("LUNAS", W - 92, 486);
   } else {
     ctx.fillStyle = "#b45309";
-    ctx.fillText(`SEBAGIAN — sisa ${rp(sisa)}`, W - 92, 486);
+    ctx.fillText(`SEBAGIAN, sisa ${rp(sisa)}`, W - 92, 486);
   }
   ctx.textAlign = "left";
 
@@ -220,7 +220,7 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
   ctx.textAlign = "right";
   ctx.fillStyle = "#475569";
   ctx.font = "600 16px Nunito";
-  ctx.fillText("Hormat kami,", W - 64, 588);
+  ctx.fillText(L.hormatKami, W - 64, 588);
   ctx.fillStyle = "#0369a1";
   ctx.font = "800 20px Nunito";
   ctx.fillText(lembaga, W - 64, 614);
