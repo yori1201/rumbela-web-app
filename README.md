@@ -20,7 +20,7 @@ Kelola siswa, iuran, absensi, jurnal, jadwal kelas, <b>laporan perkembangan berg
 | 📊 **Laporan (baru!)** | **Laporan Perkembangan Siswa → gambar PNG siap kirim ke orang tua**, 3 template (Ceria / Klasik / Minimal), skor aspek bintang, catatan otomatis dari jurnal, unduh PNG & kirim WA |
 | 🗓️ **Jadwal (baru!)** | Jadwal kelas mingguan per grup: grid hari × slot jam, warna per program, editor slot jam |
 | 📚 **Materi** | Bank materi: tautan / unggah berkas ke folder Drive “Rumbela — Bank Materi” |
-| 🧮 **Generator Soal (baru!)** | Worksheet latihan bergambar khusus Rumbela: **generator otomatis Matematika** (SD/SMP/SMA per kelas & topik, 3 tingkat kesulitan) atau tulis sendiri untuk semua mapel (PG/isian/uraian), lembar kunci jawaban, cetak PDF & unduh PNG, arsip tersimpan otomatis |
+| 🧮 **Generator Soal (baru!)** | Worksheet latihan bergambar khusus Rumbela: **generator otomatis Matematika** (SD/SMP per kelas & topik, 3 tingkat kesulitan) atau tulis sendiri untuk semua mapel (PG/isian/uraian), lembar kunci jawaban, cetak PDF & unduh PNG, arsip tersimpan otomatis |
 | ⚙️ **Pengaturan** | Profil lembaga, template laporan, whitelist email admin, ekspor/impor JSON, hapus data contoh |
 
 ### Sorotan teknis v2.0

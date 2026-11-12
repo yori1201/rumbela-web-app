@@ -1,6 +1,6 @@
 "use client";
 
-/* Engine generator soal Matematika otomatis per jenjang (SD/SMP/SMA),
+/* Engine generator soal Matematika otomatis per jenjang (SD/SMP),
    kelas & topik. Semua soal dihitung ulang setiap kali dibuat, jawaban
    selalu bilangan bulat / pecahan sederhana agar rapi untuk lembar kerja.
    Soal yang memakai benda/gambar menampilkan emoji karakter (⭐🍎🎈…)
@@ -686,128 +686,6 @@ const aritSosial: TopikDef = {
     const b = pick(R, [5, 10, 12]);
     const total = harga + (harga * b) / 100;
     return { q: `Tabungan ${rb(harga)} di bank dengan bunga ${b}% per tahun. Saldo setelah 1 tahun = …`, a: `${rb(total)}` };
-  },
-};
-
-/* ================= SMA ================= */
-
-const eksLog: TopikDef = {
-  id: "sma-ekslog", label: "Eksponen & logaritma",
-  gen: (_lv, R) => {
-    const b = pick(R, [2, 3, 5]), m = ri(R, 2, 5);
-    if (R() < 0.4) return { q: `${b}^x = ${Math.pow(b, m)}  →  x = …`, a: `${m}` };
-    return { q: `²log ${Math.pow(2, m)} = …`, a: `${m}` };
-  },
-};
-const pk10: TopikDef = {
-  id: "sma-pk", label: "Persamaan kuadrat",
-  gen: (_lv, R) => {
-    const p = ri(R, 2, 12), q = ri(R, 1, 12);
-    const [r1, r2] = R() < 0.5 ? [p, -q] : [-p, -q];
-    const b = -(r1 + r2), c = r1 * r2;
-    const bS = b === 0 ? "" : `${b > 0 ? " + " : " − "}${Math.abs(b)}x`;
-    return {
-      q: `x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)} = 0. Nilai x₁ · x₂ = …`,
-      a: `${c}`,
-    };
-  },
-};
-const barisanArit: TopikDef = {
-  id: "sma-barisan", label: "Barisan & deret aritmetika",
-  gen: (lv, R) => {
-    const a = ri(R, 3, 15), d = ri(R, 2, 9), n = ri(R, S(lv, 10, 0.5), S(lv, 25, 0.5));
-    return { q: `Barisan aritmetika ${a}, ${a + d}, ${a + 2 * d}, …  Suku ke-${n} (Un) = …`, a: `${a + (n - 1) * d}` };
-  },
-};
-const fungsiKuadrat: TopikDef = {
-  id: "sma-fk", label: "Fungsi kuadrat",
-  gen: (_lv, R) => {
-    const p = ri(R, 1, 9), q = ri(R, 1, 9), r1 = p, r2 = -q;
-    const b = -(r1 + r2), c = r1 * r2;
-    const bS = b === 0 ? "" : `${b > 0 ? " + " : " − "}${Math.abs(b)}x`;
-    const ask = R() < 0.5;
-    return ask
-      ? { q: `f(x) = x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)}. Titik potong sumbu-x: x = … atau x = …`, a: `${r1} dan ${r2}` }
-      : { q: `f(x) = x²${bS} ${c > 0 ? "+" : "−"} ${Math.abs(c)}. Sumbu simetri x = −b/2a = …`, a: idn(b / 2) };
-  },
-};
-const geometri11: TopikDef = {
-  id: "sma-geometri", label: "Barisan & deret geometri",
-  gen: (_lv, R) => {
-    const a = ri(R, 2, 6), r = pick(R, [2, 3]), n = ri(R, 5, 9);
-    return {
-      q: `Barisan geometri ${a}, ${a * r}, ${a * r * r}, …  Suku ke-${n} = …`,
-      a: `${a * Math.pow(r, n - 1)}`,
-    };
-  },
-};
-const polinom11: TopikDef = {
-  id: "sma-polinom", label: "Polinomial (nilai fungsi)",
-  gen: (_lv, R) => {
-    const a = ri(R, 1, 3), b = ri(R, -5, 5), c = ri(R, -9, 9), x = ri(R, 2, 5);
-    const v = a * x * x * x + b * x * x + c * x + 7;
-    const bS = b === 0 ? "" : ` ${b > 0 ? "+" : "−"} ${Math.abs(b)}x²`;
-    const cS = c === 0 ? "" : ` ${c > 0 ? "+" : "−"} ${Math.abs(c)}x`;
-    return { q: `f(x) = ${a}x³${bS}${cS} + 7. Nilai f(${x}) = …`, a: `${v}` };
-  },
-};
-const turunan12: TopikDef = {
-  id: "sma-turunan", label: "Turunan fungsi",
-  gen: (_lv, R) => {
-    const a = ri(R, 2, 6), b = ri(R, 2, 9), x = ri(R, 2, 6);
-    if (R() < 0.5) return { q: `f(x) = ${a}x² − ${b}x + 3. f′(${x}) = …`, a: `${2 * a * x - b}` };
-    return { q: `f(x) = ${a}x³. f′(x) = …`, a: `${3 * a}x²` };
-  },
-};
-const integral12: TopikDef = {
-  id: "sma-integral", label: "Integral tentu",
-  gen: (_lv, R) => {
-    const a = ri(R, 2, 6), b = ri(R, 2, 5), u = ri(R, 2, 4);
-    return { q: `∫(${a}x + ${b}) dx dari x = 0 sampai x = ${u} = …`, a: `${(a * u * u) / 2 + b * u}` };
-  },
-};
-const limit12: TopikDef = {
-  id: "sma-limit", label: "Limit fungsi",
-  gen: (_lv, R) => {
-    const k = ri(R, 2, 7);
-    return { q: `lim x→${k}  (x² − ${k * k})/(x − ${k}) = …`, a: `${2 * k}` };
-  },
-};
-
-/* --- topik SMA baru: gradien, trigonometri dasar, peluang --- */
-
-const pgLurus: TopikDef = {
-  id: "sma-pgl", label: "Persamaan garis lurus (gradien)",
-  gen: (_lv, R) => {
-    const m = ri(R, 1, 5);
-    const x1 = ri(R, -4, 4), y1 = m * x1 + ri(R, -3, 3);
-    const x2 = x1 + ri(R, 1, 4), y2 = m * x2 + (y1 - m * x1);
-    return { q: `Garis melalui titik (${x1}, ${y1}) dan (${x2}, ${y2}). Gradien garis tersebut = …`, a: `${m}` };
-  },
-};
-
-const trigonoDasar: TopikDef = {
-  id: "sma-trigono", label: "Trigonometri dasar",
-  gen: (_lv, R) => {
-    const t = pick(R, [
-      ["sin 30°", "0,5"], ["cos 60°", "0,5"], ["tan 45°", "1"],
-      ["sin 90°", "1"], ["cos 0°", "1"], ["sin 0°", "0"], ["cos 90°", "0"],
-    ]);
-    return { q: `Nilai dari ${t[0]} = …`, a: t[1] };
-  },
-};
-
-const peluangDasar: TopikDef = {
-  id: "sma-peluang", label: "Peluang dasar",
-  gen: (_lv, R) => {
-    const t = pick(R, [
-      ["lebih dari 4", 5, 6, 1],
-      ["kurang dari 3", 2, 6, 1],
-      ["genap", 3, 6, 1],
-      ["ganjil", 3, 6, 1],
-      ["prima (2, 3, 5)", 3, 6, 1],
-    ] as [string, number, number, number][]);
-    return { q: `Satu dadu dilempar sekali. Peluang muncul angka ${t[0]} = …`, a: `${simp(t[1], t[2] * t[3])}` };
   },
 };
 
@@ -1697,17 +1575,11 @@ export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
     "8": [spldv, pythagoras, plsvKurung, bilBulat, lingkaranSoal],
     "9": [eksponen9, akar9, pkFaktor, polaBarisan, aritSosial],
   },
-  SMA: {
-    "10": [eksLog, pk10, barisanArit, pgLurus],
-    "11": [fungsiKuadrat, geometri11, polinom11, trigonoDasar],
-    "12": [turunan12, integral12, limit12, peluangDasar],
-  },
 };
 
 export const KELAS_BY_JENJANG: Record<string, string[]> = {
   SD: ["1", "2", "3", "4", "5", "6"],
   SMP: ["7", "8", "9"],
-  SMA: ["10", "11", "12"],
 };
 
 /** Mapel yang punya bank generator otomatis */
@@ -1724,7 +1596,7 @@ export interface GenMapelDef {
 }
 
 export const GEN_MAPEL: GenMapelDef[] = [
-  { id: "matematika", label: "Matematika", rentang: "SD · SMP · SMA", jenjang: ["SD", "SMP", "SMA"] },
+  { id: "matematika", label: "Matematika", rentang: "SD · SMP", jenjang: ["SD", "SMP"] },
   { id: "calistung", label: "Calistung Ceria", rentang: "SD kelas 1–3", jenjang: ["SD"] },
   { id: "english", label: "Bahasa Inggris Dasar", rentang: "SD kelas 1–6", jenjang: ["SD"] },
   { id: "coding", label: "Worksheet Coding", rentang: "SD 4–6 · SMP", jenjang: ["SD", "SMP"] },

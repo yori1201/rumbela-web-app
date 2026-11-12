@@ -24,7 +24,11 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
-const FEE_DEFAULT: Record<string, number> = { SD: 200000, SMP: 220000, SMA: 240000 };
+/** Iuran terkunci Rumbela (12 Nov 2026): grup Rp150.000/bulan, privat Rp250.000/bulan. */
+export const FEE_GRUP = 150000;
+export const FEE_PRIVAT = 250000;
+export const feeForProgram = (program: string): number =>
+  program === "Privat" ? FEE_PRIVAT : FEE_GRUP;
 
 export function SiswaView() {
   const { db, mutate } = useApp();
@@ -33,7 +37,7 @@ export function SiswaView() {
   const [editing, setEditing] = useState<Siswa | null>(null);
   const [open, setOpen] = useState(false);
   const [del, setDel] = useState<Siswa | null>(null);
-  const [form, setForm] = useState<{ name: string; level: string; grade: string; program: string; parent: string; wa: string; start: string; group: string; fee: number; meet: number }>({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: "", group: "", fee: 200000, meet: 12 });
+  const [form, setForm] = useState<{ name: string; level: string; grade: string; program: string; parent: string; wa: string; start: string; group: string; fee: number; meet: number }>({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: "", group: "", fee: FEE_GRUP, meet: 12 });
 
   const groups = useMemo(() => Array.from(new Set(db.students.map((s) => s.group).filter(Boolean))), [db.students]);
   const programs = useMemo(() => Array.from(new Set([...PROGRAMS, ...db.students.map((s) => s.program)])), [db.students]);
@@ -46,7 +50,7 @@ export function SiswaView() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: new Date().toISOString().slice(0, 10), group: groups[0] || "Grup A", fee: FEE_DEFAULT.SD, meet: 12 });
+    setForm({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: new Date().toISOString().slice(0, 10), group: groups[0] || "Grup A", fee: feeForProgram(PROGRAMS[0]), meet: 12 });
     setOpen(true);
   };
 
@@ -192,7 +196,7 @@ export function SiswaView() {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label>Jenjang</Label>
-                <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v, fee: FEE_DEFAULT[v] || form.fee })}>
+                <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {LEVELS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -206,7 +210,7 @@ export function SiswaView() {
             </div>
             <div className="grid gap-1.5">
               <Label>Program</Label>
-              <Select value={form.program} onValueChange={(v) => setForm({ ...form, program: v })}>
+              <Select value={form.program} onValueChange={(v) => setForm({ ...form, program: v, fee: feeForProgram(v) })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {programs.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}

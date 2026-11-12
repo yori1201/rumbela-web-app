@@ -37,7 +37,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const JENJANG = ["SD", "SMP", "SMA"] as const;
+const JENJANG = ["SD", "SMP"] as const;
 const JUMLAH_OPSI = [1, 2, 3, 5, 8, 10, 15, 20, 25];
 const KIND_LABEL: Record<SoalKind, string> = {
   pg: "Pilihan Ganda",

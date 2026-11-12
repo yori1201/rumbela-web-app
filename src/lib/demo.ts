@@ -17,12 +17,12 @@ export function demoDB(): Database {
   const lastY = m === 0 ? y - 1 : y;
 
   const s = [
-    { name: "Aisyah Ramadhani", level: "SD", grade: "2", program: "Calistung Ceria", parent: "Ibu Ratna", wa: "081200000001", start: "2026-10-05", group: "Grup A", fee: 200000, meet: 12 },
-    { name: "Bima Pratama", level: "SMP", grade: "7", program: "Matematika", parent: "Bapak Dedi", wa: "081200000002", start: "2026-10-12", group: "Grup B", fee: 220000, meet: 12 },
-    { name: "Citra Lestari", level: "SD", grade: "4", program: "Pendampingan Belajar & PR", parent: "Ibu Wati", wa: "081200000003", start: "2026-09-21", group: "Grup A", fee: 200000, meet: 12 },
-    { name: "Dimas Saputra", level: "SD", grade: "5", program: "Matematika", parent: "Bapak Hendra", wa: "081200000004", start: "2026-10-01", group: "Grup B", fee: 220000, meet: 8 },
-    { name: "Elsa Nuraini", level: "SD", grade: "1", program: "Calistung Ceria", parent: "Ibu Sari", wa: "081200000005", start: "2026-10-19", group: "Grup A", fee: 200000, meet: 12 },
-    { name: "Fajar Ramadhan", level: "SMP", grade: "8", program: "Bahasa Inggris Dasar", parent: "Bapak Yudi", wa: "081200000006", start: "2026-09-14", group: "Grup B", fee: 240000, meet: 8 },
+    { name: "Aisyah Ramadhani", level: "SD", grade: "2", program: "Calistung Ceria", parent: "Ibu Ratna", wa: "081200000001", start: "2026-10-05", group: "Grup A", fee: 150000, meet: 12 },
+    { name: "Bima Pratama", level: "SMP", grade: "7", program: "Matematika", parent: "Bapak Dedi", wa: "081200000002", start: "2026-10-12", group: "Grup B", fee: 150000, meet: 12 },
+    { name: "Citra Lestari", level: "SD", grade: "4", program: "Pendampingan Belajar & PR", parent: "Ibu Wati", wa: "081200000003", start: "2026-09-21", group: "Grup A", fee: 150000, meet: 12 },
+    { name: "Dimas Saputra", level: "SD", grade: "5", program: "Matematika", parent: "Bapak Hendra", wa: "081200000004", start: "2026-10-01", group: "Grup B", fee: 150000, meet: 8 },
+    { name: "Elsa Nuraini", level: "SD", grade: "1", program: "Calistung Ceria", parent: "Ibu Sari", wa: "081200000005", start: "2026-10-19", group: "Grup A", fee: 150000, meet: 12 },
+    { name: "Fajar Ramadhan", level: "SMP", grade: "8", program: "Bahasa Inggris Dasar", parent: "Bapak Yudi", wa: "081200000006", start: "2026-09-14", group: "Grup B", fee: 150000, meet: 8 },
   ].map((x) => ({ ...x, id: uid(), sample: true }));
 
   db.students = s;
@@ -43,9 +43,9 @@ export function demoDB(): Database {
     [s[4].id]: { [thisMk]: tgl(1) },
   };
   db.payAmounts = {
-    [s[0].id]: { [lastMk]: 200000, [thisMk]: 200000 },
-    [s[1].id]: { [thisMk]: 110000 },
-    [s[4].id]: { [thisMk]: 200000 },
+    [s[0].id]: { [lastMk]: 150000, [thisMk]: 150000 },
+    [s[1].id]: { [thisMk]: 75000 },
+    [s[4].id]: { [thisMk]: 150000 },
   };
 
   // Absensi 12 hari kerja terakhir

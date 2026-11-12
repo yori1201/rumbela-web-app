@@ -10,7 +10,7 @@ export const PROGRAMS = [
   "Privat",
 ] as const;
 
-export const LEVELS = ["SD", "SMP", "SMA"] as const;
+export const LEVELS = ["SD", "SMP"] as const;
 
 export const ASPECTS = [
   "Pemahaman materi",

@@ -111,9 +111,9 @@ export interface Worksheet {
   /** tanggal pembuatan YYYY-MM-DD */
   createdAt: string;
   mapel: string;
-  /** SD | SMP | SMA */
+  /** SD | SMP (SMA dihapus 12 Nov 2026; data lama SMA tetap terbaca, tidak bisa dibuat baru) */
   jenjang: string;
-  /** "1"–"12" atau "" */
+  /** "1"–"9" atau "" */
   kelas: string;
   topik: string;
   petunjuk: string;
