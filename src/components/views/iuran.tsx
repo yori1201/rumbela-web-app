@@ -165,6 +165,9 @@ export function IuranView() {
       c.className = "w-full h-auto rounded-lg bg-white shadow-sm";
       setKuitCanvas(c);
       kwitBoxRef.current?.replaceChildren(c);
+    }).catch(() => {
+      if (!alive) return;
+      toast({ title: "Gagal membuat gambar kwitansi", description: "Coba lagi, atau pakai tombol Salin teks.", variant: "destructive" });
     });
     return () => {
       alive = false;
@@ -196,7 +199,7 @@ export function IuranView() {
     const pd = payDate(db, sid, thisMk);
     const amt = payAmount(db, sid, thisMk);
     const dueLine = prog.selesai
-      ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan (siklus ke-${prog.siklusKe}). Iuran siklus ini jatuh tempo, mohon segera dilunasi.`
+      ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan (Bulan ke-${prog.siklusKe}). Iuran Bulan ini jatuh tempo, mohon segera dilunasi.`
       : `\nProgres pertemuan ananda: ${prog.hadir} dari ${prog.target}. Iurannya jatuh tempo setelah ${prog.target} pertemuan selesai.`;
     const statusLine =
       st === "sebagian"
@@ -238,7 +241,7 @@ export function IuranView() {
           <span className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-900">
             <CalendarClock className="h-4 w-4 shrink-0 text-sky-600" />
             Jatuh tempo iuran:
-            <span className="text-sky-700">{dueSiswa.length ? `${dueSiswa.length} siswa menyelesaikan siklus pertemuan` : "belum ada"}</span>
+            <span className="text-sky-700">{dueSiswa.length ? `${dueSiswa.length} siswa menyelesaikan satu Bulan pertemuan` : "belum ada"}</span>
           </span>
           {dueSiswa.length > 0 ? (
             <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">
@@ -246,13 +249,13 @@ export function IuranView() {
             </span>
           ) : (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
-              semua siklus berjalan
+              semua Bulan berjalan
             </span>
           )}
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Jatuh tempo muncul setelah siswa <b>menyelesaikan semua pertemuan dalam satu siklus</b>. Satu siklus berisi 12 pertemuan, sesuai isian “Pertemuan / pembayaran” tiap siswa. Ketuk kotak bulan untuk status <b>L</b> lunas atau <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal dan jumlah pembayaran lalu mengirim kwitansinya ke WA.
+          Jatuh tempo muncul setelah siswa <b>menyelesaikan semua pertemuan dalam satu Bulan</b>. Satu Bulan berisi 12 pertemuan, sesuai isian “Pertemuan / pembayaran” tiap siswa. Ketuk kotak bulan untuk status <b>L</b> lunas atau <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal dan jumlah pembayaran lalu mengirim kwitansinya ke WA.
         </p>
       </SectionCard>
 
@@ -304,7 +307,7 @@ export function IuranView() {
                   </td>
                   <td className="whitespace-nowrap px-2 py-2.5 text-center">
                     <p className={cn("text-xs font-extrabold", prog.selesai ? "text-rose-600" : "text-slate-700")}>
-                      {prog.hadir}/{prog.target} pertemuan
+                      {Math.min(prog.hadir, prog.target)}/{prog.target} pertemuan
                     </p>
                     <p
                       className={cn(
@@ -544,7 +547,7 @@ export function IuranView() {
           <DialogHeader>
             <DialogTitle>Kwitansi: {kwitSiswa?.name}</DialogTitle>
             <DialogDescription>
-              {kwit && kwitSiswa ? `${monthLabel(kwit.mk)} · siklus ke-${progresSiklus(db, kwitSiswa, kwit.mk).siklusKe} (${progresSiklus(db, kwitSiswa, kwit.mk).target} pertemuan) · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.` : ""}
+              {kwit && kwitSiswa ? `${monthLabel(kwit.mk)} · Bulan ke-${progresSiklus(db, kwitSiswa, kwit.mk).siklusKe} (${progresSiklus(db, kwitSiswa, kwit.mk).target} pertemuan) · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.` : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="relative grid min-h-[220px] place-items-center overflow-hidden rounded-xl bg-slate-100 p-2">

@@ -41,8 +41,8 @@ function fitWidth(ctx: CanvasRenderingContext2D, text: string, weight: number, p
   return size;
 }
 
-/** Nomor kwitansi per siklus pertemuan: KWIT/1/5S72 (siklus ke-1, akhir id siswa).
- *  Siklus dihitung dari pembayaran lunas sebelumnya, bukan dari tanggal bulan. */
+/** Nomor kwitansi per pembayaran (Bulan ke-N): KWIT/1/5S72 (Bulan ke-1, akhir id siswa).
+ *  Nomor dihitung dari pembayaran lunas sebelumnya, bukan dari tanggal bulan. */
 export function kwitansiNo(db: Database, siswa: Siswa, mk: string): string {
   const prog = progresSiklus(db, siswa, mk);
   return `KWIT/${prog.siklusKe}/${(siswa.id.slice(-4) || "0000").toUpperCase()}`;
@@ -64,7 +64,7 @@ export function kwitansiWaText(db: Database, siswa: Siswa, mk: string): string {
     `Terima kasih 🙏 pembayaran iuran ananda *${siswa.name}* telah kami terima:`,
     ``,
     `• Program: ${siswa.program}`,
-    `• Untuk pembayaran: Iuran ${siswa.program}, ${prog.target} pertemuan (siklus ke-${prog.siklusKe})`,
+    `• Untuk pembayaran: Iuran ${siswa.program}, ${prog.target} pertemuan (Bulan ke-${prog.siklusKe})`,
     `• Jumlah dibayar: *${rp(amt)}* (${terbilang(amt)} rupiah)`,
     `• Tanggal bayar: ${fmtDate(pdIso)}`,
     st === "lunas" ? `• Status: *LUNAS* ✅` : `• Status: sebagian, sisa *${rp(sisa)}*`,
@@ -169,7 +169,7 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
   };
 
   row(L.labelDari, `Bapak/Ibu ${siswa.parent}, orang tua/wali ananda ${siswa.name}`, 268);
-  row(L.labelUntuk, `Iuran ${siswa.program}, ${prog.target} pertemuan (siklus ke-${prog.siklusKe})`, 356);
+  row(L.labelUntuk, `Iuran ${siswa.program}, ${prog.target} pertemuan (Bulan ke-${prog.siklusKe})`, 356);
 
   /* kotak jumlah */
   rr(ctx, 64, 424, W - 128, 106, 20);

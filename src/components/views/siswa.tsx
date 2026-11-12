@@ -165,7 +165,7 @@ export function SiswaView() {
                 </div>
                 <div className="flex gap-2">
                   <dt className="w-20 shrink-0 text-muted-foreground">Iuran</dt>
-                  <dd className="font-semibold text-slate-700">{rp(s.fee)}/siklus · {s.meet}x pertemuan</dd>
+                  <dd className="font-semibold text-slate-700">{rp(s.fee)}/Bulan · {s.meet}x pertemuan</dd>
                 </div>
               </dl>
               <a

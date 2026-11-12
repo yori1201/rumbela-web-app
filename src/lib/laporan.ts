@@ -51,40 +51,36 @@ export function payEffective(db: Database, siswa: Siswa, mk: string): number {
   return amt ?? Math.round(siswa.fee / 2);
 }
 
-/** Progres satu siklus iuran berbasis pertemuan (v2.3.2): satu pembayaran
- *  mencakup `meet` pertemuan (bawaan 12). Dihitung dari jumlah kehadiran (H)
- *  sejak pembayaran lunas terakhir sebelum bulan mk — atau sejak tanggal masuk
- *  bila belum pernah lunas. Jatuh tempo muncul saat hadir mencapai target,
- *  bukan hitungan 30 hari atau bulan kalender. */
+/** Progres iuran berbasis pertemuan (v2.3.2, diperbaiki v2.3.4): satu pembayaran
+ *  mencakup `meet` pertemuan (bawaan 12). Hadir (H) dihitung KUMULATIF dari
+ *  semua tanggal tercatat, bukan sejak tanggal pembayaran terakhir: di data
+ *  nyata tanggal bayar sering diisi belakangan (mis. bayar Oktober dicatat
+ *  12 Nov), sehingga jendela berbasis payDate bisa membuang semua absensi
+ *  dan mengunci kwitansi (kasus Al Hafizhan 12 Nov 2026: 17x hadir tapi
+ *  terhitung 0 karena payDate Oktober 2026-11-12). Kwitansi boleh terbit
+ *  saat hadir mencapai target, bukan hitungan 30 hari atau bulan kalender. */
 export interface ProgresSiklus {
-  /** jumlah pertemuan dihadiri (H) dalam siklus berjalan */
+  /** jumlah pertemuan dihadiri (H) kumulatif, semua tanggal tercatat */
   hadir: number;
   /** pertemuan per pembayaran (siswa.meet, bawaan 12) */
   target: number;
-  /** true bila siklus selesai → iuran jatuh tempo, kwitansi boleh terbit */
+  /** true bila hadir mencapai target → iuran jatuh tempo, kwitansi boleh terbit */
   selesai: boolean;
-  /** nomor siklus yang sedang berjalan (1 = siklus pertama) */
+  /** nomor pembayaran yang sedang berjalan (1 = pembayaran pertama) */
   siklusKe: number;
 }
 
 export function progresSiklus(db: Database, siswa: Siswa, mk?: string): ProgresSiklus {
   const target = siswa.meet > 0 ? siswa.meet : 12;
   const pays = db.payments[siswa.id] ?? {};
-  const dates = db.payDates?.[siswa.id] ?? {};
   let lunasCount = 0;
-  let lastPay: string | null = null;
   for (const m of Object.keys(pays)) {
     if (pays[m] !== "lunas") continue;
     if (mk && m >= mk) continue;
     lunasCount++;
-    const d = dates[m];
-    if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) && (!lastPay || d > lastPay)) lastPay = d;
   }
-  const fromStart = !lastPay;
-  const batas = lastPay ?? siswa.start ?? "";
   let hadir = 0;
-  for (const [date, day] of Object.entries(db.attendance)) {
-    if (date <= batas && !(fromStart && date === batas)) continue;
+  for (const day of Object.values(db.attendance)) {
     if (day[siswa.id] === "H") hadir++;
   }
   return { hadir, target, selesai: hadir >= target, siklusKe: lunasCount + 1 };
