@@ -2,7 +2,11 @@
 
 /* Engine generator soal Matematika otomatis per jenjang (SD/SMP/SMA),
    kelas & topik. Semua soal dihitung ulang setiap kali dibuat, jawaban
-   selalu bilangan bulat / pecahan sederhana agar rapi untuk lembar kerja. */
+   selalu bilangan bulat / pecahan sederhana agar rapi untuk lembar kerja.
+   Soal yang memakai benda/gambar menampilkan emoji karakter (⭐🍎🎈…)
+   melalui field `visual` — bukan sekadar titik — di semua bank & level. */
+
+import type { SoalVisual } from "./types";
 
 export interface GenSoal {
   q: string;
@@ -17,6 +21,8 @@ export interface GenSoal {
   words?: string[];
   /** hitungan bersusun: a di atas, b di bawah, op di kiri b (4 operasi) */
   bersusun?: { a: string; b: string; op: "+" | "−" | "×" | "÷" };
+  /** baris benda bergambar (emoji) utk soal hitung / jumlah gambar */
+  visual?: SoalVisual;
 }
 
 export interface TopikDef {
@@ -30,6 +36,21 @@ export interface TopikDef {
 const ri = (R: () => number, a: number, b: number): number =>
   a + Math.floor(R() * (b - a + 1));
 const pick = <T,>(R: () => number, arr: T[]): T => arr[Math.floor(R() * arr.length)];
+
+/** benda bergambar utk soal hitung: [emoji, nama] — dipakai semua bank */
+const EMOJI_BENDA: [string, string][] = [
+  ["⭐", "bintang"], ["🍎", "apel"], ["🎈", "balon"], ["🐟", "ikan"], ["🌸", "bunga"],
+  ["🐱", "kucing"], ["🍓", "stroberi"], ["🚗", "mobil"], ["⚽", "bola"], ["🍌", "pisang"],
+  ["🦆", "bebek"], ["🧁", "kue"], ["🍊", "jeruk"], ["🐞", "kumbang"], ["🌻", "bunga matahari"],
+  ["🍬", "permen"], ["🍩", "donat"], ["🐣", "anak ayam"],
+];
+/** satu kelompok benda */
+const visSatu = (emoji: string, n: number): SoalVisual => ({ parts: [{ emoji, n }] });
+/** dua kelompok dengan pemisah ("+" / "−") */
+const visJumlah = (emoji: string, a: number, b: number, join: string): SoalVisual => ({
+  parts: [{ emoji, n: a }, { emoji, n: b }],
+  join,
+});
 /** skala rentang berdasarkan tingkat kesulitan: 1=mudah 2=sedang 3=sulit */
 const S = (lv: number, base: number, inc: number) => Math.round(base * (1 + (lv - 1) * inc));
 
@@ -348,6 +369,159 @@ const cacahCampur: TopikDef = {
   },
 };
 
+/* --- topik Matematika SD baru: pembanding, nilai tempat, urutan, uang,
+   waktu, keliling-luas, satuan ukur, volume, rata-rata --- */
+
+const bandingBilangan: TopikDef = {
+  id: "sd-banding", label: "Membandingkan bilangan",
+  gen: (lv, R) => {
+    const m = S(lv, 20, 0.8);
+    let a = ri(R, 1, m), b = ri(R, 1, m);
+    if (a === b) b = a > 1 ? a - 1 : a + 1;
+    return { q: `Isi tanda yang tepat ( > , < , atau = ):  ${a} … ${b}`, a: a > b ? ">" : "<" };
+  },
+};
+
+const genapGanjil: TopikDef = {
+  id: "sd-genap-ganjil", label: "Bilangan genap & ganjil",
+  gen: (_lv, R) => {
+    const n = ri(R, 3, 99);
+    return { q: `Bilangan ${n} termasuk bilangan genap atau ganjil?`, a: n % 2 === 0 ? "genap" : "ganjil" };
+  },
+};
+
+const nilaiTempat: TopikDef = {
+  id: "sd-nilai-tempat", label: "Nilai tempat",
+  gen: (lv, R) => {
+    if (R() < 0.5) {
+      const p = ri(R, 1, 9), s = ri(R, 0, 9);
+      return { q: `${p} puluhan + ${s} satuan = …`, a: `${p * 10 + s}` };
+    }
+    const ratus = lv >= 2 ? ri(R, 1, 9) : 0;
+    const p = ri(R, 1, 9);
+    let s = ri(R, 0, 9);
+    while (s === p) s = ri(R, 0, 9);
+    const n = ratus * 100 + p * 10 + s;
+    const tanyaPuluhan = R() < 0.5;
+    return {
+      q: `Angka ${tanyaPuluhan ? p : s} pada bilangan ${n} menempati tempat …`,
+      a: tanyaPuluhan ? "puluhan" : "satuan",
+    };
+  },
+};
+
+const urutBilangan: TopikDef = {
+  id: "sd-urut-bilangan", label: "Mengurutkan bilangan",
+  gen: (lv, R) => {
+    const m = S(lv, 40, 0.5);
+    const set = new Set<number>();
+    while (set.size < 4) set.add(ri(R, 1, m));
+    const arr = [...set];
+    const naik = R() < 0.5;
+    const jawab = [...arr].sort((x, y) => (naik ? x - y : y - x)).join(", ");
+    return { q: `Urutkan dari yang ${naik ? "terkecil" : "terbesar"}:  ${acakArray(R, arr).join(", ")}`, a: jawab };
+  },
+};
+
+const rb = (n: number): string => `Rp${(n * 1000).toLocaleString("id-ID")}`;
+const uangCerita: TopikDef = {
+  id: "sd-uang-cerita", label: "Soal cerita uang",
+  gen: (lv, R) => {
+    const m = S(lv, 12, 0.5);
+    if (R() < 0.5) {
+      const a = ri(R, 3, m * 2), b = ri(R, 2, m);
+      return { q: `Rina membeli buku seharga ${rb(a)} dan pensil seharga ${rb(b)}. Semua biayanya = …`, a: `${rb(a + b)}` };
+    }
+    const a = ri(R, m + 5, m * 5), b = ri(R, 2, m);
+    return { q: `Dodi membayar ${rb(a)}, ia menerima kembalian ${rb(b)}. Harga barang yang dibeli = …`, a: `${rb(a - b)}` };
+  },
+};
+
+const waktuSoal: TopikDef = {
+  id: "sd-waktu", label: "Satuan waktu (jam & menit)",
+  gen: (lv, R) => {
+    if (R() < 0.5) {
+      const j = ri(R, 1, 6), m = pick(R, [15, 20, 30, 45]);
+      return { q: `${j} jam ${m} menit = … menit`, a: `${j * 60 + m}` };
+    }
+    const h1 = ri(R, 6, 20), m1 = pick(R, [0, 5, 10, 15, 20, 30]);
+    const dur = pick(R, lv === 1 ? [15, 30] : [25, 40, 45, 50]);
+    const tot = h1 * 60 + m1 + dur;
+    const h2 = Math.floor(tot / 60), m2 = tot % 60;
+    return {
+      q: `Latihan dimulai pukul ${String(h1).padStart(2, "0")}.${String(m1).padStart(2, "0")} selama ${dur} menit. Latihan selesai pukul …`,
+      a: `${String(h2).padStart(2, "0")}.${String(m2).padStart(2, "0")}`,
+    };
+  },
+};
+
+const kelilingLuas: TopikDef = {
+  id: "sd-keliling-luas", label: "Keliling & luas bangun",
+  gen: (lv, R) => {
+    const m = S(lv, 12, 0.6);
+    if (R() < 0.5) {
+      const s = ri(R, 2, m);
+      return R() < 0.5
+        ? { q: `Persegi dengan sisi ${s} cm. Kelilingnya = … cm`, a: `${4 * s}` }
+        : { q: `Persegi dengan sisi ${s} cm. Luasnya = … cm²`, a: `${s * s}` };
+    }
+    const p = ri(R, 3, m * 2), l = ri(R, 2, m);
+    return R() < 0.5
+      ? { q: `Persegi panjang berukuran ${p} cm × ${l} cm. Kelilingnya = … cm`, a: `${2 * (p + l)}` }
+      : { q: `Persegi panjang berukuran ${p} cm × ${l} cm. Luasnya = … cm²`, a: `${p * l}` };
+  },
+};
+
+const satuanUkur: TopikDef = {
+  id: "sd-satuan-ukur", label: "Satuan pengukuran",
+  gen: (lv, R) => {
+    const data: [string, number, string][] = [
+      ["m", 100, "cm"], ["km", 1000, "m"], ["kg", 1000, "g"],
+      ["liter", 1000, "ml"], ["jam", 60, "menit"],
+    ];
+    const [ua, f, ub] = pick(R, data);
+    const k = ri(R, 2, S(lv, 6, 0.4));
+    if (R() < 0.5) return { q: `${k} ${ua} = … ${ub}`, a: `${k * f}` };
+    return { q: `${k * f} ${ub} = … ${ua}`, a: `${k}` };
+  },
+};
+
+const volumeBalok: TopikDef = {
+  id: "sd-volume", label: "Volume kubus & balok",
+  gen: (lv, R) => {
+    const m = S(lv, 8, 0.5);
+    if (R() < 0.5) {
+      const s = ri(R, 2, m);
+      return { q: `Volume kubus dengan rusuk ${s} cm = … cm³`, a: `${s * s * s}` };
+    }
+    const p = ri(R, 3, m * 2), l = ri(R, 2, m), t = ri(R, 2, m);
+    return { q: `Volume balok berukuran ${p} cm × ${l} cm × ${t} cm = … cm³`, a: `${p * l * t}` };
+  },
+};
+
+const rataRata: TopikDef = {
+  id: "sd-rata-rata", label: "Rata-rata (mean)",
+  gen: (lv, R) => {
+    const n = lv === 1 ? 4 : 5;
+    for (let guard = 0; guard < 60; guard++) {
+      const target = ri(R, 70, 92);
+      const nums: number[] = [];
+      let sum = 0;
+      for (let i = 0; i < n - 1; i++) {
+        const v = ri(R, 60, 100);
+        nums.push(v);
+        sum += v;
+      }
+      const last = target * n - sum;
+      if (last >= 60 && last <= 100 && !nums.includes(last)) {
+        nums.push(last);
+        return { q: `Nilai ulangan Bima: ${nums.join(", ")}. Rata-ratanya = …`, a: `${target}` };
+      }
+    }
+    return { q: `Nilai ulangan Bima: 70, 80, 90, 80. Rata-ratanya = …`, a: "80" };
+  },
+};
+
 /* ================= SMP ================= */
 
 const bilBulat: TopikDef = {
@@ -468,6 +642,53 @@ const polaBarisan: TopikDef = {
   },
 };
 
+/* --- topik SMP baru: perbandingan, lingkaran, aritmetika sosial --- */
+
+const perbandinganSenilai: TopikDef = {
+  id: "smp-perbandingan", label: "Perbandingan senilai & skala",
+  gen: (lv, R) => {
+    if (R() < 0.5) {
+      const a = ri(R, 2, 5), b = a + ri(R, 1, 4);
+      const k = ri(R, 2, S(lv, 5, 0.4));
+      const ka = a * k; // harga a buku (ribuan) — selalu habis dibagi a
+      return { q: `${a} buku harganya ${rb(ka)}. Harga ${b} buku = …`, a: `${rb(k * b)}` };
+    }
+    const skala = pick(R, [100000, 200000]);
+    const cm = ri(R, 2, 9);
+    const m = (cm * skala) / 100 / 1000;
+    return { q: `Jarak dua kota pada peta ${cm} cm, skala 1 : ${skala.toLocaleString("id-ID")}. Jarak sebenarnya = … km`, a: `${idn(m)}` };
+  },
+};
+
+const lingkaranSoal: TopikDef = {
+  id: "smp-lingkaran", label: "Lingkaran (keliling & luas)",
+  gen: (_lv, R) => {
+    const r = pick(R, [7, 14, 21, 3.5]);
+    const kel = R() < 0.5;
+    if (kel) {
+      const v = (2 * 22 * r) / 7;
+      return { q: `Lingkaran berjari-jari ${idn(r)} cm (π = 22/7). Kelilingnya = … cm`, a: `${Number.isInteger(v) ? v : idn(v)}` };
+    }
+    const v = (22 * r * r) / 7;
+    return { q: `Lingkaran berjari-jari ${idn(r)} cm (π = 22/7). Luasnya = … cm²`, a: `${Number.isInteger(v) ? v : idn(v)}` };
+  },
+};
+
+const aritSosial: TopikDef = {
+  id: "smp-arit-sosial", label: "Aritmetika sosial (diskon & bunga)",
+  gen: (lv, R) => {
+    const p = pick(R, [10, 15, 20, 25, 30, 40, 50]);
+    const harga = ri(R, 4, S(lv, 20, 0.5)) * 10;
+    if (R() < 0.5) {
+      const bayar = harga - (harga * p) / 100;
+      return { q: `Sebuah tas seharga ${rb(harga)} didiskon ${p}%. Harga yang harus dibayar = …`, a: `${rb(bayar)}` };
+    }
+    const b = pick(R, [5, 10, 12]);
+    const total = harga + (harga * b) / 100;
+    return { q: `Tabungan ${rb(harga)} di bank dengan bunga ${b}% per tahun. Saldo setelah 1 tahun = …`, a: `${rb(total)}` };
+  },
+};
+
 /* ================= SMA ================= */
 
 const eksLog: TopikDef = {
@@ -553,11 +774,44 @@ const limit12: TopikDef = {
   },
 };
 
-/* ================= Calistung Ceria (SD kelas 1–3) ================= */
+/* --- topik SMA baru: gradien, trigonometri dasar, peluang --- */
 
-const dots = (n: number): string => Array.from({ length: n }, () => "●").join(" ");
-const dots5 = (n: number): string =>
-  Array.from({ length: Math.ceil(n / 5) }, (_, i) => dots(Math.min(5, n - i * 5))).join("  ");
+const pgLurus: TopikDef = {
+  id: "sma-pgl", label: "Persamaan garis lurus (gradien)",
+  gen: (_lv, R) => {
+    const m = ri(R, 1, 5);
+    const x1 = ri(R, -4, 4), y1 = m * x1 + ri(R, -3, 3);
+    const x2 = x1 + ri(R, 1, 4), y2 = m * x2 + (y1 - m * x1);
+    return { q: `Garis melalui titik (${x1}, ${y1}) dan (${x2}, ${y2}). Gradien garis tersebut = …`, a: `${m}` };
+  },
+};
+
+const trigonoDasar: TopikDef = {
+  id: "sma-trigono", label: "Trigonometri dasar",
+  gen: (_lv, R) => {
+    const t = pick(R, [
+      ["sin 30°", "0,5"], ["cos 60°", "0,5"], ["tan 45°", "1"],
+      ["sin 90°", "1"], ["cos 0°", "1"], ["sin 0°", "0"], ["cos 90°", "0"],
+    ]);
+    return { q: `Nilai dari ${t[0]} = …`, a: t[1] };
+  },
+};
+
+const peluangDasar: TopikDef = {
+  id: "sma-peluang", label: "Peluang dasar",
+  gen: (_lv, R) => {
+    const t = pick(R, [
+      ["lebih dari 4", 5, 6, 1],
+      ["kurang dari 3", 2, 6, 1],
+      ["genap", 3, 6, 1],
+      ["ganjil", 3, 6, 1],
+      ["prima (2, 3, 5)", 3, 6, 1],
+    ] as [string, number, number, number][]);
+    return { q: `Satu dadu dilempar sekali. Peluang muncul angka ${t[0]} = …`, a: `${simp(t[1], t[2] * t[3])}` };
+  },
+};
+
+/* ================= Calistung Ceria (SD kelas 1–3) ================= */
 
 const SUKU2: string[][] = [
   ["bu", "ku"], ["ma", "ta"], ["ka", "ki"], ["me", "ja"], ["bo", "la"], ["sa", "pi"],
@@ -624,19 +878,21 @@ const kataHilang: TopikDef = {
     return { q: `Huruf apa yang hilang?  ${tampil}  (petunjuk: ${petunjuk})`, a: kata[i] };
   },
 };
-const hitungBintang: TopikDef = {
-  id: "cal-hitung", label: "Berhitung (hitung bintang)",
+const hitungBendaCal: TopikDef = {
+  id: "cal-hitung", label: "Berhitung (hitung benda)",
   gen: (lv, R) => {
+    const [em, nama] = pick(R, EMOJI_BENDA);
     const n = ri(R, 1, S(lv, 12, 0.6));
-    return { q: `Hitung bintang di bawah ini!  ${dots5(n)}`, a: `${n}` };
+    return { q: `Hitung jumlah ${nama} di bawah ini!`, a: `${n}`, visual: visSatu(em, n) };
   },
 };
 const tambahGambar: TopikDef = {
   id: "cal-tambah-gambar", label: "Menjumlah gambar",
   gen: (lv, R) => {
+    const [em, nama] = pick(R, EMOJI_BENDA);
     const m = S(lv, 6, 0.5);
     const a = ri(R, 1, m), b = ri(R, 1, Math.max(1, m - a + 1));
-    return { q: `${dots(a)}  +  ${dots(b)}  = … bintang`, a: `${a + b}` };
+    return { q: `Jumlahkan kedua kelompok ${nama} di bawah ini!`, a: `${a + b}`, visual: visJumlah(em, a, b, "+") };
   },
 };
 const lanjutHitung: TopikDef = {
@@ -678,8 +934,13 @@ const lawanKata: TopikDef = {
 const kaliCeria: TopikDef = {
   id: "cal-kali-ceria", label: "Perkalian ceria (kelompok benda)",
   gen: (lv, R) => {
+    const [em, nama] = pick(R, EMOJI_BENDA);
     const g = ri(R, 2, S(lv, 6, 0.4)), per = ri(R, 2, 6);
-    return { q: `Ada ${g} keranjang, setiap keranjang berisi ${per} buah. Semua buah = ${g} × ${per} = …`, a: `${g * per}` };
+    return {
+      q: `Ada ${g} keranjang, setiap keranjang berisi ${per} ${nama}. Berapa jumlah ${nama} semuanya?`,
+      a: `${g * per}`,
+      visual: g * per <= 30 ? { parts: Array.from({ length: g }, () => ({ emoji: em, n: per })) } : undefined,
+    };
   },
 };
 const bacaJam: TopikDef = {
@@ -706,11 +967,62 @@ const persamaanKata: TopikDef = {
   },
 };
 
+/* --- topik Calistung baru: kata bergambar, urutan abjad, kalimat --- */
+
+const KATA_EMOJI: [string, string, string][] = [
+  ["apel", "a", "🍎"], ["pisang", "p", "🍌"], ["jeruk", "j", "🍊"], ["mobil", "m", "🚗"],
+  ["kucing", "k", "🐱"], ["bebek", "b", "🦆"], ["balon", "b", "🎈"], ["bola", "b", "⚽"],
+  ["ikan", "i", "🐟"], ["kue", "k", "🧁"], ["bunga", "b", "🌸"], ["stroberi", "s", "🍓"],
+];
+const hurufAwal: TopikDef = {
+  id: "cal-huruf-awal", label: "Huruf awal kata (gambar)",
+  gen: (_lv, R) => {
+    const [kata, h, em] = pick(R, KATA_EMOJI);
+    return { q: `${em}  Gambar di samping adalah «${kata}». Huruf awal kata «${kata}» adalah …`, a: h };
+  },
+};
+
+const KATA_ABJAD: string[] = [
+  "ayam", "bebek", "cacing", "dasi", "elang", "gajah", "harimau", "ikan", "jeruk",
+  "kuda", "lemari", "mangga", "nanas", "obor", "payung", "rakit", "sapi", "topi",
+  "ubi", "vas", "wortel", "yoyo",
+];
+const urutKataAbjad: TopikDef = {
+  id: "cal-urut-abjad", label: "Urutan abjad (A–Z)",
+  gen: (lv, R) => {
+    const n = lv === 3 ? 4 : 3;
+    const pilihan = acakArray(R, KATA_ABJAD).slice(0, n);
+    return { q: `Urutkan kata berikut sesuai abjad (A → Z):  ${acakArray(R, pilihan).join(", ")}`, a: [...pilihan].sort().join(", ") };
+  },
+};
+
+const KALIMAT_BENAR: [string, string][] = [
+  ["Kita mandi menggunakan sabun.", "benar"],
+  ["Mata digunakan untuk mendengar suara.", "salah"],
+  ["Ibu memasak nasi di dapur.", "benar"],
+  ["Air mengalir dari bawah ke atas.", "salah"],
+  ["Sapi adalah hewan yang berkaki dua.", "salah"],
+  ["Bunga banyak ditemukan di taman.", "benar"],
+  ["Matahari terbit dari barat.", "salah"],
+  ["Kita berdoa sebelum belajar.", "benar"],
+  ["Pensil digunakan untuk memasak.", "salah"],
+  ["Belajar dengan rajin membuat pintar.", "benar"],
+  ["Ayam berkembang biak dengan bertelur.", "benar"],
+  ["Es batu terasa panas di tangan.", "salah"],
+];
+const kalimatBenar: TopikDef = {
+  id: "cal-kalimat-benar", label: "Kalimat benar atau salah",
+  gen: (_lv, R) => {
+    const [kal, jawab] = pick(R, KALIMAT_BENAR);
+    return { q: `Benar atau salah?  «${kal}»`, a: jawab };
+  },
+};
+
 export const TOPIK_CALISTUNG: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [lingkariHuruf, sukuKata2, kataHilang, hitungBintang, tambahGambar],
-    "2": [lanjutHitung, operasi100Ceria, bentukBenda, lawanKata, sukuKata2],
-    "3": [kaliCeria, bacaJam, uangCeria, persamaanKata, kataHilang],
+    "1": [lingkariHuruf, sukuKata2, kataHilang, hitungBendaCal, tambahGambar, hurufAwal],
+    "2": [lanjutHitung, operasi100Ceria, bentukBenda, lawanKata, sukuKata2, urutKataAbjad],
+    "3": [kaliCeria, bacaJam, uangCeria, persamaanKata, kataHilang, kalimatBenar],
   },
 };
 
@@ -796,6 +1108,84 @@ const tobe: TopikDef = {
     return { q: `Fill in the blank: ${subjek} … ${predikat}.`, a: jawab };
   },
 };
+
+/* --- topik English baru: bentuk & hitung bergambar, bulan, jamak, a/an --- */
+
+const SHAPES_EN: [string, string, string][] = [
+  ["lingkaran", "circle", "⭕"], ["persegi", "square", "🟥"], ["segitiga", "triangle", "🔺"],
+  ["bintang", "star", "⭐"], ["hati", "heart", "❤️"], ["belah ketupat", "diamond", "💠"],
+];
+const engShapes: TopikDef = {
+  id: "eng-shapes", label: "Shapes (bentuk)",
+  gen: (lv, R) => {
+    const [id, en, em] = pick(R, SHAPES_EN);
+    const arah = lv === 1 ? true : lv === 3 ? false : R() < 0.6;
+    return arah
+      ? { q: `${em}  «${id}» in English is …`, a: en }
+      : { q: `«${en}» ${em} artinya …`, a: id };
+  },
+};
+
+const BENDA_EN: [string, string][] = [
+  ["🍎", "apples"], ["🎈", "balloons"], ["🐟", "fish"], ["🐱", "cats"], ["⚽", "balls"],
+  ["🍌", "bananas"], ["🧁", "cupcakes"], ["🍊", "oranges"], ["⭐", "stars"], ["🍩", "donuts"],
+];
+const engCountVisual: TopikDef = {
+  id: "eng-count", label: "Counting (count the pictures)",
+  gen: (lv, R) => {
+    const [em, en] = pick(R, BENDA_EN);
+    const n = ri(R, 1, 10);
+    const kata = ANGKA1.find((x) => x[0] === n)![1];
+    return lv === 3
+      ? { q: `Count the pictures, then write the number!`, a: `${n}`, visual: visSatu(em, n) }
+      : { q: `How many ${en} are there? Write in English!`, a: kata, visual: visSatu(em, n) };
+  },
+};
+
+const BULAN_EN: [string, string][] = [
+  ["Januari", "January"], ["Februari", "February"], ["Maret", "March"], ["April", "April"],
+  ["Mei", "May"], ["Juni", "June"], ["Juli", "July"], ["Agustus", "August"],
+  ["September", "September"], ["Oktober", "October"], ["November", "November"], ["Desember", "December"],
+];
+const engMonths: TopikDef = {
+  id: "eng-months", label: "Months of the year",
+  gen: (lv, R) => {
+    if (lv === 3) {
+      const i = ri(R, 0, 10);
+      return { q: `The month after «${BULAN_EN[i][1]}» is …`, a: BULAN_EN[i + 1][1] };
+    }
+    const [id, en] = pick(R, BULAN_EN);
+    return R() < 0.6
+      ? { q: `«${id}» in English is …`, a: en }
+      : { q: `«${en}» artinya bulan …`, a: id };
+  },
+};
+
+const JAMAK_EN: [string, string][] = [
+  ["cat", "cats"], ["dog", "dogs"], ["book", "books"], ["pencil", "pencils"],
+  ["box", "boxes"], ["bus", "buses"], ["baby", "babies"], ["story", "stories"],
+  ["mango", "mangoes"], ["watch", "watches"],
+];
+const engPlural: TopikDef = {
+  id: "eng-plural", label: "Plural (bentuk jamak)",
+  gen: (_lv, R) => {
+    const [a, b] = pick(R, JAMAK_EN);
+    return { q: `Bentuk jamak (plural) dari «${a}» adalah …`, a: b };
+  },
+};
+
+const engArticle: TopikDef = {
+  id: "eng-article", label: "Articles (a / an)",
+  gen: (_lv, R) => {
+    const kata = pick(R, [
+      "apple", "book", "cat", "egg", "umbrella", "pencil", "orange", "table",
+      "ice cream", "elephant", "chair", "ant", "mango", "uniform",
+    ]);
+    const an = /^[aeiou]/i.test(kata);
+    return { q: `Fill in the blank: This is … ${kata}.`, a: an ? "an" : "a" };
+  },
+};
+
 const engWarna = vokabuler("warna", tanyaVok("warna"));
 const engSapaan = vokabuler("sapaan", tanyaVok("sapaan"));
 const engHewan = vokabuler("hewan", tanyaVok("hewan"));
@@ -878,12 +1268,12 @@ const kosakataPG: TopikDef = {
 
 export const TOPIK_ENGLISH: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [abjad, angkaDasar, engWarna, engSapaan, abjadJodoh, sapaanJodoh],
-    "2": [engHewan, engBuah, angkaDasar, engSapaan, sapaanJodoh],
-    "3": [engKeluarga, engTubuh, engHewan, engBuah, kalimatUrut, kosakataPG],
-    "4": [engTubuh, engKelas, hariInggris, engKeluarga, kalimatUrut, kosakataPG],
-    "5": [engKerja, engKelas, hariInggris, puluhan, kosakataPG],
-    "6": [engKerja, puluhan, tobe, hariInggris, kosakataPG],
+    "1": [abjad, angkaDasar, engWarna, engSapaan, abjadJodoh, sapaanJodoh, engCountVisual],
+    "2": [engHewan, engBuah, angkaDasar, engSapaan, sapaanJodoh, engCountVisual],
+    "3": [engKeluarga, engTubuh, engHewan, engBuah, kalimatUrut, kosakataPG, engShapes],
+    "4": [engTubuh, engKelas, hariInggris, engKeluarga, kalimatUrut, kosakataPG, engShapes, engArticle],
+    "5": [engKerja, engKelas, hariInggris, puluhan, kosakataPG, engArticle, engMonths],
+    "6": [engKerja, puluhan, tobe, hariInggris, kosakataPG, engMonths, engPlural],
   },
 };
 
@@ -904,11 +1294,10 @@ const urutanRobot: TopikDef = {
 const polaUlang: TopikDef = {
   id: "cod-pola", label: "Pattern (pola berulang)",
   gen: (lv, R) => {
-    const simbol = ["●", "▲", "★", "■", "◆"];
-    const c = lv === 1 ? 2 : 3;
-    const dipakai = [...simbol].sort(() => R() - 0.5).slice(0, c);
-    const urut = Array.from({ length: 6 }, (_, i) => dipakai[i % c]).join(" ");
-    return { q: `Lanjutkan pola: ${urut} … Bentuk berikutnya adalah …`, a: dipakai[6 % c] };
+    const dipakai = acakArray(R, EMOJI_BENDA).slice(0, lv === 1 ? 2 : 3);
+    const c = dipakai.length;
+    const urut = Array.from({ length: 6 }, (_, i) => dipakai[i % c][0]).join(" ");
+    return { q: `Lanjutkan pola: ${urut} … Gambar berikutnya adalah …`, a: dipakai[6 % c][1] };
   },
 };
 const logikaIf: TopikDef = {
@@ -990,16 +1379,56 @@ const debugOutput: TopikDef = {
   },
 };
 
+/* --- topik Coding baru: algoritma harian (urut langkah) & sandi geser --- */
+
+const LANGKAH_ALGO: string[][] = [
+  ["Nyalakan TV", "Pilih channel", "Tonton acara", "Matikan TV"],
+  ["Pakai sepatu bola", "Ambil bola", "Bermain bola", "Minum air"],
+  ["Buka buku", "Baca halaman", "Tulis catatan", "Tutup buku"],
+  ["Cuci tangan", "Ambil piring", "Ambil nasi", "Makan nasi"],
+  ["Buka pintu kelas", "Sapa guru", "Duduk rapi", "Buka buku pelajaran"],
+  ["Isi ember", "Basahi badan", "Gunakan sabun", "Keringkan badan"],
+  ["Bangun tidur", "Merapikan tempat tidur", "Mandi", "Sarapan"],
+  ["Buka kran", "Basahi tangan", "Beri sabun", "Keringkan tangan"],
+];
+const algoUrut: TopikDef = {
+  id: "cod-algo-urut", label: "Algorithm (urutkan langkah)",
+  gen: (_lv, R) => {
+    const s = pick(R, LANGKAH_ALGO);
+    return {
+      q: "Susun langkah berikut menjadi algoritma yang benar (mulai dari langkah pertama)!",
+      a: s.join(" → "),
+      kind: "urut",
+      words: acakArray(R, s),
+    };
+  },
+};
+
+const sandiGeser: TopikDef = {
+  id: "cod-sandi", label: "Secret code (sandi geser)",
+  gen: (_lv, R) => {
+    const geser = ri(R, 1, 3);
+    const hurufGeser = String.fromCharCode(65 + geser);
+    const kata = pick(R, ["KUCING", "SAPI", "AYAM", "ROBOT", "KODING", "PIZZA", "MEJA", "BOLA", "GAME", "LAMPU", "MATA", "GURU"]);
+    const sandi = kata
+      .split("")
+      .map((c) => String.fromCharCode(((c.charCodeAt(0) - 65 + geser) % 26) + 65))
+      .join("");
+    if (R() < 0.5) return { q: `Sandi geser ${geser} (A→${hurufGeser}, B→C, …). Tulis «${kata}» dalam sandi!`, a: sandi };
+    return { q: `Sandi geser ${geser} (A→${hurufGeser}, B→C, …). Sandi «${sandi}» dibaca …`, a: kata };
+  },
+};
+
 export const TOPIK_CODING: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "4": [urutanRobot, polaUlang, logikaIf, langkahLoop],
-    "5": [polaUlang, logikaIf, binerDasar, varDasar],
-    "6": [binerDasar, varDasar, langkahLoop, polaUlang],
+    "4": [urutanRobot, polaUlang, logikaIf, langkahLoop, algoUrut],
+    "5": [polaUlang, logikaIf, binerDasar, varDasar, algoUrut],
+    "6": [binerDasar, varDasar, langkahLoop, polaUlang, algoUrut],
   },
   SMP: {
     "7": [varChain, loopTotal, booleanCek],
-    "8": [varChain, loopTotal, modulo, booleanCek],
-    "9": [modulo, loopTotal, debugOutput, varChain],
+    "8": [varChain, loopTotal, modulo, booleanCek, sandiGeser],
+    "9": [modulo, loopTotal, debugOutput, varChain, sandiGeser],
   },
 };
 
@@ -1042,9 +1471,9 @@ const angkaHilangKiddo: TopikDef = {
 const hitungBendaKiddo: TopikDef = {
   id: "kiddo-hitung-benda", label: "Berhitung benda",
   gen: (lv, R) => {
-    const [sim, nama] = pick(R, [["★", "bintang"], ["●", "bulatan"], ["■", "kotak"], ["▲", "segitiga"], ["♥", "hati"]] as [string, string][]);
+    const [em, nama] = pick(R, EMOJI_BENDA);
     const n = ri(R, 2, lv === 1 ? 7 : 14);
-    return { q: `Hitung jumlah ${nama}:  ${Array.from({ length: n }, () => sim).join(" ")}`, a: `${n}` };
+    return { q: `Hitung jumlah ${nama} di bawah ini!`, a: `${n}`, visual: visSatu(em, n) };
   },
 };
 
@@ -1077,19 +1506,19 @@ const susunHurufKiddo: TopikDef = {
 };
 
 const BENDA_CERITA: [string, string][] = [
-  ["apel", "apel"], ["kelereng", "kelereng"], ["balon", "balon"], ["buku", "buku"], ["kue", "kue"],
+  ["apel", "🍎"], ["balon", "🎈"], ["buku", "📕"], ["kue", "🧁"], ["permen", "🍬"],
 ];
 const tambahKurangKiddo: TopikDef = {
   id: "kiddo-tambah-kurang", label: "Cerita tambah & kurang",
   gen: (lv, R) => {
-    const [benda] = pick(R, BENDA_CERITA);
+    const [benda, em] = pick(R, BENDA_CERITA);
     const m = S(lv, 6, 0.5);
     if (R() < 0.6) {
       const a = ri(R, 1, m), b = ri(R, 1, m);
-      return { q: `Ali punya ${a} ${benda}, lalu dibelikan ${b} ${benda} lagi. Semua ${benda} Ali sekarang ada …`, a: `${a + b}` };
+      return { q: `Ali punya ${a} ${benda}, lalu dibelikan ${b} ${benda} lagi. Semua ${benda} Ali sekarang ada …`, a: `${a + b}`, visual: visJumlah(em, a, b, "+") };
     }
     const a = ri(R, m + 1, m * 2), b = ri(R, 1, m);
-    return { q: `Ada ${a} ${benda} di meja, ${b} ${benda} dimakan. Sisa ${benda} di meja ada …`, a: `${a - b}` };
+    return { q: `Ada ${a} ${benda} di meja, ${b} ${benda} dimakan. Sisa ${benda} di meja ada …`, a: `${a - b}`, visual: visJumlah(em, a, b, "−") };
   },
 };
 
@@ -1109,15 +1538,18 @@ const cariBedaKiddo: TopikDef = {
   },
 };
 
-const POLA_SIMBOL: [string, string][] = [["●", "bulatan"], ["▲", "segitiga"], ["■", "kotak"], ["★", "bintang"]];
+const POLA_EMOJI: [string, string][] = [
+  ["⭐", "bintang"], ["🍎", "apel"], ["🎈", "balon"], ["🐟", "ikan"],
+  ["🌸", "bunga"], ["🐱", "kucing"], ["🚗", "mobil"], ["⚽", "bola"],
+];
 const polaKiddo: TopikDef = {
   id: "kiddo-pola", label: "Pola berulang",
   gen: (lv, R) => {
     const c = lv === 1 ? 2 : 3;
-    const dipakai = acakArray(R, POLA_SIMBOL).slice(0, c);
+    const dipakai = acakArray(R, POLA_EMOJI).slice(0, c);
     const deret = Array.from({ length: 6 }, (_, i) => dipakai[i % c][0]).join(" ");
     const lanjut = dipakai[6 % c];
-    return { q: `Lanjutkan pola:  ${deret}  … Bentuk berikutnya adalah …`, a: lanjut[1] };
+    return { q: `Lanjutkan pola:  ${deret}  … Gambar berikutnya adalah …`, a: lanjut[1] };
   },
 };
 
@@ -1172,10 +1604,57 @@ const lompatHitungKiddo: TopikDef = {
   },
 };
 
+/* --- topik Kiddo baru: huruf vokal, banding banyak (gambar), kurang gambar --- */
+
+const hurufVokalKiddo: TopikDef = {
+  id: "kiddo-vokal", label: "Huruf vokal (lingkari)",
+  gen: (_lv, R) => {
+    const vokal = ["a", "i", "u", "e", "o"];
+    const lain = "bcdfghjklmnpqrstvw".split("");
+    const dipakai = acakArray(R, vokal).slice(0, 3);
+    const huruf: string[] = [];
+    for (let i = 0; i < 8; i++) huruf.push(i < 3 ? dipakai[i] : pick(R, lain));
+    const tampil = acakArray(R, huruf).map((h) => (R() < 0.4 ? h.toUpperCase() : h));
+    return { q: `Lingkari semua huruf vokal pada baris ini!  ${tampil.join("  ")}`, a: dipakai.join(", ") };
+  },
+};
+
+const bandingBanyakKiddo: TopikDef = {
+  id: "kiddo-banding-banyak", label: "Lebih banyak / sedikit (gambar)",
+  gen: (lv, R) => {
+    const iA = ri(R, 0, EMOJI_BENDA.length - 1);
+    let iB = ri(R, 0, EMOJI_BENDA.length - 1);
+    if (iB === iA) iB = (iB + 1) % EMOJI_BENDA.length;
+    const [emA, nmA] = EMOJI_BENDA[iA];
+    const [emB, nmB] = EMOJI_BENDA[iB];
+    const a = ri(R, 2, S(lv, 6, 0.5));
+    let b = ri(R, 2, 9);
+    if (b === a) b = a + 1;
+    const tanyaA = R() < 0.5;
+    return {
+      q: tanyaA
+        ? `Lihat kedua baris di bawah. Apakah jumlah ${nmA} lebih banyak daripada ${nmB}?`
+        : `Lihat kedua baris di bawah. Apakah jumlah ${nmB} lebih banyak daripada ${nmA}?`,
+      a: (tanyaA ? a > b : b > a) ? "ya" : "tidak",
+      visual: { parts: [{ emoji: emA, n: a }, { emoji: emB, n: b, baru: true }] },
+    };
+  },
+};
+
+const kurangGambarKiddo: TopikDef = {
+  id: "kiddo-kurang-gambar", label: "Pengurangan gambar",
+  gen: (lv, R) => {
+    const [em, nama] = pick(R, EMOJI_BENDA);
+    const m = S(lv, 7, 0.5);
+    const a = ri(R, m + 1, m + 5), b = ri(R, 1, m);
+    return { q: `Ada ${a} ${nama}, lalu ${b} ${nama} diambil. Sisa ${nama} ada …`, a: `${a - b}`, visual: visJumlah(em, a, b, "−") };
+  },
+};
+
 export const TOPIK_KIDDO: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [hurufHilangKiddo, angkaHilangKiddo, hitungBendaKiddo, warnaJodohKiddo, bentukJodohKiddo],
-    "2": [susunHurufKiddo, tambahKurangKiddo, cariBedaKiddo, polaKiddo, angkaHilangKiddo],
+    "1": [hurufHilangKiddo, angkaHilangKiddo, hitungBendaKiddo, warnaJodohKiddo, bentukJodohKiddo, hurufVokalKiddo, bandingBanyakKiddo, kurangGambarKiddo],
+    "2": [susunHurufKiddo, tambahKurangKiddo, cariBedaKiddo, polaKiddo, angkaHilangKiddo, kurangGambarKiddo],
     "3": [susunKalimatEnKiddo, sightWordsKiddo, kosakataJodohKiddo, tubuhJodohKiddo, lompatHitungKiddo],
   },
 };
@@ -1206,22 +1685,22 @@ export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
     /* Kelas 1–3: penjumlahan, pengurangan, perkalian, pembagian (biasa &
        bersusun) — semua angka & hasil ≤ 100, kombinasi makin besar tiap kelas.
        Kelas 4 ke atas boleh melebihi 100 (kesulitan terus naik). */
-    "1": [tambah20, kurang20, campur20, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
-    "2": [tambah100, kurang100, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
-    "3": [tambah100, kurang100, kaliBag, operasiCampur100, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
-    "4": [tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, operasiCampur, kali2digit, bagiSisa],
-    "5": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
-    "6": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, persen, kpkfpb, desimalKali, cacahCampur],
+    "1": [tambah20, kurang20, campur20, bandingBilangan, genapGanjil, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, polaBilangan],
+    "2": [tambah100, kurang100, nilaiTempat, urutBilangan, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, polaBilangan],
+    "3": [tambah100, kurang100, nilaiTempat, urutBilangan, kaliBag, operasiCampur100, uangCerita, waktuSoal, tambahBersusun, kurangBersusun, polaBilangan],
+    "4": [tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, operasiCampur, kali2digit, bagiSisa, kelilingLuas, satuanUkur],
+    "5": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur, kelilingLuas, satuanUkur, volumeBalok],
+    "6": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, persen, kpkfpb, desimalKali, cacahCampur, volumeBalok, rataRata],
   },
   SMP: {
-    "7": [bilBulat, pecahan7, aljabarSederhana, plsv],
-    "8": [spldv, pythagoras, plsvKurung, bilBulat],
-    "9": [eksponen9, akar9, pkFaktor, polaBarisan],
+    "7": [bilBulat, pecahan7, aljabarSederhana, plsv, perbandinganSenilai],
+    "8": [spldv, pythagoras, plsvKurung, bilBulat, lingkaranSoal],
+    "9": [eksponen9, akar9, pkFaktor, polaBarisan, aritSosial],
   },
   SMA: {
-    "10": [eksLog, pk10, barisanArit],
-    "11": [fungsiKuadrat, geometri11, polinom11],
-    "12": [turunan12, integral12, limit12],
+    "10": [eksLog, pk10, barisanArit, pgLurus],
+    "11": [fungsiKuadrat, geometri11, polinom11, trigonoDasar],
+    "12": [turunan12, integral12, limit12, peluangDasar],
   },
 };
 
@@ -1302,7 +1781,8 @@ export function generateQuestions(
     const key =
       s.q + (s.options ? "|" + s.options.join("~") : "") +
       (s.pairs ? "|" + s.pairs.map((p) => p.join("=")).join("~") : "") +
-      (s.words ? "|" + s.words.join("~") : "");
+      (s.words ? "|" + s.words.join("~") : "") +
+      (s.visual ? "|" + s.visual.parts.map((p) => p.emoji.repeat(p.n) + (p.baru ? "\n" : "")).join(";") + "|" + (s.visual.join ?? "") : "");
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(s);

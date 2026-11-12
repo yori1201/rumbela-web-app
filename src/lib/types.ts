@@ -69,6 +69,23 @@ export type TemplateLaporan = "ceria" | "klasik" | "minimal";
 /* ===== Generator Soal / Worksheet ===== */
 export type SoalKind = "pg" | "isian" | "uraian" | "jodoh" | "urut";
 
+/** satu kelompok benda bergambar pada soal visual */
+export interface SoalVisualPart {
+  /** karakter emoji yang digambar (cth. "⭐") */
+  emoji: string;
+  /** jumlah benda dalam kelompok ini */
+  n: number;
+  /** mulai baris baru sebelum kelompok ini (cth. membandingkan 2 baris) */
+  baru?: boolean;
+}
+
+/** baris benda bergambar (emoji) untuk soal hitung / jumlah gambar */
+export interface SoalVisual {
+  parts: SoalVisualPart[];
+  /** teks pemisah antar kelompok pada baris yang sama: "+", "−", "" (jarak) */
+  join?: string;
+}
+
 export interface WorksheetQ {
   id: string;
   text: string;
@@ -85,6 +102,8 @@ export interface WorksheetQ {
   words?: string[];
   /** hitungan bersusun (ke bawah, 4 operasi): a di atas, b di bawah, op di kiri */
   bersusun?: { a: string; b: string; op: "+" | "−" | "×" | "÷" };
+  /** baris benda bergambar (emoji) utk soal hitung / jumlah gambar */
+  visual?: SoalVisual;
 }
 
 export interface Worksheet {
@@ -320,6 +339,25 @@ export function normalizeDB(raw: unknown): Database {
                                   ? "÷"
                                   : "+"),
                         };
+                      })(),
+                    }
+                  : {}),
+                ...(isObj(q.visual)
+                  ? {
+                      visual: (() => {
+                        const vz = q.visual as Record<string, unknown>;
+                        const parts = Array.isArray(vz.parts)
+                          ? (vz.parts as Record<string, unknown>[])
+                              .map((p) => ({
+                                emoji: STR(p.emoji, "⭐").slice(0, 8),
+                                n: Math.min(60, Math.max(1, Math.floor(Number(p.n) || 0))),
+                                baru: p.baru === true,
+                              }))
+                              .filter((p) => p.n > 0 && p.emoji)
+                          : [];
+                        return parts.length
+                          ? { parts, join: typeof vz.join === "string" ? vz.join : undefined }
+                          : undefined;
                       })(),
                     }
                   : {}),

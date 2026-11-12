@@ -8,7 +8,7 @@
    dinamis (min. rasio A4). Pemakaian ganda: pratinjau HTML di soal.tsx
    memakai palet yang sama. */
 
-import type { Pengaturan, Worksheet, WorksheetQ } from "./types";
+import type { Pengaturan, SoalVisual, Worksheet, WorksheetQ } from "./types";
 import {
   LETTERS, SECTION_PALETTE, WS, answerOf, groupSections, isEquationLike, sectionLetter, shuffledOrder,
 } from "./worksheetTheme";
@@ -18,12 +18,14 @@ const PAD = 64;
 const CW = W - PAD * 2;
 
 let FF_CACHE = "";
-/** keluarga font aktual dokumen (hasil next/font) agar canvas sama dengan layar */
+/** keluarga font aktual dokumen (hasil next/font) agar canvas sama dengan layar;
+ *  ditambah font emoji agar karakter gambar (⭐🍎…) selalu tampil berwarna */
 function ff(): string {
   if (!FF_CACHE) {
-    FF_CACHE =
+    const base =
       getComputedStyle(document.body).fontFamily ||
       "'Nunito', ui-sans-serif, system-ui, sans-serif";
+    FF_CACHE = `${base}, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
   }
   return FF_CACHE;
 }
@@ -139,6 +141,42 @@ function heart(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number,
 /** tinggi konten bersusun: 2 baris angka + garis + kotak jawaban */
 const BERSUSUN_TINGGI = 122;
 
+/* ---------- baris benda bergambar (emoji) ---------- */
+
+const VISUAL_SIZE = 30;
+const VISUAL_LINE = 40;
+
+/** susun token visual (potongan ≤10 emoji per kelompok + pemisah) menjadi
+ *  baris-baris yang muat dalam maxW — dipakai utk mengukur & menggambar */
+function layoutVisual(ctx: CanvasRenderingContext2D, v: SoalVisual, maxW: number): string[] {
+  ctx.font = font(700, VISUAL_SIZE);
+  const lines: string[] = [];
+  let cur = "";
+  const push = (t: string) => {
+    if (!t) return;
+    const test = cur ? cur + " " + t : t;
+    if (cur && ctx.measureText(test).width > maxW) {
+      lines.push(cur);
+      cur = t;
+    } else {
+      cur = test;
+    }
+  };
+  v.parts.forEach((p, pi) => {
+    if (p.baru && cur) {
+      lines.push(cur);
+      cur = "";
+    }
+    if (pi > 0) {
+      const j = (v.join ?? "").trim();
+      push(j ? j : "      "); // tanpa pemisah → jarak antar kelompok
+    }
+    for (let i = 0; i < p.n; i += 10) push(p.emoji.repeat(Math.min(10, p.n - i)));
+  });
+  if (cur) lines.push(cur);
+  return lines;
+}
+
 /** gambar hitungan bersusun (a di atas, b di bawah, op di kiri, garis,
  *  kotak jawaban); x = tepi kiri soal, w = lebar kolom;
  *  mengembalikan cy bawah konten */
@@ -179,6 +217,8 @@ function questionH(ctx: CanvasRenderingContext2D, q: WorksheetQ, textW: number):
   let h = 14 + lines.length * 29;
   if (q.bersusun) {
     h += BERSUSUN_TINGGI;
+  } else if (q.visual) {
+    h += layoutVisual(ctx, q.visual, textW).length * VISUAL_LINE + 46;
   } else if (q.kind === "pg" && q.options?.length) {
     const twoCol = q.options.every((o) => ctx.measureText(o).width < textW / 2 - 46);
     h += 16 + Math.ceil(q.options.length / (twoCol ? 2 : 1)) * 44;
@@ -336,7 +376,7 @@ function layoutRows(qs: WorksheetQ[]): { items: LItem[]; wide: boolean }[] {
     }
   };
   qs.forEach((q, i) => {
-    if (q.bersusun || isEquationLike(q)) {
+    if (q.bersusun || (isEquationLike(q) && !q.visual)) {
       cur.push({ q, no: i + 1 });
       if (cur.length === 2) flush();
     } else {
@@ -414,6 +454,14 @@ function question(
 
   if (q.bersusun) {
     cy = gambarBersusun(ctx, x, cy, q, w);
+  } else if (q.visual) {
+    // baris benda bergambar (emoji) + garis jawaban putus-putus
+    const vlines = layoutVisual(ctx, q.visual, textW);
+    ctx.font = font(700, VISUAL_SIZE);
+    vlines.forEach((ln, i) => ctx.fillText(ln, x0, cy + 28 + i * VISUAL_LINE));
+    cy += vlines.length * VISUAL_LINE + 4;
+    dotted(ctx, x0, right, cy + 26);
+    cy += 40;
   } else if (q.kind === "pg" && q.options?.length) {
     const twoCol = q.options.every((o) => ctx.measureText(o).width < textW / 2 - 46);
     const colW = (textW - 10) / 2;

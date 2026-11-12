@@ -24,7 +24,7 @@ import {
 } from "@/lib/worksheetTheme";
 import { canvasToBlob } from "@/lib/renderLaporan";
 import { todayStr, uid } from "@/lib/constants";
-import type { SoalKind, Worksheet, WorksheetQ } from "@/lib/types";
+import type { SoalKind, SoalVisual, Worksheet, WorksheetQ } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +87,35 @@ function BarisJawaban() {
   return <div className="mt-2.5 border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />;
 }
 
+/** baris benda bergambar (emoji): kelompok ≤10 benda per potongan,
+ *  pemisah antar kelompok (+/−) atau jarak; `baru` = mulai baris baru */
+function VisualBaris({ v }: { v: SoalVisual }) {
+  const tok: React.ReactNode[] = [];
+  v.parts.forEach((p, pi) => {
+    if (p.baru) tok.push(<span key={`b${pi}`} className="w-full" />);
+    if (pi > 0) {
+      const j = (v.join ?? "").trim();
+      tok.push(
+        j ? (
+          <span key={`s${pi}`} className="mx-1 text-[22px] font-black leading-none" style={{ color: WS.ink }}>
+            {j}
+          </span>
+        ) : (
+          <span key={`s${pi}`} className="w-4" />
+        )
+      );
+    }
+    for (let i = 0; i < p.n; i += 10) {
+      tok.push(
+        <span key={`${pi}-${i}`} className="whitespace-nowrap text-[26px] leading-[1.5]">
+          {p.emoji.repeat(Math.min(10, p.n - i))}
+        </span>
+      );
+    }
+  });
+  return <div className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-0.5">{tok}</div>;
+}
+
 /** hitungan bersusun: angka kanan-rata, op di kiri baris kedua, garis, kotak jawaban */
 function BersusunHitung({ a, b, op }: { a: string; b: string; op: string }) {
   return (
@@ -117,7 +146,12 @@ function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECT
           <>
             <p className="text-[15px] font-semibold leading-relaxed" style={{ color: WS.ink }}>{q.text}</p>
 
-            {q.kind === "pg" && q.options?.length ? (
+            {q.visual ? (
+              <>
+                <VisualBaris v={q.visual} />
+                <BarisJawaban />
+              </>
+            ) : q.kind === "pg" && q.options?.length ? (
           <div className="mt-2 grid grid-cols-2 gap-2">
             {q.options.slice(0, 4).map((opt, oi) => (
               <span
@@ -329,7 +363,7 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
               <KartuSeksi key={s.label + i} si={i} label={s.label}>
                 <div className="mt-2 grid grid-cols-2 items-start gap-x-7 gap-y-3">
                   {s.questions.map((q, qi) => {
-                    const lebar = !(q.bersusun || isEquationLike(q));
+                    const lebar = !(q.bersusun || (isEquationLike(q) && !q.visual));
                     return (
                       <div key={q.id} className={lebar ? "col-span-2" : undefined}>
                         <SoalItem q={q} no={qi + 1} pal={pal} />
@@ -575,6 +609,7 @@ export function SoalView() {
             pairs: g.kind === "jodoh" ? g.pairs : undefined,
             words: g.kind === "urut" ? g.words : undefined,
             bersusun: g.bersusun,
+            visual: g.visual,
             section: g.section,
           })),
         });
@@ -593,6 +628,7 @@ export function SoalView() {
             pairs: g.kind === "jodoh" ? g.pairs : undefined,
             words: g.kind === "urut" ? g.words : undefined,
             bersusun: g.bersusun,
+            visual: g.visual,
           })),
         });
       }
