@@ -78,11 +78,13 @@ function Hati({ size = 16 }: { size?: number }) {
 }
 
 /* ================= Lembar A4 (HTML — tampilan & cetak) =================
-   Latar putih polos; aksen warna pada banner judul, kartu seksi pastel
-   A/B/C, pil kuning, dan pita footer. */
+   Seluruh lembar PUTIH POLOS: kartu seksi putih bergaris tipis netral,
+   judul seksi & nomor soal teks polos, soal 2 kolom (no. 2 di kanan no. 1,
+   no. 3 di bawah no. 1). Aksen warna hanya pada banner judul, pil meta,
+   dan pita footer. */
 
 function BarisJawaban() {
-  return <div className="mt-2.5 border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />;
+  return <div className="mt-2.5 border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />;
 }
 
 /** hitungan bersusun: angka kanan-rata, op di kiri baris kedua, garis, kotak jawaban */
@@ -104,12 +106,9 @@ function BersusunHitung({ a, b, op }: { a: string; b: string; op: string }) {
 
 function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECTION_PALETTE)[number] }) {
   return (
-    <div className="mt-4 flex gap-2.5 first:mt-1">
-      <span
-        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-extrabold text-white"
-        style={{ background: pal.badge }}
-      >
-        {no}
+    <div className="flex gap-2.5">
+      <span className="mt-0.5 w-6 shrink-0 text-[15px] font-extrabold" style={{ color: WS.ink }}>
+        {no}.
       </span>
       <div className="min-w-0 flex-1">
         {q.bersusun ? (
@@ -138,9 +137,9 @@ function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECT
           </div>
         ) : q.kind === "uraian" ? (
           <div className="mt-2 space-y-7">
-            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
-            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
-            <div className="border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />
+            <div className="border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />
           </div>
         ) : q.kind === "jodoh" && q.pairs?.length ? (
           <div className="mt-3 grid grid-cols-2 gap-7">
@@ -207,24 +206,14 @@ function SoalItem({ q, no, pal }: { q: WorksheetQ; no: number; pal: (typeof SECT
 }
 
 function KartuSeksi({ si, label, children }: { si: number; label: string; children: React.ReactNode }) {
-  const pal = SECTION_PALETTE[si % SECTION_PALETTE.length];
   return (
     <section
-      className="relative mt-8 rounded-[22px] border-[3px] p-5 pt-7"
-      style={{ background: pal.bg, borderColor: pal.border }}
+      className="mt-6 rounded-2xl border-[1.6px] bg-white px-5 pb-4 pt-3.5"
+      style={{ borderColor: "#D5DDE9" }}
     >
-      <div
-        className="absolute -top-[21px] left-4 flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-5 shadow-sm"
-        style={{ background: pal.badge }}
-      >
-        <span
-          className="grid h-[30px] w-[30px] place-items-center rounded-full bg-white text-[16px] font-black"
-          style={{ color: pal.badge }}
-        >
-          {sectionLetter(si)}
-        </span>
-        <span className="text-[15px] font-black text-white">{sectionLetter(si)}. {label}</span>
-      </div>
+      <h4 className="text-[16.5px] font-black" style={{ color: WS.ink }}>
+        {sectionLetter(si)}. {label}
+      </h4>
       {children}
     </section>
   );
@@ -292,20 +281,11 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
           {sections.map((s, i) => {
             const pal = SECTION_PALETTE[i % SECTION_PALETTE.length];
             return (
-              <div key={s.label + i} className="mt-8">
-                <div
-                  className="inline-flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-5 shadow-sm"
-                  style={{ background: pal.badge }}
-                >
-                  <span
-                    className="grid h-[30px] w-[30px] place-items-center rounded-full bg-white text-[16px] font-black"
-                    style={{ color: pal.badge }}
-                  >
-                    {sectionLetter(i)}
-                  </span>
-                  <span className="text-[15px] font-black text-white">{sectionLetter(i)}. {s.label}</span>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-2.5">
+              <div key={s.label + i} className="mt-7">
+                <h4 className="text-[16.5px] font-black" style={{ color: WS.ink }}>
+                  {sectionLetter(i)}. {s.label}
+                </h4>
+                <div className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2.5">
                   {s.questions.map((q, qi) => (
                     <p key={q.id} className="flex gap-2 text-[14.5px] leading-snug">
                       <span className="shrink-0 font-extrabold" style={{ color: pal.badge }}>{qi + 1}.</span>
@@ -321,13 +301,13 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
         <>
           {/* ===== kotak identitas ===== */}
           <div
-            className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 rounded-2xl border-[3px] bg-white px-6 py-4"
+            className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 rounded-2xl border-2 bg-white px-6 py-4"
             style={{ borderColor: WS.idBoxBorder }}
           >
             {["Nama Anak", "Kelas", "Tanggal", "Nilai"].map((label) => (
               <span key={label} className="flex items-end gap-2 text-[14.5px] font-extrabold" style={{ color: WS.ink }}>
                 {label} :
-                <span className="flex-1 border-b-2 border-dotted" style={{ borderColor: "#8FB3D9" }} />
+                <span className="flex-1 border-b-2 border-dotted" style={{ borderColor: "#A8B7CB" }} />
               </span>
             ))}
           </div>
@@ -335,22 +315,28 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
           {/* ===== petunjuk ===== */}
           {ws.petunjuk?.trim() ? (
             <div
-              className="mt-4 flex items-center gap-3 rounded-xl border-2 px-4 py-2.5 text-[13.5px] font-semibold"
+              className="mt-4 rounded-xl border-2 px-4 py-2.5 text-[13.5px] font-semibold"
               style={{ background: WS.petunjukBg, borderColor: WS.petunjukBorder, color: WS.petunjukInk }}
             >
-              <Bintang size={18} color="#F2B84B" className="shrink-0" />
               <span>{ws.petunjuk}</span>
             </div>
           ) : null}
 
-          {/* ===== seksi soal ===== */}
+          {/* ===== seksi soal (2 kolom: no. 2 di kanan no. 1, no. 3 di bawah no. 1) ===== */}
           {sections.map((s, i) => {
             const pal = SECTION_PALETTE[i % SECTION_PALETTE.length];
             return (
               <KartuSeksi key={s.label + i} si={i} label={s.label}>
-                {s.questions.map((q, qi) => (
-                  <SoalItem key={q.id} q={q} no={qi + 1} pal={pal} />
-                ))}
+                <div className="mt-2 grid grid-cols-2 items-start gap-x-7 gap-y-3">
+                  {s.questions.map((q, qi) => {
+                    const lebar = !(q.bersusun || isEquationLike(q));
+                    return (
+                      <div key={q.id} className={lebar ? "col-span-2" : undefined}>
+                        <SoalItem q={q} no={qi + 1} pal={pal} />
+                      </div>
+                    );
+                  })}
+                </div>
               </KartuSeksi>
             );
           })}

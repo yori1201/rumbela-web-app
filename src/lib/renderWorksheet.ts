@@ -1,11 +1,12 @@
 "use client";
 
 /* Renderer Worksheet Rumbela → gambar PNG via <canvas>.
-   Layout warna-warni ramah anak sesuai referensi: latar langit biru muda,
-   banner judul biru + pil kuning, kotak identitas, kartu seksi pastel
-   (A/B/C…) dengan badge, hiasan bintang & awan, serta pita footer
-   "Belajar di Rumbela, Yuk!". Tinggi dinamis (min. rasio A4).
-   Pemakaian ganda: pratinjau HTML di soal.tsx memakai palet yang sama. */
+   Lembar PUTIH POLOS: kartu seksi putih bergaris tipis netral, judul seksi
+   & nomor soal teks polos; soal tersusun 2 kolom (no. 2 di kanan no. 1,
+   no. 3 di bawah no. 1, dst.; soal lebar memakai baris penuh). Banner
+   judul, pil meta, dan pita footer tetap sebagai identitas. Tinggi
+   dinamis (min. rasio A4). Pemakaian ganda: pratinjau HTML di soal.tsx
+   memakai palet yang sama. */
 
 import type { Pengaturan, Worksheet, WorksheetQ } from "./types";
 import {
@@ -92,7 +93,7 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines.length ? lines : [""];
 }
 
-function dotted(ctx: CanvasRenderingContext2D, x1: number, x2: number, y: number, color = "#8FB3D9") {
+function dotted(ctx: CanvasRenderingContext2D, x1: number, x2: number, y: number, color = "#A8B7CB") {
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = 1.8;
@@ -138,18 +139,20 @@ function heart(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number,
 /** tinggi konten bersusun: 2 baris angka + garis + kotak jawaban */
 const BERSUSUN_TINGGI = 122;
 
-/** gambar hitungan bersusun (a di atas, b di bawah, op di kiri, garis, kotak jawaban);
+/** gambar hitungan bersusun (a di atas, b di bawah, op di kiri, garis,
+ *  kotak jawaban); x = tepi kiri soal, w = lebar kolom;
  *  mengembalikan cy bawah konten */
 function gambarBersusun(
-  ctx: CanvasRenderingContext2D, x0: number, cy: number, q: WorksheetQ
+  ctx: CanvasRenderingContext2D, x: number, cy: number, q: WorksheetQ, w: number
 ): number {
   const b = q.bersusun!;
+  const x0 = x + 36;
   ctx.font = font(800, 26);
   const wA = ctx.measureText(b.a).width;
   const wB = ctx.measureText(b.b).width;
   const opW = ctx.measureText(b.op).width + 12;
   const numW = Math.max(wA, wB);
-  const kanan = Math.min(x0 + numW + opW + 30, PAD + CW - 60);
+  const kanan = Math.min(x0 + numW + opW + 30, x + w - 6);
   ctx.fillStyle = WS.ink;
   ctx.textAlign = "right";
   ctx.fillText(b.a, kanan, cy + 26);
@@ -163,8 +166,9 @@ function gambarBersusun(
   ctx.moveTo(kanan - numW - opW - 8, cy + 74);
   ctx.lineTo(kanan + 6, cy + 74);
   ctx.stroke();
-  // kotak jawaban putus-putus di bawah garis
-  box(ctx, kanan - 132, cy + 86, 132, 36, 10, { fill: "#FFFFFF", stroke: WS.idBoxBorder, lw: 2.2, dash: [6, 5] });
+  // kotak jawaban putus-putus di bawah garis (tidak melewati tepi kiri soal)
+  const bx = Math.max(x, kanan - 132);
+  box(ctx, bx, cy + 86, 132, 36, 10, { fill: "#FFFFFF", stroke: WS.idBoxBorder, lw: 2.2, dash: [6, 5] });
   return cy + BERSUSUN_TINGGI;
 }
 
@@ -266,7 +270,7 @@ function header(
 
 function identitas(ctx: CanvasRenderingContext2D, y: number): number {
   const h = 112;
-  box(ctx, PAD, y, CW, h, 16, { fill: WS.idBoxBg, stroke: WS.idBoxBorder, lw: 3 });
+  box(ctx, PAD, y, CW, h, 16, { fill: WS.idBoxBg, stroke: WS.idBoxBorder, lw: 2.5 });
   ctx.font = font(800, 19);
   ctx.fillStyle = WS.ink;
   const rows: [string, string, string][] = [
@@ -288,12 +292,11 @@ function identitas(ctx: CanvasRenderingContext2D, y: number): number {
 
 function petunjukBox(ctx: CanvasRenderingContext2D, y: number, teks: string): number {
   ctx.font = font(600, 17);
-  const lines = wrapLines(ctx, teks, CW - 86);
+  const lines = wrapLines(ctx, teks, CW - 48);
   const h = lines.length * 25 + 24;
-  box(ctx, PAD, y, CW, h, 12, { fill: WS.petunjukBg, stroke: WS.petunjukBorder, lw: 2 });
-  star(ctx, PAD + 30, y + h / 2, 12, "#F2B84B");
+  box(ctx, PAD, y, CW, h, 12, { fill: WS.petunjukBg, stroke: WS.petunjukBorder, lw: 1.8 });
   ctx.fillStyle = WS.petunjukInk;
-  lines.forEach((ln, i) => ctx.fillText(ln, PAD + 54, y + 27 + i * 25));
+  lines.forEach((ln, i) => ctx.fillText(ln, PAD + 22, y + 27 + i * 25));
   return y + h + 24;
 }
 
@@ -319,63 +322,89 @@ function footerRibbon(ctx: CanvasRenderingContext2D, y: number, kunci: boolean):
   return y + 122;
 }
 
-/** satu kartu seksi; mengembalikan y bawah kartu */
+/** kelompokkan soal ke baris 2 kolom: soal sempit (bersusun / hitungan
+ *  pendek) berdua per baris — no. 2 di kanan no. 1, no. 3 di bawah no. 1;
+ *  soal lebar (pg, menjodohkan, uraian, susun kata) memakai baris penuh */
+interface LItem { q: WorksheetQ; no: number }
+function layoutRows(qs: WorksheetQ[]): { items: LItem[]; wide: boolean }[] {
+  const rows: { items: LItem[]; wide: boolean }[] = [];
+  let cur: LItem[] = [];
+  const flush = () => {
+    if (cur.length) {
+      rows.push({ items: cur, wide: false });
+      cur = [];
+    }
+  };
+  qs.forEach((q, i) => {
+    if (q.bersusun || isEquationLike(q)) {
+      cur.push({ q, no: i + 1 });
+      if (cur.length === 2) flush();
+    } else {
+      flush();
+      rows.push({ items: [{ q, no: i + 1 }], wide: true });
+    }
+  });
+  flush();
+  return rows;
+}
+
+/** satu kartu seksi putih polos, soal 2 kolom; mengembalikan y bawah kartu */
 function sectionCard(
   ctx: CanvasRenderingContext2D, y: number, si: number, label: string, qs: WorksheetQ[]
 ): number {
   const pal = SECTION_PALETTE[si % SECTION_PALETTE.length];
-  // estimasi tinggi
-  const textW = CW - 44 - 46;
-  let inner = 46;
-  qs.forEach((q) => (inner += questionH(ctx, q, textW)));
-  const h = inner + 14;
+  const inX = PAD + 22;
+  const inW = CW - 44;
+  const gapX = 34;
+  const colW = Math.floor((inW - gapX) / 2);
+  const rowGap = 24;
+  const rows = layoutRows(qs);
 
-  // kartu
-  box(ctx, PAD, y, CW, h, 22, { fill: pal.bg, stroke: pal.border, lw: 3 });
+  // estimasi tinggi (conservative, harus ≥ tinggi gambar aktual)
+  let inner = 54;
+  rows.forEach((r) => {
+    const w = r.wide ? inW : colW;
+    let h = 0;
+    r.items.forEach((it) => (h = Math.max(h, questionH(ctx, it.q, w - 36))));
+    inner += h + rowGap;
+  });
+  const h = inner;
 
-  // badge pil menimpa border atas
-  ctx.font = font(900, 20);
-  const teks = `${sectionLetter(si)}. ${label}`;
-  const tw = ctx.measureText(teks).width;
-  const pw = tw + 74;
-  const py = y - 21;
-  box(ctx, PAD + 18, py, pw, 42, 21, { fill: pal.badge });
-  ctx.beginPath();
-  ctx.arc(PAD + 18 + 25, py + 21, 15, 0, Math.PI * 2);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.fillStyle = pal.badge;
-  ctx.font = font(900, 19);
-  ctx.textAlign = "center";
-  ctx.fillText(sectionLetter(si), PAD + 18 + 25, py + 28);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = font(900, 20);
-  ctx.textAlign = "left";
-  ctx.fillText(teks, PAD + 18 + 48, py + 28);
+  // kartu putih polos bergaris tipis
+  box(ctx, PAD, y, CW, h, 16, { fill: pal.bg, stroke: pal.border, lw: 1.6 });
 
-  // soal-soal
-  let qy = y + 56;
-  qs.forEach((q, qi) => {
-    qy = question(ctx, qy, q, qi, pal, textW);
+  // judul seksi teks polos
+  ctx.font = font(900, 21);
+  ctx.fillStyle = WS.ink;
+  ctx.fillText(`${sectionLetter(si)}. ${label}`, inX, y + 37);
+
+  // soal 2 kolom: kiri-kanan per baris
+  let yy = y + 58;
+  rows.forEach((r) => {
+    let bottom = yy;
+    r.items.forEach((it, ci) => {
+      const cx = r.wide ? inX : inX + ci * (colW + gapX);
+      const cw = r.wide ? inW : colW;
+      bottom = Math.max(bottom, question(ctx, cx, yy, it.q, it.no, pal, cw));
+    });
+    yy = bottom + rowGap;
   });
   return y + h;
 }
 
-/** satu soal; mengembalikan y bawah */
+/** satu soal pada kolom selebar w mulai di x; mengembalikan y bawah */
 function question(
-  ctx: CanvasRenderingContext2D, y: number, q: WorksheetQ, no: number, pal: (typeof SECTION_PALETTE)[number], textW: number
+  ctx: CanvasRenderingContext2D, x: number, y: number, q: WorksheetQ, no: number,
+  pal: (typeof SECTION_PALETTE)[number], w: number
 ): number {
-  const x0 = PAD + 22 + 46; // tepi kartu + lingkaran nomor
-  // lingkaran nomor
-  ctx.beginPath();
-  ctx.arc(PAD + 22 + 16, y + 15, 16, 0, Math.PI * 2);
-  ctx.fillStyle = pal.badge;
-  ctx.fill();
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = font(800, 16);
-  ctx.textAlign = "center";
-  ctx.fillText(String(no + 1), PAD + 22 + 16, y + 21);
-  ctx.textAlign = "left";
+  const numW = 36;
+  const x0 = x + numW;
+  const right = x + w;
+  const textW = w - numW;
+  // nomor polos (tanpa lingkaran warna)
+  ctx.font = font(800, 17);
+  ctx.fillStyle = WS.ink;
+  ctx.fillText(`${no}.`, x, y + 22);
 
   ctx.font = font(600, 20);
   ctx.fillStyle = WS.ink;
@@ -384,7 +413,7 @@ function question(
   let cy = y + 14 + lines.length * 29;
 
   if (q.bersusun) {
-    cy = gambarBersusun(ctx, x0, cy, q);
+    cy = gambarBersusun(ctx, x, cy, q, w);
   } else if (q.kind === "pg" && q.options?.length) {
     const twoCol = q.options.every((o) => ctx.measureText(o).width < textW / 2 - 46);
     const colW = (textW - 10) / 2;
@@ -414,7 +443,7 @@ function question(
     });
     cy += 12 + Math.ceil(q.options.length / (twoCol ? 2 : 1)) * 44;
   } else if (q.kind === "uraian") {
-    for (let i = 0; i < 3; i++) dotted(ctx, x0, PAD + CW - 22, cy + 24 + i * 38);
+    for (let i = 0; i < 3; i++) dotted(ctx, x0, right, cy + 24 + i * 38);
     cy += 3 * 38;
   } else if (q.kind === "jodoh" && q.pairs?.length) {
     const n = q.pairs.length;
@@ -461,7 +490,7 @@ function question(
     const rowH = 42;
     q.words.forEach((wd) => {
       const wwd = ctx.measureText(wd).width + 30;
-      if (wx + wwd > PAD + CW - 22) {
+      if (wx + wwd > right) {
         wx = x0;
         wy += rowH + 10;
       }
@@ -471,45 +500,31 @@ function question(
       wx += wwd + 10;
     });
     cy = wy + rowH + 24;
-    dotted(ctx, x0, PAD + CW - 22, cy + 18);
+    dotted(ctx, x0, right, cy + 18);
     cy += 34;
   } else if (lines.length === 1 && isEquationLike(q)) {
     // kotak jawaban sebaris setelah soal
     const lastW = ctx.measureText(lines[0]).width;
     let bx = x0 + lastW + 14;
-    if (bx + 132 > PAD + CW - 22) bx = x0;
+    if (bx + 132 > right) bx = x0;
     box(ctx, bx, y + 2, 132, 36, 10, { fill: "#FFFFFF", stroke: WS.idBoxBorder, lw: 2.2, dash: [6, 5] });
     cy += 8;
   } else {
-    dotted(ctx, x0, PAD + CW - 22, cy + 26);
+    dotted(ctx, x0, right, cy + 26);
     cy += 40;
   }
   return cy + 18;
 }
 
-/** kartu seksi kunci jawaban */
+/** kartu seksi kunci jawaban (judul teks polos, jawaban 2 kolom) */
 function kunciSection(ctx: CanvasRenderingContext2D, y: number, si: number, label: string, qs: WorksheetQ[]): number {
   const pal = SECTION_PALETTE[si % SECTION_PALETTE.length];
-  ctx.font = font(900, 20);
-  const teks = `${sectionLetter(si)}. ${label}`;
-  const tw = ctx.measureText(teks).width;
-  const pw = tw + 74;
-  box(ctx, PAD, y, pw, 42, 21, { fill: pal.badge });
-  ctx.beginPath();
-  ctx.arc(PAD + 25 + 18, y + 21, 15, 0, Math.PI * 2);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fill();
-  ctx.fillStyle = pal.badge;
-  ctx.font = font(900, 19);
-  ctx.textAlign = "center";
-  ctx.fillText(sectionLetter(si), PAD + 25 + 18, y + 28);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = font(900, 20);
-  ctx.textAlign = "left";
-  ctx.fillText(teks, PAD + 25 + 41, y + 28);
+  ctx.font = font(900, 21);
+  ctx.fillStyle = WS.ink;
+  ctx.fillText(`${sectionLetter(si)}. ${label}`, PAD + 4, y + 22);
 
   const colW = (CW - 30) / 2;
-  let yy = y + 66;
+  let yy = y + 58;
   let col = 0;
   ctx.font = font(700, 19);
   qs.forEach((q, i) => {
@@ -557,7 +572,7 @@ function paint(
     else y += 6;
     y += 22;
     sections.forEach((s, i) => {
-      y = sectionCard(ctx, y + 26, i, s.label, s.questions) + 6;
+      y = sectionCard(ctx, y + 22, i, s.label, s.questions) + 4;
     });
   } else {
     y += 18;

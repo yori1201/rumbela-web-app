@@ -2,35 +2,31 @@
 
 /* Tema worksheet anak — dipakai bersama oleh pratinjau HTML (soal.tsx)
    dan renderer canvas (renderWorksheet.ts) agar keduanya identik.
-   Latar halaman PUTIH POLOS tanpa hiasan; aksen warna hanya pada
-   banner judul, kartu seksi pastel, dan pil. */
+   Seluruh lembar PUTIH POLOS: kartu seksi putih bergaris tipis netral,
+   nomor & judul seksi berupa teks polos, tanpa kartu berwarna. Aksen
+   warna hanya tersisa pada banner judul, pil meta, dan pita footer. */
 
 import type { Worksheet, WorksheetQ } from "./types";
 
 export interface SectionPalette {
-  /** latar kartu seksi (pastel) */
+  /** latar kartu seksi */
   bg: string;
   /** border kartu seksi */
   border: string;
-  /** warna badge / lingkaran nomor (kuat) */
+  /** warna aksen teks (nomor, huruf opsi) */
   badge: string;
   /** latar opsi / pil di dalam seksi */
   chip: string;
 }
 
-/** siklus warna seksi A → F (mengikuti worksheet referensi) */
+/** satu palet tunggal: putih polos netral untuk semua seksi A–Z */
 export const SECTION_PALETTE: SectionPalette[] = [
-  { bg: "#E3F3FD", border: "#7CC4EF", badge: "#1E88E9", chip: "#FFFFFF" }, // biru
-  { bg: "#FDE9F1", border: "#F2A0BE", badge: "#EC5F94", chip: "#FFFFFF" }, // merah muda
-  { bg: "#FFF4D6", border: "#F2C84B", badge: "#E8A200", chip: "#FFFFFF" }, // kuning
-  { bg: "#E2F7EC", border: "#8CD4AC", badge: "#2FA968", chip: "#FFFFFF" }, // hijau
-  { bg: "#EFE9FD", border: "#B7A3EE", badge: "#7C5CE0", chip: "#FFFFFF" }, // ungu
-  { bg: "#E0F6F3", border: "#83CFC7", badge: "#2E9C91", chip: "#FFFFFF" }, // toska
+  { bg: "#FFFFFF", border: "#D5DDE9", badge: "#25406B", chip: "#FFFFFF" },
 ];
 
 export const LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-/* Warna halaman & elemen tetap (latar putih polos) */
+/* Warna halaman & elemen tetap (seluruhnya putih polos) */
 export const WS = {
   pageBg: "#FFFFFF",
   kunciBg: "#FFFFFF",
@@ -40,10 +36,10 @@ export const WS = {
   pillYellow: "#FFC93D",
   pillYellowInk: "#8A5A00",
   idBoxBg: "#FFFFFF",
-  idBoxBorder: "#59A9E8",
-  petunjukBg: "#FFF6D9",
-  petunjukBorder: "#F2C84B",
-  petunjukInk: "#7A5410",
+  idBoxBorder: "#A9BCD4",
+  petunjukBg: "#FFFFFF",
+  petunjukBorder: "#D5DDE9",
+  petunjukInk: "#44557A",
   footerGrad: ["#1E88E9", "#2FA968"],
   mut: "#7C93B5",
   star: "#FFC93D",

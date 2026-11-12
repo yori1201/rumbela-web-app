@@ -89,17 +89,41 @@ const kurang100: TopikDef = {
 };
 const kaliDasar: TopikDef = {
   id: "sd-kali-dasar", label: "Perkalian dasar 1–10",
-  gen: (lv, R) => {
-    const a = ri(R, 2, S(lv, 7, 0.2)), b = ri(R, 2, S(lv, 8, 0.2));
+  gen: (lv, R, kelas = 2) => {
+    // kelas 1: tabel kecil dahulu; kelas 1–3 hasil selalu ≤ 100
+    if ((kelas || 2) <= 1) {
+      const m = lv === 1 ? 5 : 9;
+      const a = ri(R, 2, m), b = ri(R, 2, m);
+      return { q: `${a} × ${b} = …`, a: `${a * b}` };
+    }
+    const a = ri(R, 2, Math.min(10, S(lv, 7, 0.2)));
+    const b = ri(R, 2, Math.max(2, Math.min(10, Math.floor(100 / a))));
     return { q: `${a} × ${b} = …`, a: `${a * b}` };
   },
 };
 const kaliBag: TopikDef = {
   id: "sd-kali-bagi", label: "Perkalian & pembagian",
   gen: (lv, R) => {
-    const a = ri(R, 2, S(lv, 9, 0.2)), b = ri(R, 2, 9);
+    // kelas 3: angka & hasil ≤ 100
+    const a = ri(R, 2, Math.min(10, S(lv, 9, 0.2)));
+    const b = ri(R, 2, Math.max(2, Math.min(9, Math.floor(100 / a))));
     if (R() < 0.5) return { q: `${a} × ${b} = …`, a: `${a * b}` };
     return { q: `${a * b} : ${b} = …`, a: `${a}` };
+  },
+};
+/** Pembagian dasar tanpa sisa (isian biasa, tanpa bersusun). Kelas 1–3:
+ *  angka & hasil ≤ 100, makin tinggi kelas makin besar kombinasinya. */
+const bagiDasar: TopikDef = {
+  id: "sd-bagi-dasar", label: "Pembagian dasar",
+  gen: (lv, R, kelas = 2) => {
+    const k = Math.min(3, Math.max(1, kelas || 2));
+    const b = ri(R, 2, k === 1 ? 5 : lv === 1 ? 5 : 9);
+    const hMax =
+      k === 1 ? (lv === 1 ? 5 : 10)
+        : k === 2 ? (lv === 1 ? 10 : 20)
+          : (lv === 1 ? 10 : lv === 2 ? 25 : 50);
+    const h = ri(R, 2, Math.max(2, Math.min(hMax, Math.floor(100 / b))));
+    return { q: `${b * h} : ${b} = …`, a: `${h}` };
   },
 };
 const tambah1000: TopikDef = {
@@ -119,49 +143,69 @@ const kurang1000: TopikDef = {
   },
 };
 
-/** Penjumlahan/pengurangan bersusun (ke bawah). Jumlah digit naik per kelas:
- *  kls1: 1 digit → kls2: 2 → kls3: 2–3 → kls4: 3–4 → kls5: 3–4 → kls6: 4 digit.
- *  Kesulitan memperlebar digit di kelas yang sama; kedua operand dibuat sama panjang. */
+/** Penjumlahan/pengurangan bersusun (ke bawah). Kelas 1–3: SEMUA angka &
+ *  hasil tidak boleh lebih dari 100 (kelas 1 mulai 1 digit, kelas 2–3 dua
+ *  digit dengan kombinasi makin besar). Kelas 4–6: jumlah digit naik per
+ *  kelas (3–4 digit) dan boleh melebihi 100. */
 const RENTANG_DIGIT_BERSUSUN: Record<number, [number, number][]> = {
-  1: [[1, 1], [1, 1], [1, 1]],
-  2: [[2, 2], [2, 3], [3, 3]],
-  3: [[2, 3], [3, 3], [3, 3]],
   4: [[3, 3], [3, 4], [4, 4]],
   5: [[3, 4], [4, 4], [4, 4]],
   6: [[4, 4], [4, 4], [4, 4]],
+};
+/** rentang nilai bersusun kelas 1–3 per kesulitan: [aMin, aMax, bMin, bMax];
+ *  jumlah/hasil selalu dijaga ≤ 100 saat generate */
+const RENTANG_NILAI_BERSUSUN: Record<number, [number, number, number, number][]> = {
+  1: [[1, 5, 1, 5], [2, 9, 2, 9], [11, 89, 11, 99]],
+  2: [[11, 91, 2, 9], [11, 89, 11, 99], [11, 79, 21, 99]],
+  3: [[11, 89, 11, 99], [21, 75, 21, 99], [21, 75, 25, 99]],
 };
 const bersusunTopik = (id: string, label: string, op: "+" | "−"): TopikDef => ({
   id,
   label,
   gen: (lv, R, kelas = 2) => {
     const k = Math.min(6, Math.max(1, kelas));
+    if (k <= 3) {
+      const [aMin, aMax, bMin, bMax] = RENTANG_NILAI_BERSUSUN[k][lv - 1];
+      if (op === "+") {
+        const a = ri(R, aMin, aMax);
+        const b = ri(R, bMin, Math.max(bMin, Math.min(bMax, 100 - a)));
+        return { q: `${a} + ${b} = …`, a: `${a + b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
+      }
+      const a = ri(R, Math.max(aMin, bMin + 1), aMax);
+      const b = ri(R, bMin, Math.max(bMin, Math.min(bMax, a - 1)));
+      return { q: `${a} − ${b} = …`, a: `${a - b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
+    }
     const [dMin, dMax] = RENTANG_DIGIT_BERSUSUN[k][lv - 1];
     const d = ri(R, dMin, dMax);
     const min = 10 ** (d - 1), max = 10 ** d - 1;
-    // kelas 1 mudah: angka 1–5 agar jumlah tidak melebihi 10
-    const lo = k === 1 && lv === 1 ? 1 : min;
-    const hi = k === 1 && lv === 1 ? 5 : max;
     if (op === "+") {
-      const a = ri(R, lo, hi), b = ri(R, lo, hi);
+      const a = ri(R, min, max), b = ri(R, min, max);
       return { q: `${a} + ${b} = …`, a: `${a + b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
     }
-    const a = ri(R, lo + 1, hi), b = ri(R, lo, a - 1);
+    const a = ri(R, min + 1, max), b = ri(R, min, a - 1);
     return { q: `${a} − ${b} = …`, a: `${a - b}`, bersusun: { a: `${a}`, b: `${b}`, op } };
   },
 });
 const tambahBersusun = bersusunTopik("sd-tambah-bersusun", "Penjumlahan bersusun", "+");
 const kurangBersusun = bersusunTopik("sd-kurang-bersusun", "Pengurangan bersusun", "−");
-/** Perkalian bersusun (ke bawah). Naik per kelas: kls2 dasar 1–9 → kls3 2×1 digit
- *  → kls4 2×1 besar + lv3 mulai 2×2 → kls5–6 dominan 2×2. */
+/** Perkalian bersusun (ke bawah). Kelas 1–3: angka & hasil ≤ 100 (kelas 1
+ *  tabel dasar 1 digit; kelas 2–3 dua digit × satu digit, hasil maks 100).
+ *  Kelas 4–6: naik bertahap hingga 2 digit × 2 digit. */
 const kaliBersusun: TopikDef = {
   id: "sd-kali-bersusun", label: "Perkalian bersusun",
   gen: (lv, R, kelas = 3) => {
-    const k = Math.min(6, Math.max(2, kelas));
+    const k = Math.min(6, Math.max(1, kelas));
     let a: number, b: number;
-    if (k === 2) {
-      a = ri(R, 2, lv === 1 ? 5 : 9); b = ri(R, 2, lv === 1 ? 5 : 9);
+    if (k === 1) {
+      const m = lv === 1 ? 5 : lv === 2 ? 9 : 10;
+      a = ri(R, 2, m);
+      b = ri(R, 2, Math.max(2, Math.min(m, Math.floor(100 / a))));
+    } else if (k === 2) {
+      if (lv === 1) { a = ri(R, 2, 9); b = ri(R, 2, 9); }
+      else { a = ri(R, 11, lv === 2 ? 25 : 45); b = ri(R, 2, Math.max(2, Math.floor(100 / a))); }
     } else if (k === 3) {
-      a = ri(R, 11, Math.min(99, S(lv, 29, 0.6))); b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
+      a = ri(R, 11, lv === 1 ? 22 : lv === 2 ? 34 : 50);
+      b = ri(R, 2, Math.max(2, Math.floor(100 / a)));
     } else if (k === 4) {
       if (lv === 3 && R() < 0.5) { a = ri(R, 11, 29); b = ri(R, 11, 19); }
       else { a = ri(R, 12, Math.min(99, S(lv, 49, 0.6))); b = ri(R, 3, 9); }
@@ -172,16 +216,26 @@ const kaliBersusun: TopikDef = {
     return { q: `${a} × ${b} = …`, a: `${a * b}`, bersusun: { a: `${a}`, b: `${b}`, op: "×" } };
   },
 };
-/** Pembagian bersusun tanpa sisa (ke bawah): a = b × hasil. Hasil naik per kelas:
- *  kls3 ≤ 12 → kls4 ≤ 20 → kls5 ≤ 40 → kls6 ≤ 90 (dividend maks 810). */
+/** Pembagian bersusun tanpa sisa (ke bawah): a = b × hasil. Kelas 1–3:
+ *  angka & hasil ≤ 100 (dividen maks 100). Kelas 4–6: hasil naik s.d. 90. */
 const bagiBersusun: TopikDef = {
   id: "sd-bagi-bersusun", label: "Pembagian bersusun",
   gen: (lv, R, kelas = 3) => {
-    const k = Math.min(6, Math.max(3, kelas));
-    const b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
-    const hMin = k === 3 ? 2 : k === 4 ? 3 : k === 5 ? 10 : 20;
-    const hMax = Math.round((k === 3 ? 12 : k === 4 ? 20 : k === 5 ? 40 : 90) * (lv === 3 ? 1 : lv === 2 ? 0.7 : 0.5));
-    const h = ri(R, hMin, Math.max(hMin + 1, hMax));
+    const k = Math.min(6, Math.max(1, kelas));
+    let b: number, h: number;
+    if (k <= 3) {
+      b = ri(R, 2, k === 1 ? 5 : lv === 1 ? 5 : 9);
+      const hMax =
+        k === 1 ? (lv === 1 ? 5 : 10)
+          : k === 2 ? (lv === 1 ? 10 : 20)
+            : (lv === 1 ? 10 : lv === 2 ? 25 : 50);
+      h = ri(R, 2, Math.max(2, Math.min(hMax, Math.floor(100 / b))));
+    } else {
+      b = lv === 1 ? ri(R, 2, 5) : ri(R, 3, 9);
+      const hMin = k === 4 ? 3 : k === 5 ? 10 : 20;
+      const hMax = Math.round((k === 4 ? 20 : k === 5 ? 40 : 90) * (lv === 3 ? 1 : lv === 2 ? 0.7 : 0.5));
+      h = ri(R, hMin, Math.max(hMin + 1, hMax));
+    }
     return { q: `${b * h} : ${b} = …`, a: `${h}`, bersusun: { a: `${b * h}`, b: `${b}`, op: "÷" } };
   },
 };
@@ -197,6 +251,25 @@ const operasiCampur: TopikDef = {
       { q: `${a * b} : ${a} + ${c} = …`, a: b + c },
     ]);
     return { q: t.q, a: `${t.a}` };
+  },
+};
+/** Operasi hitung campuran khusus kelas 3: SEMUA angka & hasil ≤ 100,
+ *  mengombinasikan penjumlahan, pengurangan, perkalian, dan pembagian. */
+const operasiCampur100: TopikDef = {
+  id: "sd-operasi-campur-100", label: "Operasi hitung campuran",
+  gen: (lv, R) => {
+    const a = ri(R, 2, lv === 1 ? 9 : 20);
+    const b = ri(R, 2, 9);
+    const c = ri(R, 2, Math.max(2, Math.min(9, Math.floor((100 - a) / b))));
+    const p = R();
+    if (p < 0.25) return { q: `${a} + ${b} × ${c} = …`, a: `${a + b * c}` };
+    if (p < 0.5) return { q: `${b} × ${c} + ${a} = …`, a: `${b * c + a}` };
+    if (p < 0.75) {
+      const aa = ri(R, 2, Math.max(2, Math.floor(100 / b)));
+      const cc = ri(R, 1, Math.max(1, aa * b - 1));
+      return { q: `${aa} × ${b} − ${cc} = …`, a: `${aa * b - cc}` };
+    }
+    return { q: `${b * c} : ${b} + ${a} = …`, a: `${c + a}` };
   },
 };
 const kali2digit: TopikDef = {
@@ -1130,10 +1203,13 @@ const polaBilangan: TopikDef = {
 
 export const TOPIK_MATEMATIKA: Record<string, Record<string, TopikDef[]>> = {
   SD: {
-    "1": [tambah20, kurang20, campur20, tambahBersusun, kurangBersusun, polaBilangan],
-    "2": [tambah100, kurang100, tambahBersusun, kurangBersusun, kaliDasar, kaliBersusun, polaBilangan],
-    "3": [kaliBag, tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
-    "4": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, operasiCampur, kali2digit, bagiSisa],
+    /* Kelas 1–3: penjumlahan, pengurangan, perkalian, pembagian (biasa &
+       bersusun) — semua angka & hasil ≤ 100, kombinasi makin besar tiap kelas.
+       Kelas 4 ke atas boleh melebihi 100 (kesulitan terus naik). */
+    "1": [tambah20, kurang20, campur20, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
+    "2": [tambah100, kurang100, kaliDasar, bagiDasar, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
+    "3": [tambah100, kurang100, kaliBag, operasiCampur100, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, polaBilangan],
+    "4": [tambah1000, kurang1000, tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, operasiCampur, kali2digit, bagiSisa],
     "5": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, pecahanSenilai, desimalTambah, kpkfpbMudah, operasiCampur],
     "6": [tambahBersusun, kurangBersusun, kaliBersusun, bagiBersusun, persen, kpkfpb, desimalKali, cacahCampur],
   },
