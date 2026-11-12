@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarClock, Copy, Download, MessageCircle, Receipt, Wallet } from "lucide-react";
+import { CalendarClock, Copy, Download, MessageCircle, Pencil, Receipt, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { payAmount, payDate, payEffective, payStatus, progresSiklus } from "@/lib/laporan";
 import { kwitansiWaLink, kwitansiWaText, renderKwitansi } from "@/lib/renderKwitansi";
 import {
   MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, rpShort, waLink, todayStr,
-  fmtDate, fmtDateShort,
+  fmtDate, fmtDateShort, DEFAULT_KWITANSI_LABELS,
 } from "@/lib/constants";
-import type { PayStatus, Siswa } from "@/lib/types";
+import type { KwitansiTemplate, PayStatus, Siswa } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,20 @@ const CELL: Record<PayStatus, string> = {
 const SHORT: Record<PayStatus, string> = { lunas: "L", sebagian: "S", belum: "·" };
 const LABEL: Record<PayStatus, string> = { lunas: "Lunas", sebagian: "Sebagian", belum: "Belum" };
 
+
+/** Isian teks layout kwitansi yang bisa diedit langsung di dialog kwitansi. */
+const KWITANSI_LABEL_FIELDS: { key: keyof KwitansiTemplate; label: string }[] = [
+  { key: "judul", label: "Judul" },
+  { key: "subjudul", label: "Subjudul" },
+  { key: "labelNo", label: "Awalan nomor" },
+  { key: "labelKota", label: "Kota dan tanggal" },
+  { key: "labelDari", label: "Label “Telah diterima dari”" },
+  { key: "labelUntuk", label: "Label “Untuk pembayaran”" },
+  { key: "labelTerbilang", label: "Label terbilang" },
+  { key: "ucapan", label: "Ucapan terima kasih" },
+  { key: "catatan", label: "Catatan kaki" },
+  { key: "hormatKami", label: "Salam penutup" },
+];
 
 export function IuranView() {
   const { db, mutate } = useApp();
@@ -131,6 +145,23 @@ export function IuranView() {
   /* ---------- kwitansi / bukti pembayaran ---------- */
   const [kwit, setKuit] = useState<{ sid: string; mk: string } | null>(null);
   const [kwitCanvas, setKuitCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [editTeksKwit, setEditTeksKwit] = useState(false);
+  /** template teks layout kwitansi (sama dengan yang di Pengaturan) */
+  const kwitTpl = db.pengaturan.kwitansi ?? { ...DEFAULT_KWITANSI_LABELS };
+  const setKwitansi = (patch: Partial<KwitansiTemplate>) =>
+    mutate((d) => {
+      d.pengaturan.kwitansi = {
+        ...DEFAULT_KWITANSI_LABELS,
+        ...(d.pengaturan.kwitansi ?? {}),
+        ...patch,
+      };
+    });
+  const resetKwitansi = () => {
+    mutate((d) => {
+      d.pengaturan.kwitansi = { ...DEFAULT_KWITANSI_LABELS };
+    });
+    toast({ title: "Teks kwitansi dikembalikan ke bawaan." });
+  };
   const kwitBoxRef = useRef<HTMLDivElement>(null);
   const kwitSiswa = kwit ? db.students.find((s) => s.id === kwit.sid) ?? null : null;
 
@@ -542,7 +573,7 @@ export function IuranView() {
       </Dialog>
 
       {/* dialog: kwitansi / bukti pembayaran */}
-      <Dialog open={!!kwit && !!kwitSiswa} onOpenChange={(o) => !o && setKuit(null)}>
+      <Dialog open={!!kwit && !!kwitSiswa} onOpenChange={(o) => !o && (setKuit(null), setEditTeksKwit(false))}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Kwitansi: {kwitSiswa?.name}</DialogTitle>
@@ -553,6 +584,38 @@ export function IuranView() {
           <div className="relative grid min-h-[220px] place-items-center overflow-hidden rounded-xl bg-slate-100 p-2">
             <div ref={kwitBoxRef} className="w-full" />
             {!kwitCanvas && <p className="absolute p-8 text-sm text-muted-foreground">Menyiapkan kwitansi…</p>}
+          </div>
+          <div className="grid gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditTeksKwit((v) => !v)}>
+                <Pencil className="h-4 w-4" /> {editTeksKwit ? "Tutup edit teks" : "Edit teks"}
+              </Button>
+              {editTeksKwit && (
+                <Button variant="ghost" size="sm" onClick={resetKwitansi}>
+                  Kembalikan bawaan
+                </Button>
+              )}
+            </div>
+            {editTeksKwit && (
+              <div className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:grid-cols-2">
+                {KWITANSI_LABEL_FIELDS.map((f) => (
+                  <div key={f.key} className="grid gap-1.5">
+                    <Label>{f.label}</Label>
+                    <Input
+                      key={kwitTpl[f.key]}
+                      defaultValue={kwitTpl[f.key]}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v && v !== kwitTpl[f.key]) setKwitansi({ [f.key]: v } as Partial<KwitansiTemplate>);
+                      }}
+                    />
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground sm:col-span-2">
+                  Perubahan tersimpan sebagai template untuk semua kwitansi. Gambar diperbarui langsung. Desain tidak berubah, hanya teksnya.
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button variant="outline" onClick={unduhKwit} disabled={!kwitCanvas} className="sm:mr-auto">

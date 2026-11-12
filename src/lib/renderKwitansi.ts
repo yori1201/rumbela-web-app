@@ -151,11 +151,11 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
   /* nomor kwitansi + tanggal */
   ctx.fillStyle = "#0f172a";
   ctx.font = "700 20px Nunito";
-  ctx.fillText(`No. ${kwitansiNo(db, siswa, mk)}`, 64, 212);
+  ctx.fillText(`${L.labelNo} ${kwitansiNo(db, siswa, mk)}`, 64, 212);
   ctx.textAlign = "right";
   ctx.fillStyle = "#475569";
   ctx.font = "500 19px Nunito";
-  ctx.fillText(`Curup, ${fmtDate(pdIso)}`, W - 64, 212);
+  ctx.fillText(`${L.labelKota} ${fmtDate(pdIso)}`, W - 64, 212);
   ctx.textAlign = "left";
 
   /* baris data */
@@ -184,7 +184,7 @@ export async function renderKwitansi(db: Database, siswa: Siswa, mk: string): Pr
   ctx.fillText(rp(amt), 92, 486);
 
   ctx.fillStyle = "#047857";
-  const tb = `Terbilang: #${terbilang(amt).charAt(0).toUpperCase() + terbilang(amt).slice(1)} rupiah#`;
+  const tb = `${L.labelTerbilang} #${terbilang(amt).charAt(0).toUpperCase() + terbilang(amt).slice(1)} rupiah#`;
   const tbSize = fitWidth(ctx, tb, 600, 18, true, W - 128 - 500);
   ctx.font = `italic 600 ${tbSize}px Nunito`;
   ctx.fillText(tb, 92, 514);

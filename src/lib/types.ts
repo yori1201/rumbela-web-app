@@ -132,6 +132,9 @@ export interface KwitansiTemplate {
   ucapan: string;
   catatan: string;
   hormatKami: string;
+  labelNo: string;
+  labelKota: string;
+  labelTerbilang: string;
 }
 
 export interface Pengaturan {
@@ -456,6 +459,9 @@ export function normalizeDB(raw: unknown): Database {
         ucapan: STR(kw.ucapan).trim() || base.ucapan,
         catatan: STR(kw.catatan).trim() || base.catatan,
         hormatKami: STR(kw.hormatKami).trim() || base.hormatKami,
+        labelNo: STR(kw.labelNo).trim() || base.labelNo,
+        labelKota: STR(kw.labelKota).trim() || base.labelKota,
+        labelTerbilang: STR(kw.labelTerbilang).trim() || base.labelTerbilang,
       };
     }
     if (isObj(p.laporan)) {

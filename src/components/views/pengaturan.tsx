@@ -171,6 +171,18 @@ export function PengaturanView() {
               <Label htmlFor="st-kw-hormat">Salam penutup (footer)</Label>
               <Input id="st-kw-hormat" key={kw.hormatKami} defaultValue={kw.hormatKami} onBlur={(e) => e.target.value.trim() !== kw.hormatKami && e.target.value.trim() !== "" && setKwitansi({ hormatKami: e.target.value })} />
             </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-no">Awalan nomor</Label>
+              <Input id="st-kw-no" key={kw.labelNo} defaultValue={kw.labelNo} onBlur={(e) => e.target.value.trim() !== kw.labelNo && e.target.value.trim() !== "" && setKwitansi({ labelNo: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-kota">Kota dan tanggal</Label>
+              <Input id="st-kw-kota" key={kw.labelKota} defaultValue={kw.labelKota} onBlur={(e) => e.target.value.trim() !== kw.labelKota && e.target.value.trim() !== "" && setKwitansi({ labelKota: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-terbilang">Label terbilang</Label>
+              <Input id="st-kw-terbilang" key={kw.labelTerbilang} defaultValue={kw.labelTerbilang} onBlur={(e) => e.target.value.trim() !== kw.labelTerbilang && e.target.value.trim() !== "" && setKwitansi({ labelTerbilang: e.target.value })} />
+            </div>
           </div>
           <div>
             <Button variant="outline" size="sm" onClick={resetKwitansi}>

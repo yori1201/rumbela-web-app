@@ -139,6 +139,9 @@ export const DEFAULT_KWITANSI_LABELS = {
   ucapan: "Terima kasih atas kepercayaan Bapak/Ibu {orangtua}.",
   catatan: "Kwitansi ini diterbitkan otomatis oleh aplikasi {lembaga} sebagai bukti pembayaran yang sah.",
   hormatKami: "Hormat kami,",
+  labelNo: "No.",
+  labelKota: "Curup,",
+  labelTerbilang: "Terbilang:",
 };
 
 /** Ganti semua {placeholder} dalam template lalu rapikan spasi/baris kosong. */
