@@ -129,6 +129,35 @@ Berikut laporan harian ananda *{nama}* ({program}) — *{hari}, {tanggal}* di {l
 {rekap}
 Terima kasih atas dukungannya di rumah 🙏`;
 
+/** Template bawaan teks kwitansi WA (fitur Iuran). Placeholder yang tersedia:
+ *  {orangtua} {nama} {program} {jumlah} {terbilang} {tanggal} {status} {sisa}
+ *  {no} {siklus} {pertemuan} {bulan} {lembaga} {tagline} */
+export const DEFAULT_TEMPLATE_KWITANSI_WA = `Assalamu'alaikum Bapak/Ibu {orangtua},
+
+Terima kasih 🙏 pembayaran iuran ananda *{nama}* telah kami terima:
+
+• Program: {program}
+• Untuk pembayaran: Iuran {program} — {pertemuan} pertemuan (siklus ke-{siklus})
+• Jumlah dibayar: *{jumlah}* ({terbilang} rupiah)
+• Tanggal bayar: {tanggal}
+• Status: {status}
+• No. kwitansi: *{no}*
+
+Bukti kwitansi berupa gambar menyusul di chat ini.
+
+{lembaga} — {tagline}, Curup`;
+
+/** Label bawaan yang tampil di kanvas kwitansi. Desain kanvas tidak berubah,
+ *  hanya teks-teks ini yang bisa diedit lewat Pengaturan. */
+export const DEFAULT_KWITANSI_LABELS = {
+  judul: "KWITANSI",
+  subjudul: "Bukti Pembayaran Iuran",
+  labelDari: "Telah diterima dari",
+  labelUntuk: "Untuk pembayaran",
+  ucapan: "Terima kasih atas kepercayaan Bapak/Ibu {orangtua}.",
+  catatan: "Kwitansi ini diterbitkan otomatis oleh aplikasi {lembaga} — bukti pembayaran yang sah.",
+};
+
 /** Ganti semua {placeholder} dalam template lalu rapikan spasi/baris kosong. */
 export function fillTemplate(tpl: string, vars: Record<string, string>): string {
   let out = tpl || "";
@@ -152,7 +181,7 @@ export function rp(n: number): string {
   return "Rp " + Number(n || 0).toLocaleString("id-ID");
 }
 
-/** Angka → kata bahasa Indonesia (untuk terbilang kuitansi): 150000 → "seratus lima puluh ribu". */
+/** Angka → kata bahasa Indonesia (untuk terbilang kwitansi): 150000 → "seratus lima puluh ribu". */
 export function terbilang(n: number): string {
   const v = Math.floor(Math.abs(Number(n) || 0));
   if (v === 0) return "nol";

@@ -142,7 +142,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold text-slate-700">{s.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {s.program} · {rp(s.fee)}/bulan · {st === "sebagian" ? "sebagian" : "belum bayar"}
+                        {s.program} · {rp(s.fee)}/siklus · {st === "sebagian" ? "sebagian" : "belum bayar"}
                       </p>
                     </div>
                     <a

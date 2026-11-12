@@ -51,11 +51,52 @@ export function payEffective(db: Database, siswa: Siswa, mk: string): number {
   return amt ?? Math.round(siswa.fee / 2);
 }
 
-/** Tanggal jatuh tempo iuran seorang siswa untuk bulan mk ("YYYY-MM").
- *  Siklus per siswa — mengikuti tanggal input pembayaran terakhirnya SEBELUM bulan tsb,
- *  sehingga siswa yang bayar tgl 20 berikutnya ditagih tgl 20 bulan berikutnya.
- *  Belum pernah bayar → mengikuti tanggal masuk (s.start);
- *  tidak ada keduanya → jatuh tempo global (pengaturan.iuran.jatuhTempo). */
+/** Progres satu siklus iuran berbasis pertemuan (v2.3.2): satu pembayaran
+ *  mencakup `meet` pertemuan (bawaan 12). Dihitung dari jumlah kehadiran (H)
+ *  sejak pembayaran lunas terakhir sebelum bulan mk — atau sejak tanggal masuk
+ *  bila belum pernah lunas. Jatuh tempo muncul saat hadir mencapai target,
+ *  bukan hitungan 30 hari atau bulan kalender. */
+export interface ProgresSiklus {
+  /** jumlah pertemuan dihadiri (H) dalam siklus berjalan */
+  hadir: number;
+  /** pertemuan per pembayaran (siswa.meet, bawaan 12) */
+  target: number;
+  /** true bila siklus selesai → iuran jatuh tempo, kwitansi boleh terbit */
+  selesai: boolean;
+  /** nomor siklus yang sedang berjalan (1 = siklus pertama) */
+  siklusKe: number;
+}
+
+export function progresSiklus(db: Database, siswa: Siswa, mk?: string): ProgresSiklus {
+  const target = siswa.meet > 0 ? siswa.meet : 12;
+  const pays = db.payments[siswa.id] ?? {};
+  const dates = db.payDates?.[siswa.id] ?? {};
+  let lunasCount = 0;
+  let lastPay: string | null = null;
+  for (const m of Object.keys(pays)) {
+    if (pays[m] !== "lunas") continue;
+    if (mk && m >= mk) continue;
+    lunasCount++;
+    const d = dates[m];
+    if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) && (!lastPay || d > lastPay)) lastPay = d;
+  }
+  const fromStart = !lastPay;
+  const batas = lastPay ?? siswa.start ?? "";
+  let hadir = 0;
+  for (const [date, day] of Object.entries(db.attendance)) {
+    if (date <= batas && !(fromStart && date === batas)) continue;
+    if (day[siswa.id] === "H") hadir++;
+  }
+  return { hadir, target, selesai: hadir >= target, siklusKe: lunasCount + 1 };
+}
+
+/** LEGACY (v2.3.2): jatuh tempo berbasis tanggal kalender. Tidak lagi dipakai
+ *  sejak iuran berbasis pertemuan — dipertahankan agar data dan dokumen lama
+ *  tetap konsisten. Tanggal jatuh tempo iuran seorang siswa untuk bulan mk
+ *  ("YYYY-MM"). Siklus per siswa — mengikuti tanggal input pembayaran
+ *  terakhirnya SEBELUM bulan tsb. Belum pernah bayar → mengikuti tanggal
+ *  masuk (s.start); tidak ada keduanya → jatuh tempo global
+ *  (pengaturan.iuran.jatuhTempo). */
 export function dueDateForStudent(db: Database, siswa: Siswa, mk: string): Date {
   const p = mk.split("-");
   const y = Number(p[0]);

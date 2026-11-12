@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarClock, Copy, Download, MessageCircle, Receipt, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { dueDateForStudent, payAmount, payDate, payEffective, payStatus } from "@/lib/laporan";
-import { kuitansiWaLink, kuitansiWaText, renderKuitansi } from "@/lib/renderKuitansi";
+import { payAmount, payDate, payEffective, payStatus, progresSiklus } from "@/lib/laporan";
+import { kwitansiWaLink, kwitansiWaText, renderKwitansi } from "@/lib/renderKwitansi";
 import {
   MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, rpShort, waLink, todayStr,
-  fmtDayDate, fmtDayDateShort, fmtDate, fmtDateShort,
+  fmtDate, fmtDateShort,
 } from "@/lib/constants";
 import type { PayStatus, Siswa } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
@@ -31,15 +31,6 @@ const CELL: Record<PayStatus, string> = {
 const SHORT: Record<PayStatus, string> = { lunas: "L", sebagian: "S", belum: "·" };
 const LABEL: Record<PayStatus, string> = { lunas: "Lunas", sebagian: "Sebagian", belum: "Belum" };
 
-interface DueInfo {
-  date: Date;
-  /** hari menuju jatuh tempo (negatif = sudah lewat) */
-  inDays: number;
-  /** hari keterlambatan (0 bila belum terlambat) */
-  overdue: number;
-  /** iuran bulan berjalan sudah lunas → tampil jatuh tempo bulan depan */
-  lunas: boolean;
-}
 
 export function IuranView() {
   const { db, mutate } = useApp();
@@ -54,50 +45,17 @@ export function IuranView() {
   const thisMk = monthKey(now.getFullYear(), now.getMonth());
   const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  /* tanggal jatuh tempo iuran (bisa diatur admin) */
-  const jt = Math.min(31, Math.max(1, db.pengaturan.iuran?.jatuhTempo ?? 5));
-  const setJt = (v: number) =>
-    mutate((d) => {
-      d.pengaturan.iuran = { jatuhTempo: v };
-    });
-
   const terkumpul = db.students.reduce((acc, s) => acc + payEffective(db, s, thisMk), 0);
   const lunasCount = db.students.filter((s) => payStatus(db, s.id, thisMk) === "lunas").length;
   const target = db.students.reduce((a, s) => a + s.fee, 0);
-  const belumCount = db.students.length - lunasCount;
 
-  /** Jatuh tempo pembayaran berikutnya seorang siswa — siklus per siswa:
-   *  mengikuti tanggal pembayaran terakhirnya masing-masing.
-   *  Bulan berjalan belum lunas → jatuh tempo bulan ini;
-   *  sudah lunas → jatuh tempo bulan depan. */
-  const nextDue = (s: Siswa): DueInfo => {
-    const st = payStatus(db, s.id, thisMk);
-    let y = now.getFullYear();
-    let m = now.getMonth();
-    if (st === "lunas") {
-      y += m === 11 ? 1 : 0;
-      m = (m + 1) % 12;
-    }
-    const date = dueDateForStudent(db, s, monthKey(y, m));
-    const inDays = Math.round((date.getTime() - today0.getTime()) / 86400000);
-    return { date, inDays, overdue: st !== "lunas" && inDays < 0 ? -inDays : 0, lunas: st === "lunas" };
-  };
-  const dueInfo = new Map(db.students.map((s) => [s.id, nextDue(s)]));
+  /** Progres siklus pertemuan tiap siswa: jatuh tempo muncul setelah siswa
+   *  menyelesaikan semua pertemuan dalam satu siklus (meet pertemuan,
+   *  bawaan 12) — bukan hitungan 30 hari atau bulan kalender. */
+  const siklusInfo = new Map(db.students.map((s) => [s.id, progresSiklus(db, s)]));
+  /** siswa yang siklusnya selesai dan belum lunas bulan berjalan */
+  const dueSiswa = db.students.filter((s) => siklusInfo.get(s.id)!.selesai && payStatus(db, s.id, thisMk) !== "lunas");
 
-  /** jatuh tempo terdekat: paling awal di antara siswa yang belum lunas bulan ini
-   *  (tiap siswa punya siklus sendiri); semua lunas → jatuh tempo terdekat bulan depan */
-  const groupDue: DueInfo = (() => {
-    const unpaid = db.students.filter((s) => payStatus(db, s.id, thisMk) !== "lunas");
-    const nmY = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
-    const nmM = (now.getMonth() + 1) % 12;
-    const times = unpaid.length
-      ? unpaid.map((s) => dueDateForStudent(db, s, thisMk).getTime())
-      : db.students.map((s) => dueDateForStudent(db, s, monthKey(nmY, nmM)).getTime());
-    const date = new Date(times.length ? Math.min(...times) : today0.getTime());
-    const inDays = Math.round((date.getTime() - today0.getTime()) / 86400000);
-    const overdueCount = unpaid.filter((s) => dueDateForStudent(db, s, thisMk).getTime() < today0.getTime()).length;
-    return { date, inDays, overdue: unpaid.length ? overdueCount : 0, lunas: unpaid.length === 0 };
-  })();
 
   /* ---------- dialog status + tanggal + jumlah pembayaran ---------- */
   const editStudent = editPay ? db.students.find((x) => x.id === editPay.sid) : null;
@@ -170,51 +128,62 @@ export function IuranView() {
     setEditPay({ sid, mk: year === now.getFullYear() ? thisMk : `${year}-01`, quick: true });
   };
 
-  /* ---------- kuitansi / bukti pembayaran ---------- */
-  const [kuit, setKuit] = useState<{ sid: string; mk: string } | null>(null);
-  const [kuitCanvas, setKuitCanvas] = useState<HTMLCanvasElement | null>(null);
-  const kuitBoxRef = useRef<HTMLDivElement>(null);
-  const kuitSiswa = kuit ? db.students.find((s) => s.id === kuit.sid) ?? null : null;
+  /* ---------- kwitansi / bukti pembayaran ---------- */
+  const [kwit, setKuit] = useState<{ sid: string; mk: string } | null>(null);
+  const [kwitCanvas, setKuitCanvas] = useState<HTMLCanvasElement | null>(null);
+  const kwitBoxRef = useRef<HTMLDivElement>(null);
+  const kwitSiswa = kwit ? db.students.find((s) => s.id === kwit.sid) ?? null : null;
 
-  const openKuit = (sid: string, mk: string = thisMk) => {
+  const openKwit = (sid: string, mk: string = thisMk) => {
     if (payStatus(db, sid, mk) === "belum") {
       toast({
         title: "Belum ada pembayaran tercatat",
-        description: `Catat bayaran ${monthLabel(mk)} dulu untuk membuat kuitansi.`,
+        description: `Catat bayaran ${monthLabel(mk)} dulu untuk membuat kwitansi.`,
       });
       return;
+    }
+    const kwSiswa = db.students.find((x) => x.id === sid) ?? null;
+    if (kwSiswa) {
+      const prog = progresSiklus(db, kwSiswa, mk);
+      if (!prog.selesai) {
+        toast({
+          title: "Kwitansi belum tersedia",
+          description: `${kwSiswa.name} baru ${prog.hadir}/${prog.target} pertemuan — kwitansi terbit setelah ${prog.target} pertemuan selesai.`,
+        });
+        return;
+      }
     }
     setKuitCanvas(null);
     setKuit({ sid, mk });
   };
 
   useEffect(() => {
-    if (!kuit || !kuitSiswa) return;
+    if (!kwit || !kwitSiswa) return;
     let alive = true;
-    void renderKuitansi(db, kuitSiswa, kuit.mk).then((c) => {
+    void renderKwitansi(db, kwitSiswa, kwit.mk).then((c) => {
       if (!alive) return;
       c.className = "w-full h-auto rounded-lg bg-white shadow-sm";
       setKuitCanvas(c);
-      kuitBoxRef.current?.replaceChildren(c);
+      kwitBoxRef.current?.replaceChildren(c);
     });
     return () => {
       alive = false;
     };
-  }, [db, kuit, kuitSiswa]);
+  }, [db, kwit, kwitSiswa]);
 
-  const unduhKuit = () => {
-    if (!kuitCanvas || !kuitSiswa || !kuit) return;
+  const unduhKwit = () => {
+    if (!kwitCanvas || !kwitSiswa || !kwit) return;
     const a = document.createElement("a");
-    a.href = kuitCanvas.toDataURL("image/png");
-    a.download = `Kuitansi-${kuitSiswa.name.replace(/\s+/g, "-")}-${kuit.mk}.png`;
+    a.href = kwitCanvas.toDataURL("image/png");
+    a.download = `Kwitansi-${kwitSiswa.name.replace(/\s+/g, "-")}-${kwit.mk}.png`;
     a.click();
   };
 
-  const salinKuit = async () => {
-    if (!kuitSiswa || !kuit) return;
+  const salinKwit = async () => {
+    if (!kwitSiswa || !kwit) return;
     try {
-      await navigator.clipboard.writeText(kuitansiWaText(db, kuitSiswa, kuit.mk));
-      toast({ title: "Teks kuitansi disalin", description: "Tempel di chat WhatsApp bapak/ibu." });
+      await navigator.clipboard.writeText(kwitansiWaText(db, kwitSiswa, kwit.mk));
+      toast({ title: "Teks kwitansi disalin", description: "Tempel di chat WhatsApp bapak/ibu." });
     } catch {
       toast({ title: "Gagal menyalin", description: "Gunakan tombol Kirim WA sebagai gantinya." });
     }
@@ -223,19 +192,19 @@ export function IuranView() {
   const remindText = (sid: string) => {
     const s = db.students.find((x) => x.id === sid)!;
     const st = payStatus(db, sid, thisMk);
-    const nd = dueInfo.get(sid)!;
+    const prog = progresSiklus(db, s);
     const pd = payDate(db, sid, thisMk);
     const amt = payAmount(db, sid, thisMk);
-    const dueLine = nd.overdue
-      ? `\nJatuh tempo *${fmtDayDate(nd.date)}* telah terlewat ${nd.overdue} hari — mohon segera dilunasi.`
-      : `\nBatas pembayaran: *${fmtDayDate(nd.date)}*${nd.inDays === 0 ? " (hari ini)" : nd.inDays === 1 ? " (besok)" : ` (${nd.inDays} hari lagi)`}.`;
+    const dueLine = prog.selesai
+      ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan (siklus ke-${prog.siklusKe}) — iuran jatuh tempo, mohon segera dilunasi.`
+      : `\nProgres pertemuan ananda: ${prog.hadir}/${prog.target} — iuran jatuh tempo setelah ${prog.target} pertemuan selesai.`;
     const statusLine =
       st === "sebagian"
         ? `Sudah dibayar sebagian${amt ? ` sebesar *${rp(amt)}* dari ${rp(s.fee)}` : ""}${pd ? ` (diterima ${fmtDate(pd)})` : ""}`
         : "Belum lunas";
     return waLink(
       s.wa,
-      `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* (Curup) mengingatkan iuran bulan *${monthLabel(thisMk)}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.${dueLine}\n\nStatus saat ini: *${statusLine}*.\nTerima kasih atas perhatian dan kepercayaannya 🙏`
+      `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* (Curup) mengingatkan iuran siklus ke-${prog.siklusKe} (${prog.target} pertemuan) untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.${dueLine}\n\nStatus saat ini: *${statusLine}*.\nTerima kasih atas perhatian dan kepercayaannya 🙏`
     );
   };
 
@@ -268,47 +237,22 @@ export function IuranView() {
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl bg-sky-50/80 px-3 py-2.5">
           <span className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-900">
             <CalendarClock className="h-4 w-4 shrink-0 text-sky-600" />
-            Pembayaran iuran berikutnya:
-            <span className="text-sky-700">{fmtDayDate(groupDue.date)}</span>
+            Jatuh tempo iuran:
+            <span className="text-sky-700">{dueSiswa.length ? `${dueSiswa.length} siswa menyelesaikan siklus pertemuan` : "belum ada"}</span>
           </span>
-          {groupDue.overdue > 0 ? (
+          {dueSiswa.length > 0 ? (
             <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700">
-              terlambat · {groupDue.overdue} siswa lewat jatuh tempo
+              jatuh tempo · {dueSiswa.length} siswa
             </span>
-          ) : groupDue.inDays === 0 ? (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">jatuh tempo hari ini</span>
           ) : (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
-              {groupDue.lunas ? "semua lunas — bulan depan" : `${groupDue.inDays} hari lagi · ${belumCount} siswa belum lunas`}
+              semua siklus berjalan
             </span>
           )}
-          <label
-            className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground"
-            title="Dipakai hanya bila siswa belum pernah mencatat pembayaran dan tidak punya tanggal masuk"
-          >
-            Jatuh tempo bawaan: tanggal
-            <Input
-              type="number"
-              min={1}
-              max={31}
-              aria-label="Tanggal jatuh tempo iuran setiap bulan"
-              className="h-8 w-16 border-sky-200 bg-white text-center"
-              defaultValue={jt}
-              key={`jt-${jt}`}
-              onBlur={(e) => {
-                const v = Math.min(31, Math.max(1, Math.round(Number(e.target.value)) || 5));
-                if (v !== jt) {
-                  e.target.value = String(v);
-                  setJt(v);
-                  toast({ title: `Jatuh tempo tiap tanggal ${v} disimpan.` });
-                }
-              }}
-            />
-          </label>
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Jatuh tempo tiap siswa kini <b>mengikuti tanggal pembayarannya sendiri</b> — tanggal pembayaran terakhir, atau tanggal masuk bila belum pernah bayar. Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal &amp; jumlah pembayaran lalu mengirim kuitansinya ke WA.
+          Jatuh tempo muncul setelah siswa <b>menyelesaikan semua pertemuan dalam satu siklus</b> (12 pertemuan, sesuai isian “Pertemuan / pembayaran” tiap siswa) — bukan hitungan 30 hari atau bulan kalender. Ketuk kotak bulan untuk status <b>L</b> lunas / <b>S</b> sebagian, atau tombol <b>Catat bayaran</b> untuk mengisi tanggal &amp; jumlah pembayaran lalu mengirim kwitansinya ke WA.
         </p>
       </SectionCard>
 
@@ -329,7 +273,7 @@ export function IuranView() {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {db.students.map((s) => {
-                const nd = dueInfo.get(s.id)!;
+                const prog = siklusInfo.get(s.id)!;
                 const pdThis = payDate(db, s.id, thisMk);
                 const stThis = payStatus(db, s.id, thisMk);
                 const effThis = payEffective(db, s, thisMk);
@@ -359,24 +303,20 @@ export function IuranView() {
                     </button>
                   </td>
                   <td className="whitespace-nowrap px-2 py-2.5 text-center">
-                    <p className={cn("text-xs font-extrabold", nd.overdue ? "text-rose-600" : "text-slate-700")}>
-                      {fmtDayDateShort(nd.date)}
+                    <p className={cn("text-xs font-extrabold", prog.selesai ? "text-rose-600" : "text-slate-700")}>
+                      {prog.hadir}/{prog.target} pertemuan
                     </p>
                     <p
                       className={cn(
                         "text-[10px] font-semibold",
-                        nd.lunas && pdThis ? "text-emerald-600" : nd.overdue ? "text-rose-500" : "text-muted-foreground"
+                        prog.selesai ? "text-rose-500" : "text-muted-foreground"
                       )}
                     >
-                      {nd.lunas && pdThis
-                        ? `dibayar ${fmtDateShort(pdThis)}${effThis ? ` · ${rpShort(effThis)}` : ""}`
-                        : nd.overdue
-                          ? `terlambat ${nd.overdue} hr`
-                          : nd.inDays === 0
-                            ? "hari ini"
-                            : nd.lunas
-                              ? "bln depan"
-                              : `dalam ${nd.inDays} hr`}
+                      {prog.selesai
+                        ? "jatuh tempo"
+                        : stThis === "lunas"
+                          ? "lunas"
+                          : `kurang ${prog.target - prog.hadir} pertemuan`}
                     </p>
                   </td>
                   {MONTHS_SHORT.map((_, mi) => {
@@ -385,12 +325,11 @@ export function IuranView() {
                     const pd = payDate(db, s.id, mk);
                     const am = payAmount(db, s.id, mk);
                     const isNow = mk === thisMk;
-                    const dueM = dueDateForStudent(db, s, mk);
                     return (
                       <td key={mk} className="px-1 py-2.5 text-center">
                         <button
                           onClick={() => setEditPay({ sid: s.id, mk })}
-                          title={`${MONTHS[mi]} ${year} — ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""}${am ? ` · ${rp(am)}` : ""} · jatuh tempo ${fmtDayDateShort(dueM)}`}
+                          title={`${MONTHS[mi]} ${year} — ${LABEL[st]}${pd ? ` · dibayar ${fmtDate(pd)}` : ""}${am ? ` · ${rp(am)}` : ""}}`}
                           aria-label={`${MONTHS[mi]} ${year}: ${LABEL[st]}${pd ? `, dibayar ${fmtDate(pd)}` : ""}${am ? `, ${rp(am)}` : ""}`}
                           className={cn(
                             "relative mx-auto grid h-8 w-9 place-items-center rounded-lg text-xs font-extrabold transition-transform active:scale-90",
@@ -415,8 +354,8 @@ export function IuranView() {
                   <td className="px-3 py-2.5 text-center">
                     <div className="flex items-center justify-center gap-1.5">
                       <button
-                        onClick={() => openKuit(s.id)}
-                        title={`Kuitansi & kirim bukti WA — ${monthLabel(thisMk)}`}
+                        onClick={() => openKwit(s.id)}
+                        title={`Kwitansi & kirim bukti WA — ${monthLabel(thisMk)}`}
                         className="inline-grid h-8 w-8 place-items-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
                       >
                         <Receipt className="h-4 w-4" />
@@ -580,10 +519,10 @@ export function IuranView() {
                   const { sid, mk } = editPay!;
                   setEditPay(null);
                   setAmountDraft(null);
-                  openKuit(sid, mk);
+                  openKwit(sid, mk);
                 }}
               >
-                <Receipt className="h-4 w-4" /> Kuitansi &amp; kirim WA
+                <Receipt className="h-4 w-4" /> Kwitansi &amp; kirim WA
               </Button>
             )}
             <Button
@@ -599,29 +538,29 @@ export function IuranView() {
         </DialogContent>
       </Dialog>
 
-      {/* dialog: kuitansi / bukti pembayaran */}
-      <Dialog open={!!kuit && !!kuitSiswa} onOpenChange={(o) => !o && setKuit(null)}>
+      {/* dialog: kwitansi / bukti pembayaran */}
+      <Dialog open={!!kwit && !!kwitSiswa} onOpenChange={(o) => !o && setKuit(null)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Kuitansi — {kuitSiswa?.name}</DialogTitle>
+            <DialogTitle>Kwitansi — {kwitSiswa?.name}</DialogTitle>
             <DialogDescription>
-              {kuit ? monthLabel(kuit.mk) : ""} · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.
+              {kwit && kwitSiswa ? `${monthLabel(kwit.mk)} · siklus ke-${progresSiklus(db, kwitSiswa, kwit.mk).siklusKe} (${progresSiklus(db, kwitSiswa, kwit.mk).target} pertemuan) · unduh PNG lalu lampirkan di chat, atau kirim teksnya via WA.` : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="relative grid min-h-[220px] place-items-center overflow-hidden rounded-xl bg-slate-100 p-2">
-            <div ref={kuitBoxRef} className="w-full" />
-            {!kuitCanvas && <p className="absolute p-8 text-sm text-muted-foreground">Menyiapkan kuitansi…</p>}
+            <div ref={kwitBoxRef} className="w-full" />
+            {!kwitCanvas && <p className="absolute p-8 text-sm text-muted-foreground">Menyiapkan kwitansi…</p>}
           </div>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button variant="outline" onClick={unduhKuit} disabled={!kuitCanvas} className="sm:mr-auto">
+            <Button variant="outline" onClick={unduhKwit} disabled={!kwitCanvas} className="sm:mr-auto">
               <Download className="h-4 w-4" /> Unduh PNG
             </Button>
-            <Button variant="ghost" onClick={() => void salinKuit()}>
+            <Button variant="ghost" onClick={() => void salinKwit()}>
               <Copy className="h-4 w-4" /> Salin teks
             </Button>
-            {kuitSiswa && (
+            {kwitSiswa && (
               <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-                <a href={kuitansiWaLink(db, kuitSiswa, kuit!.mk)} target="_blank" rel="noreferrer">
+                <a href={kwitansiWaLink(db, kwitSiswa, kwit!.mk)} target="_blank" rel="noreferrer">
                   <MessageCircle className="h-4 w-4" /> Kirim WA
                 </a>
               </Button>

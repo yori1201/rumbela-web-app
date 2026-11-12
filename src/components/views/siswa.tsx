@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
-/** Iuran terkunci Rumbela (12 Nov 2026): grup Rp150.000/bulan, privat Rp250.000/bulan. */
+/** Iuran terkunci Rumbela (12 Nov 2026): grup Rp150.000/siklus, privat Rp250.000/siklus. */
 export const FEE_GRUP = 150000;
 export const FEE_PRIVAT = 250000;
 export const feeForProgram = (program: string): number =>
@@ -165,7 +165,7 @@ export function SiswaView() {
                 </div>
                 <div className="flex gap-2">
                   <dt className="w-20 shrink-0 text-muted-foreground">Iuran</dt>
-                  <dd className="font-semibold text-slate-700">{rp(s.fee)}/bulan · {s.meet}x pertemuan</dd>
+                  <dd className="font-semibold text-slate-700">{rp(s.fee)}/siklus · {s.meet}x pertemuan</dd>
                 </div>
               </dl>
               <a
@@ -246,7 +246,7 @@ export function SiswaView() {
                 <Input id="fs-fee" type="number" min={0} step={10000} value={form.fee} onChange={(e) => setForm({ ...form, fee: Number(e.target.value) })} />
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="fs-meet">Pertemuan / bulan</Label>
+                <Label htmlFor="fs-meet">Pertemuan / pembayaran</Label>
                 <Input id="fs-meet" type="number" min={1} max={31} value={form.meet} onChange={(e) => setForm({ ...form, meet: Number(e.target.value) })} />
               </div>
             </div>

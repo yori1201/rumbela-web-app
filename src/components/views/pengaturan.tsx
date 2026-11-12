@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Database as DbIcon, Download, Info, LogOut, RefreshCcw, Trash2, Upload } from "lucide-react";
+import { Database as DbIcon, Download, Info, LogOut, RefreshCcw, RotateCcw, Trash2, Upload } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { normalizeDB, type TemplateLaporan } from "@/lib/types";
-import { downloadJSON } from "@/lib/constants";
+import { DEFAULT_KWITANSI_LABELS, DEFAULT_TEMPLATE_KWITANSI_WA, downloadJSON } from "@/lib/constants";
 import { SectionCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,34 @@ export function PengaturanView() {
 
   const setProfil = (patch: Partial<typeof p>) => mutate((d) => Object.assign(d.pengaturan, patch));
   const setLaporan = (patch: Partial<typeof p.laporan>) => mutate((d) => Object.assign(d.pengaturan.laporan, patch));
+
+  /* ---------- template kwitansi ---------- */
+  const kw = p.kwitansi ?? { templateWa: DEFAULT_TEMPLATE_KWITANSI_WA, ...DEFAULT_KWITANSI_LABELS };
+  const setKwitansi = (patch: Partial<typeof kw>) =>
+    mutate((d) => {
+      d.pengaturan.kwitansi = {
+        templateWa: DEFAULT_TEMPLATE_KWITANSI_WA,
+        ...DEFAULT_KWITANSI_LABELS,
+        ...(d.pengaturan.kwitansi ?? {}),
+        ...patch,
+      };
+    });
+  const resetKwitansi = () => {
+    mutate((d) => {
+      d.pengaturan.kwitansi = { templateWa: DEFAULT_TEMPLATE_KWITANSI_WA, ...DEFAULT_KWITANSI_LABELS };
+    });
+    toast({ title: "Template kwitansi dikembalikan ke bawaan." });
+  };
+  /** Sisipkan placeholder pada posisi kursor di editor template WA kwitansi. */
+  const insertKwVar = (v: string) => {
+    const el = document.getElementById("st-kw-wa") as HTMLTextAreaElement | null;
+    if (!el) return;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    el.value = el.value.slice(0, start) + v + el.value.slice(end);
+    el.focus();
+    el.setSelectionRange(start + v.length, start + v.length);
+  };
 
   const importJSON = async (file: File) => {
     try {
@@ -119,6 +147,66 @@ export function PengaturanView() {
               <Label htmlFor="st-jab">Jabatan</Label>
               <Input id="st-jab" defaultValue={p.laporan.ttdJabatan} onBlur={(e) => e.target.value !== p.laporan.ttdJabatan && setLaporan({ ttdJabatan: e.target.value })} />
             </div>
+          </div>
+        </div>
+      </SectionCard>
+
+
+      <SectionCard title="Template kwitansi" desc="Teks kwitansi WA dan label kanvas — desain kwitansi tidak berubah, hanya teksnya">
+        <div className="grid gap-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="st-kw-wa">Teks WhatsApp kwitansi</Label>
+            <Textarea
+              id="st-kw-wa"
+              rows={9}
+              key={kw.templateWa}
+              defaultValue={kw.templateWa}
+              onBlur={(e) => e.target.value.trim() !== kw.templateWa && e.target.value.trim() !== "" && setKwitansi({ templateWa: e.target.value })}
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {["{orangtua}", "{nama}", "{program}", "{jumlah}", "{terbilang}", "{tanggal}", "{status}", "{sisa}", "{no}", "{siklus}", "{pertemuan}", "{bulan}", "{lembaga}", "{tagline}"].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => insertKwVar(v)}
+                  className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-700 hover:bg-sky-100"
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">Placeholder {"{kurung}"} diganti otomatis dengan data pembayaran.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-judul">Judul kanvas</Label>
+              <Input id="st-kw-judul" key={kw.judul} defaultValue={kw.judul} onBlur={(e) => e.target.value.trim() !== kw.judul && e.target.value.trim() !== "" && setKwitansi({ judul: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-sub">Subjudul kanvas</Label>
+              <Input id="st-kw-sub" key={kw.subjudul} defaultValue={kw.subjudul} onBlur={(e) => e.target.value.trim() !== kw.subjudul && e.target.value.trim() !== "" && setKwitansi({ subjudul: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-dari">Label “Telah diterima dari”</Label>
+              <Input id="st-kw-dari" key={kw.labelDari} defaultValue={kw.labelDari} onBlur={(e) => e.target.value.trim() !== kw.labelDari && e.target.value.trim() !== "" && setKwitansi({ labelDari: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-untuk">Label “Untuk pembayaran”</Label>
+              <Input id="st-kw-untuk" key={kw.labelUntuk} defaultValue={kw.labelUntuk} onBlur={(e) => e.target.value.trim() !== kw.labelUntuk && e.target.value.trim() !== "" && setKwitansi({ labelUntuk: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-ucap">Ucapan terima kasih (footer)</Label>
+              <Input id="st-kw-ucap" key={kw.ucapan} defaultValue={kw.ucapan} onBlur={(e) => e.target.value.trim() !== kw.ucapan && e.target.value.trim() !== "" && setKwitansi({ ucapan: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="st-kw-cat">Catatan kaki (footer)</Label>
+              <Input id="st-kw-cat" key={kw.catatan} defaultValue={kw.catatan} onBlur={(e) => e.target.value.trim() !== kw.catatan && e.target.value.trim() !== "" && setKwitansi({ catatan: e.target.value })} />
+            </div>
+          </div>
+          <div>
+            <Button variant="outline" size="sm" onClick={resetKwitansi}>
+              <RotateCcw className="h-4 w-4" /> Kembalikan bawaan
+            </Button>
           </div>
         </div>
       </SectionCard>
