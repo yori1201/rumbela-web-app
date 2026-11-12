@@ -98,7 +98,7 @@ export async function driveFetch(token: string, url: string, opts: RequestInit =
     res = await fetch(url, { ...opts, headers });
   } catch {
     const e = new Error("network") as DriveErr;
-    e.detail = "Tidak ada respons dari server Google — periksa koneksi internet.";
+    e.detail = "Tidak ada respons dari server Google, periksa koneksi internet.";
     throw e;
   }
   if (!res.ok) {

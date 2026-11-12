@@ -51,8 +51,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* tema biru–hijau: primer biru (sky-600), aksen hijau (emerald) */
-  --primary: oklch(0.588 0.158 241.966);
+  /* tema biru–hijau: primer biru (sky-700), aksen hijau (emerald) */
+  --primary: oklch(0.500 0.119 242.75);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -63,67 +63,47 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.588 0.158 241.966);
-  --chart-1: oklch(0.588 0.158 241.966);
+  --ring: oklch(0.500 0.119 242.75);
+  --chart-1: oklch(0.500 0.119 242.75);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.446 0.086 247.908);
   --chart-4: oklch(0.723 0.119 187.443);
   --chart-5: oklch(0.828 0.111 230.318);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.588 0.158 241.966);
+  --sidebar-primary: oklch(0.500 0.119 242.75);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.588 0.158 241.966);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.746 0.16 232.661);
-  --primary-foreground: oklch(0.216 0.006 56.043);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0.05 166);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.746 0.16 232.661);
-  --chart-1: oklch(0.746 0.16 232.661);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.627 0.194 149.214);
-  --chart-4: oklch(0.723 0.119 187.443);
-  --chart-5: oklch(0.828 0.111 230.318);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.746 0.16 232.661);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.746 0.16 232.661);
+  --sidebar-ring: oklch(0.500 0.119 242.75);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
+  a[href], button, summary, select, label[for], label:has(> input[type="checkbox"], > input[type="radio"]), [role="button"], [role="link"], [role="tab"], [role="menuitem"], [role="option"], [role="switch"], input[type="checkbox"], input[type="radio"], input[type="file"], input[type="submit"], input[type="button"], input[type="reset"], input[type="range"], input[type="color"] { cursor: pointer; }
+  :disabled, [aria-disabled="true"] { cursor: not-allowed; }
   body {
     @apply bg-background text-foreground;
     /* dashboard: dingin lembut biru–hijau, menyatu dengan app-shell */
     background: linear-gradient(180deg, #eef6f9 0%, #f0f9ff 100%);
     background-attachment: fixed;
   }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
+
+/* Skip link untuk pengguna keyboard */
+.skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px 16px; z-index: 100; }
+.skip-link:focus { top: 0; }
 
 /* ===== Cetak worksheet (Generator Soal) — hanya lembar A4 yang tercetak ===== */
 /* wrapper pratinjau: scroll horizontal hanya di layar sempit, netral saat cetak */

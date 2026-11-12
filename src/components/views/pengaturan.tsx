@@ -57,7 +57,7 @@ export function PengaturanView() {
       replaceDB(normalizeDB(raw));
       toast({ title: "Data berhasil diimpor & akan tersimpan otomatis." });
     } catch {
-      toast({ title: "Berkas tidak valid — butuh JSON rumbela-database.", variant: "destructive" });
+      toast({ title: "Berkas tidak valid, butuh JSON rumbela-database.", variant: "destructive" });
     }
   };
 
@@ -202,7 +202,7 @@ export function PengaturanView() {
             placeholder="mis. rumbela@gmail.com"
             onBlur={(e) => e.target.value.trim() !== p.emailAdmin && setProfil({ emailAdmin: e.target.value.trim() })}
           />
-          <p className="text-xs text-muted-foreground">Saat ini masuk sebagai: <b>{authMode === "demo" ? "Mode Demo" : email || "—"}</b></p>
+          <p className="text-xs text-muted-foreground">Saat ini masuk sebagai: <b>{authMode === "demo" ? "Mode Demo" : email || "Belum diisi"}</b></p>
         </div>
       </SectionCard>
 
@@ -253,10 +253,10 @@ export function PengaturanView() {
         <div className="space-y-1.5 text-sm text-muted-foreground">
           <p className="flex items-start gap-2">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
-            Database: satu file <b>rumbela-database.json</b> di Google Drive pribadi (scope drive.file — aplikasi hanya dapat melihat file buatannya sendiri).
+            Database: satu file <b>rumbela-database.json</b> di Google Drive pribadi (scope drive.file, aplikasi hanya dapat melihat file buatannya sendiri).
           </p>
           <p>Auto-save aktif dengan jeda 1,2 detik setiap perubahan; flush otomatis saat tab ditutup.</p>
-          <p className="text-xs">© {new Date().getFullYear()} Rumbela — Rumah Belajar Anak, Curup.</p>
+          <p className="text-xs">© {new Date().getFullYear()} Rumbela, Rumah Belajar Anak, Curup.</p>
         </div>
       </SectionCard>
 

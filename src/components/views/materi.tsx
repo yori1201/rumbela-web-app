@@ -79,9 +79,9 @@ export function MateriView() {
     <div className="space-y-4">
       <SectionCard
         title={`Bank Materi (${filtered.length})`}
-        desc="Kumpulan tautan & berkas belajar — bisa dibagikan ke orang tua"
+        desc="Kumpulan tautan & berkas belajar, bisa dibagikan ke orang tua"
         action={
-          <Button size="sm" className="bg-sky-600 hover:bg-sky-700" onClick={() => setOpen(true)}>
+          <Button size="sm" className="bg-sky-700 hover:bg-sky-800" onClick={() => setOpen(true)}>
             <Link2 className="h-4 w-4" /> Tambah materi
           </Button>
         }
@@ -109,7 +109,7 @@ export function MateriView() {
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${TYPE_BADGE[m.type] || "bg-slate-100 text-slate-600"}`}>
                   {m.type}
                 </span>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-300 hover:text-red-500" onClick={() => remove(m.id)} aria-label="Hapus materi">
+                <Button variant="ghost" size="icon" className="h-11 w-11 text-slate-300 hover:text-red-500" onClick={() => remove(m.id)} aria-label="Hapus materi">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -185,7 +185,7 @@ export function MateriView() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-            <Button className="bg-sky-600 hover:bg-sky-700" onClick={save} disabled={uploading}>Simpan</Button>
+            <Button className="bg-sky-700 hover:bg-sky-800" onClick={save} disabled={uploading}>Simpan</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

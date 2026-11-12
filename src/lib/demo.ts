@@ -67,7 +67,7 @@ export function demoDB(): Database {
 
   // Jurnal beberapa hari (kegiatan & progres umum + progres per siswa)
   db.journal[todayStr()] = {
-    activity: "Calistung Grup A — latihan membaca suku kata terbuka & dikte kata sederhana. Matematika Grup B — operasi hitung campuran.",
+    activity: "Calistung Grup A, latihan membaca suku kata terbuka & dikte kata sederhana. Matematika Grup B, operasi hitung campuran.",
     progress: "Aisyah makin lancar membaca kata tiga suku kata; Bima sudah paham urutan operasi hitung, perlu latihan soal cerita.",
     siswa: {
       [s[0].id]: "Aisyah makin lancar membaca kata tiga suku kata, dikte 8 dari 10 kata benar.",
@@ -77,7 +77,7 @@ export function demoDB(): Database {
   const yst = new Date(now.getTime() - 86400000);
   const ystKey = `${yst.getFullYear()}-${pad2(yst.getMonth() + 1)}-${pad2(yst.getDate())}`;
   db.journal[ystKey] = {
-    activity: "Pendampingan PR Citra & Dimas — matematika pecahan. Bahasa Inggris Fajar — vocabulary daily activities.",
+    activity: "Pendampingan PR Citra & Dimas, matematika pecahan. Bahasa Inggris Fajar, vocabulary daily activities.",
     progress: "Citra mulai berani mengerjakan di papan; pengucapan bahasa Inggris Fajar semakin percaya diri.",
     siswa: {
       [s[2].id]: "Citra mulai berani mengerjakan pecahan di papan tanpa dituntun.",

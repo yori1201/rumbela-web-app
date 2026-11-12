@@ -109,7 +109,7 @@ export function LaporanView() {
     a.download = `Laporan-${siswa.name.replace(/\s+/g, "-")}-${mk}.png`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    toast({ title: "Gambar laporan diunduh — siap dikirim ke orang tua." });
+    toast({ title: "Gambar laporan diunduh, siap dikirim ke orang tua." });
   };
 
   const sendWa = () => {
@@ -119,9 +119,9 @@ export function LaporanView() {
     const txt =
       `Assalamu'alaikum Bapak/Ibu ${siswa.parent},\n\n` +
       `Berikut *Laporan Perkembangan Belajar* ananda *${siswa.name}* (${siswa.program}) untuk bulan *${monthLabel(mk)}* di *${db.pengaturan.namaLembaga}*.\n\n` +
-      `• Kehadiran: ${stats.pct === null ? "—" : stats.pct + "%"} (H ${stats.h} · I ${stats.i} · A ${stats.a})\n` +
+      `• Kehadiran: ${stats.pct === null ? "Belum diisi" : stats.pct + "%"} (H ${stats.h} · I ${stats.i} · A ${stats.a})\n` +
       `• Iuran: ${pay === "lunas" ? "lunas" : pay === "sebagian" ? "sebagian" : "belum lunas"}\n` +
-      `• Catatan: ${note.trim() || "—"}\n\n` +
+      `• Catatan: ${note.trim() || "Belum diisi"}\n\n` +
       `Gambar laporan lengkap terlampir 📎\nTerima kasih atas dukungannya di rumah 🙏`;
     const phone = normWa(siswa.wa).replace(/^62/, "62");
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
@@ -150,7 +150,7 @@ export function LaporanView() {
                 <SelectTrigger className="w-full min-w-0"><SelectValue placeholder="Pilih siswa…" className="truncate" /></SelectTrigger>
                 <SelectContent>
                   {db.students.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name} — {s.program}</SelectItem>
+                    <SelectItem key={s.id} value={s.id}>{s.name}, {s.program}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -247,7 +247,7 @@ export function LaporanView() {
           {rendering && <p className="mt-2 text-center text-xs text-muted-foreground">Merender…</p>}
           {siswa && (
             <div className="mt-3 grid gap-2">
-              <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => void download()}>
+              <Button className="bg-sky-700 hover:bg-sky-800" onClick={() => void download()}>
                 <Download className="h-4 w-4" /> Unduh gambar PNG
               </Button>
               <Button variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50" onClick={sendWa}>
@@ -255,7 +255,7 @@ export function LaporanView() {
               </Button>
               <Button
                 variant="ghost"
-                className={rep.sent ? "text-emerald-600" : "text-slate-500"}
+                className={rep.sent ? "text-emerald-700" : "text-slate-500"}
                 onClick={() => {
                   if (!siswa) return;
                   mutate((d) => {
@@ -267,7 +267,7 @@ export function LaporanView() {
                 }}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                {rep.sent ? `Terkirim${rep.sentAt ? " " + rep.sentAt : ""} — batalkan?` : "Tandai sudah terkirim"}
+                {rep.sent ? `Terkirim${rep.sentAt ? " " + rep.sentAt : ""}, batalkan?` : "Tandai sudah terkirim"}
               </Button>
               <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
                 Unduh gambar lalu lampirkan manual di WhatsApp (batas WhatsApp tidak bisa kirim file otomatis).

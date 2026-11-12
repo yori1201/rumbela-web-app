@@ -43,18 +43,18 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-gradient-to-r from-sky-700 via-sky-600 to-emerald-500 p-5 text-white shadow-sm">
-        <p className="text-sm font-semibold opacity-90">
+      <div className="rounded-2xl bg-gradient-to-r from-sky-800 via-sky-700 to-emerald-700 p-5 text-white shadow-sm">
+        <p className="text-sm font-semibold">
           {greeting()} · {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}
         </p>
         <h2 className="mt-1 text-xl font-extrabold sm:text-2xl">
-          {totalSiswa ? `${adaJadwal && itemsToday.length ? `${scheduledToday.size} siswa les hari ini` : `${totalSiswa} siswa menunggu hari ini`} 🌱` : "Selamat mengelola Rumbela!"}
+          {totalSiswa ? `${adaJadwal && itemsToday.length ? `${scheduledToday.size} siswa les hari ini` : `${totalSiswa} siswa menunggu hari ini`}` : "Selamat mengelola Rumbela!"}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" className="bg-white text-sky-700 hover:bg-sky-50" onClick={() => setView("absensi")}>
             <CalendarCheck2 className="h-4 w-4" /> Absensi hari ini
           </Button>
-          <Button size="sm" className="bg-emerald-600/50 text-white hover:bg-emerald-600/70" onClick={() => setView("laporan")}>
+          <Button size="sm" className="bg-emerald-700 text-white hover:bg-emerald-800" onClick={() => setView("laporan")}>
             <ClipboardList className="h-4 w-4" /> Buat laporan gambar
           </Button>
         </div>
@@ -64,7 +64,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
         <StatCard label="Siswa aktif" value={String(totalSiswa)} sub={`${new Set(db.students.map((s) => s.program)).size} program`} accent="sky" />
         <StatCard
           label="Hadir hari ini"
-          value={tercatat ? `${hadir}/${adaJadwal && itemsToday.length ? scheduledToday.size : tercatat}` : "—"}
+          value={tercatat ? `${hadir}/${adaJadwal && itemsToday.length ? scheduledToday.size : tercatat}` : ""}
           sub={tercatat ? (adaJadwal && itemsToday.length ? "dari siswa terjadwal hari ini" : `${Math.round((hadir / tercatat) * 100)}% dari tercatat`) : "belum diisi"}
           accent="teal"
         />
@@ -73,7 +73,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
       </div>
 
       <SectionCard
-        title={`Jadwal les hari ini — ${todayName}`}
+        title={`Jadwal les hari ini, ${todayName}`}
         desc={itemsToday.length ? `${itemsToday.length} sesi · ${scheduledToday.size} siswa terjadwal` : "Tidak ada sesi hari ini"}
         action={
           <Button size="sm" variant="ghost" className="text-sky-700" onClick={() => setView("jadwal")}>
@@ -85,7 +85,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
           <p className="text-sm text-muted-foreground">
             {adaJadwal
               ? `Tidak ada slot les pada ${todayName}. Jadwal lanjut sesuai menu Jadwal.`
-              : "Jadwal mingguan belum diisi — atur slot & siswa di menu Jadwal."}
+              : "Jadwal mingguan belum diisi, atur slot & siswa di menu Jadwal."}
           </p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
@@ -100,7 +100,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-slate-700">{it.program}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {it.pengajar || "—"} · {it.kelas}
+                      {it.pengajar || ""} · {it.kelas}
                     </p>
                     <p className="mt-0.5 truncate text-xs font-semibold text-emerald-700">
                       {nama.length ? nama.join(", ") : "Belum ada peserta"}
@@ -132,7 +132,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                 : `Pembayaran berikutnya ${dueInDays} hari lagi`}
           </p>
           {belumLunas.length === 0 ? (
-            <p className="text-sm text-emerald-600">Semua iuran bulan ini sudah lunas 🎉</p>
+            <p className="text-sm text-emerald-700">Semua iuran bulan ini sudah lunas</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {belumLunas.slice(0, 5).map((s) => {
@@ -148,7 +148,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                     <a
                       href={waLink(
                         s.wa,
-                        `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga} — ${db.pengaturan.tagline}* mengingatkan iuran bulan *${MONTHS[now.getMonth()]} ${now.getFullYear()}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.\n\nBatas pembayaran: *${fmtDayDate(due)}*${dueInDays < 0 ? ` — telah terlewat ${-dueInDays} hari, mohon segera dilunasi` : dueInDays === 0 ? " (hari ini)" : ""}. Terima kasih atas perhatiannya 🙏`
+                        `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga}, ${db.pengaturan.tagline}* mengingatkan iuran bulan *${MONTHS[now.getMonth()]} ${now.getFullYear()}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.\n\nBatas pembayaran: *${fmtDayDate(due)}*${dueInDays < 0 ? `, telah terlewat ${-dueInDays} hari, mohon segera dilunasi` : dueInDays === 0 ? " (hari ini)" : ""}. Terima kasih atas perhatiannya 🙏`
                       )}
                       target="_blank"
                       rel="noreferrer"
@@ -189,7 +189,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
             </div>
           ) : (
             <EmptyState title="Belum ada catatan hari ini">
-              Tulis kegiatan &amp; progres di menu Jurnal — catatan ini otomatis jadi bahan laporan bulanan.
+              Tulis kegiatan &amp; progres di menu Jurnal, catatan ini otomatis jadi bahan laporan bulanan.
             </EmptyState>
           )}
         </SectionCard>

@@ -120,7 +120,7 @@ export function JurnalView() {
     if (tplDraft === null) return;
     if (tplDraft.trim() === "") {
       setTplDraft(null);
-      toast({ title: "Template kosong — kembali ke teks tersimpan.", variant: "destructive" });
+      toast({ title: "Template kosong, kembali ke teks tersimpan.", variant: "destructive" });
       return;
     }
     if (tplDraft !== tpl) {
@@ -173,9 +173,9 @@ export function JurnalView() {
       program: s.program,
       hari: DAYS[new Date(date + "T07:00:00").getDay()],
       tanggal: fmtDate(date),
-      kehadiran: att === "H" ? "Hadir 👍" : att === "I" ? "Izin" : att === "A" ? "Alpa" : "Belum dicatat",
-      kegiatan: activity.trim() || "—",
-      progres: progresKhusus || progress.trim() || "—",
+      kehadiran: att === "H" ? "Hadir" : att === "I" ? "Izin" : att === "A" ? "Alpa" : "Belum dicatat",
+      kegiatan: activity.trim() || "",
+      progres: progresKhusus || progress.trim() || "",
       rekap: stats.pct !== null ? `Rekap kehadiran bulan ini: ${stats.pct}%.` : "",
       lembaga: db.pengaturan.namaLembaga,
     };
@@ -189,7 +189,7 @@ export function JurnalView() {
     <div className="space-y-4">
       <SectionCard
         title="Catatan harian"
-        desc="Kegiatan umum & progres per siswa — pilih siswa di samping tanggal"
+        desc="Kegiatan umum & progres per siswa, pilih siswa di samping tanggal"
       >
         <div className="grid gap-3">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -206,7 +206,7 @@ export function JurnalView() {
                 <SelectContent>
                   <SelectItem value="umum">Umum (tanpa siswa)</SelectItem>
                   {db.students.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name} — {s.program}</SelectItem>
+                    <SelectItem key={s.id} value={s.id}>{s.name}, {s.program}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -220,12 +220,12 @@ export function JurnalView() {
               value={activity}
               onChange={(e) => setDraft({ ...entry, activity: e.target.value })}
               onBlur={commitActivity}
-              placeholder="cth. Calistung — latihan membaca suku kata & dikte kata sederhana…"
+              placeholder="cth. Calistung: latihan membaca suku kata & dikte kata sederhana…"
             />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="jr-prog">
-              {siswaTerpilih ? `Progres perkembangan — ${siswaTerpilih.name}` : "Progres perkembangan (umum)"}
+              {siswaTerpilih ? `Progres perkembangan, ${siswaTerpilih.name}` : "Progres perkembangan (umum)"}
             </Label>
             <Textarea
               id="jr-prog"
@@ -245,7 +245,7 @@ export function JurnalView() {
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
-                  className="gap-1.5 rounded-xl bg-emerald-600 font-bold hover:bg-emerald-700"
+                  className="gap-1.5 rounded-xl bg-emerald-700 font-bold hover:bg-emerald-800"
                   onClick={() => simpanProgres()}
                 >
                   <Save className="h-4 w-4" /> Simpan progres {siswaTerpilih.name.split(" ")[0]}
@@ -265,7 +265,7 @@ export function JurnalView() {
                     onClick={() => pilihSiswa(s!.id)}
                     className={cn(
                       "rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors",
-                      sid === s!.id ? "bg-emerald-600 text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                      sid === s!.id ? "bg-emerald-700 text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                     )}
                   >
                     {s!.name.split(" ")[0]}
@@ -279,7 +279,7 @@ export function JurnalView() {
 
       <SectionCard
         title="Template teks laporan WA"
-        desc="Teks dasar laporan harian — ketik {kurung} untuk data otomatis"
+        desc="Teks dasar laporan harian, ketik {kurung} untuk data otomatis"
         action={
           <div className="flex gap-2">
             {tplOpen && tpl !== DEFAULT_TEMPLATE_WA && (
@@ -290,7 +290,7 @@ export function JurnalView() {
             <Button
               size="sm"
               variant={tplOpen ? "default" : "outline"}
-              className={tplOpen ? "bg-sky-600 hover:bg-sky-700" : "border-sky-200 text-sky-700 hover:bg-sky-50"}
+              className={tplOpen ? "bg-sky-700 hover:bg-sky-800" : "border-sky-200 text-sky-700 hover:bg-sky-50"}
               onClick={() => {
                 setTplOpen(!tplOpen);
                 setTplDraft(null);
@@ -308,7 +308,7 @@ export function JurnalView() {
         ) : (
           <div className="grid gap-3">
             <div className="grid gap-1.5">
-              <Label htmlFor="jr-tpl">Template — tersimpan otomatis saat berpindah kolom</Label>
+              <Label htmlFor="jr-tpl">Template, tersimpan otomatis saat berpindah kolom</Label>
               <Textarea
                 id="jr-tpl"
                 rows={10}
@@ -337,7 +337,7 @@ export function JurnalView() {
             {previewSid && (
               <div className="grid gap-1.5">
                 <p className="text-xs font-bold text-slate-500">
-                  Pratinjau — {db.students.find((s) => s.id === previewSid)?.name}, {fmtDate(date)}
+                  Pratinjau, {db.students.find((s) => s.id === previewSid)?.name}, {fmtDate(date)}
                 </p>
                 <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-xs leading-relaxed text-slate-700">
                   {dailyText(previewSid)}
@@ -359,7 +359,7 @@ export function JurnalView() {
               </SelectTrigger>
               <SelectContent>
                 {db.students.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name} — {s.program}</SelectItem>
+                  <SelectItem key={s.id} value={s.id}>{s.name}, {s.program}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -375,7 +375,7 @@ export function JurnalView() {
                 <Copy className="h-4 w-4" /> Salin
               </Button>
               <Button
-                className="bg-emerald-500 hover:bg-emerald-600"
+                className="bg-emerald-700 hover:bg-emerald-800"
                 disabled={!waSid}
                 onClick={() => window.open(waLink(db.students.find((s) => s.id === waSid)!.wa, dailyText(waSid)), "_blank")}
               >
@@ -408,7 +408,7 @@ export function JurnalView() {
                         </span>
                       )}
                     </p>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">{e.activity || e.progress || "—"}</p>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">{e.activity || e.progress || ""}</p>
                   </button>
                 </li>
               );
@@ -417,7 +417,7 @@ export function JurnalView() {
         )}
       </SectionCard>
       <p className="text-center text-xs text-muted-foreground">
-        Bulan ini: {MONTHS[new Date().getMonth()]} — catatan jurnal otomatis menjadi bahan Laporan Perkembangan.
+        Bulan ini: {MONTHS[new Date().getMonth()]}, catatan jurnal otomatis menjadi bahan Laporan Perkembangan.
         <Check className="inline h-3 w-3 text-emerald-500" />
       </p>
     </div>

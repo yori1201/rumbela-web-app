@@ -160,7 +160,7 @@ export async function renderReportCanvas(
     ctx.fillText(judul, leftX, 126);
     ctx.font = "600 21px Nunito";
     ctx.globalAlpha = 0.92;
-    ctx.fillText(`${nama} — ${tagline}`, leftX, 160);
+    ctx.fillText(`${nama}, ${tagline}`, leftX, 160);
     ctx.globalAlpha = 1;
   };
 
@@ -201,7 +201,7 @@ export async function renderReportCanvas(
 
     // statistik
     const cards: [string, string, string][] = [
-      ["Kehadiran", stats.pct === null ? "—" : `${stats.pct}%`, "#f97316"],
+      ["Kehadiran", stats.pct === null ? "" : `${stats.pct}%`, "#f97316"],
       ["Hadir / Izin / Alpa", `${stats.h} / ${stats.i} / ${stats.a}`, "#0ea5e9"],
       ["Iuran Bulan Ini", pay === "lunas" ? "Lunas ✓" : pay === "sebagian" ? "Sebagian" : "Belum", pay === "lunas" ? "#22c55e" : pay === "sebagian" ? "#f59e0b" : "#ef4444"],
     ];
@@ -310,7 +310,7 @@ export async function renderReportCanvas(
     ctx.fillText(judul, leftX, 106);
     ctx.font = "600 23px Nunito";
     ctx.globalAlpha = 0.9;
-    ctx.fillText(`${nama} — ${tagline}`, leftX, 142);
+    ctx.fillText(`${nama}, ${tagline}`, leftX, 142);
     ctx.globalAlpha = 1;
 
     let y = 240;
@@ -416,7 +416,7 @@ export async function renderReportCanvas(
 
     ctx.fillStyle = "#f97316";
     ctx.font = "800 88px Nunito";
-    ctx.fillText(stats.pct === null ? "—" : `${stats.pct}%`, 60, 480);
+    ctx.fillText(stats.pct === null ? "" : `${stats.pct}%`, 60, 480);
     ctx.fillStyle = "#6b7280";
     ctx.font = "700 22px Nunito";
     ctx.fillText("tingkat kehadiran", 60, 514);

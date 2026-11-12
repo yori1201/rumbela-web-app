@@ -24,9 +24,9 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 const CELL: Record<PayStatus, string> = {
-  lunas: "bg-emerald-500 text-white",
-  sebagian: "bg-amber-400 text-white",
-  belum: "bg-slate-100 text-slate-400 hover:bg-slate-200",
+  lunas: "bg-emerald-700 text-white",
+  sebagian: "bg-amber-700 text-white",
+  belum: "bg-slate-100 text-slate-600 hover:bg-slate-200",
 };
 const SHORT: Record<PayStatus, string> = { lunas: "L", sebagian: "S", belum: "·" };
 const LABEL: Record<PayStatus, string> = { lunas: "Lunas", sebagian: "Sebagian", belum: "Belum" };
@@ -263,7 +263,7 @@ export function IuranView() {
               style={{ width: `${target ? Math.round((terkumpul / target) * 100) : 0}%` }}
             />
           </div>
-          <span className="shrink-0 text-sm font-bold text-emerald-600">
+          <span className="shrink-0 text-sm font-bold text-emerald-700">
             {lunasCount}/{db.students.length} lunas
           </span>
         </div>
@@ -390,7 +390,7 @@ export function IuranView() {
                       <button
                         onClick={() => openKwit(s.id)}
                         title={`Kwitansi & kirim bukti WA, ${monthLabel(thisMk)}`}
-                        className="inline-grid h-8 w-8 place-items-center rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100"
+                        className="inline-grid h-11 w-11 place-items-center rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100"
                       >
                         <Receipt className="h-4 w-4" />
                       </button>
@@ -399,7 +399,7 @@ export function IuranView() {
                         target="_blank"
                         rel="noreferrer"
                         title="Ingatkan via WhatsApp"
-                        className="inline-grid h-8 w-8 place-items-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                        className="inline-grid h-11 w-11 place-items-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                       >
                         <MessageCircle className="h-4 w-4" />
                       </a>
@@ -471,7 +471,7 @@ export function IuranView() {
                     "rounded-xl border-2 py-2 text-sm font-extrabold transition-all",
                     st === "lunas" && "text-emerald-700",
                     st === "sebagian" && "text-amber-700",
-                    st === "belum" && "text-slate-500",
+                    st === "belum" && "text-slate-600",
                     editSt === st
                       ? st === "lunas"
                         ? "border-emerald-400 bg-emerald-50"
@@ -560,7 +560,7 @@ export function IuranView() {
               </Button>
             )}
             <Button
-              className="bg-sky-600 hover:bg-sky-700"
+              className="bg-sky-700 hover:bg-sky-800"
               onClick={() => {
                 if (amountDraft !== null) commitAmount(amountDraft);
                 setEditPay(null);
@@ -625,7 +625,7 @@ export function IuranView() {
               <Copy className="h-4 w-4" /> Salin teks
             </Button>
             {kwitSiswa && (
-              <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+              <Button asChild className="bg-emerald-700 hover:bg-emerald-800">
                 <a href={kwitansiWaLink(db, kwitSiswa, kwit!.mk)} target="_blank" rel="noreferrer">
                   <MessageCircle className="h-4 w-4" /> Kirim WA
                 </a>

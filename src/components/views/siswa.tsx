@@ -99,14 +99,14 @@ export function SiswaView() {
         title={`Daftar siswa (${filtered.length})`}
         desc="Semua data tersimpan otomatis"
         action={
-          <Button size="sm" className="bg-sky-600 hover:bg-sky-700" onClick={openNew}>
+          <Button size="sm" className="bg-sky-700 hover:bg-sky-800" onClick={openNew}>
             <UserPlus className="h-4 w-4" /> Tambah siswa
           </Button>
         }
       >
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari nama anak / orang tua…" className="pl-9" />
           </div>
           <Select value={fProgram} onValueChange={setFProgram}>
@@ -125,7 +125,7 @@ export function SiswaView() {
 
       {filtered.length === 0 ? (
         <EmptyState title="Belum ada siswa">
-          Tekan <b>Tambah siswa</b> untuk memulai — nama, orang tua, nomor WA, program, dan iuran bulanan.
+          Tekan <b>Tambah siswa</b> untuk memulai: nama, orang tua, nomor WA, program, dan iuran bulanan.
         </EmptyState>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -144,7 +144,7 @@ export function SiswaView() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" aria-label="Menu siswa">
+                    <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" aria-label="Menu siswa">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -253,7 +253,7 @@ export function SiswaView() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-            <Button className="bg-sky-600 hover:bg-sky-700" onClick={save}>
+            <Button className="bg-sky-700 hover:bg-sky-800" onClick={save}>
               {editing ? "Simpan perubahan" : "Tambah siswa"}
             </Button>
           </DialogFooter>

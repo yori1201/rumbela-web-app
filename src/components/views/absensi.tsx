@@ -15,9 +15,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const OPTS: { v: AttStatus; label: string; on: string; off: string }[] = [
-  { v: "H", label: "Hadir", on: "bg-emerald-500 text-white", off: "text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100" },
-  { v: "I", label: "Izin", on: "bg-sky-500 text-white", off: "text-sky-700 bg-sky-50/50 hover:bg-sky-100" },
-  { v: "A", label: "Alpa", on: "bg-rose-500 text-white", off: "text-rose-700 bg-rose-50/50 hover:bg-rose-100" },
+  { v: "H", label: "Hadir", on: "bg-emerald-700 text-white", off: "text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100" },
+  { v: "I", label: "Izin", on: "bg-sky-700 text-white", off: "text-sky-700 bg-sky-50/50 hover:bg-sky-100" },
+  { v: "A", label: "Alpa", on: "bg-rose-700 text-white", off: "text-rose-700 bg-rose-50/50 hover:bg-rose-100" },
 ];
 
 export function AbsensiView() {
@@ -95,7 +95,7 @@ export function AbsensiView() {
               aria-pressed={!semuaMode}
               className={cn(
                 "flex items-center gap-1.5 px-3 py-2 font-bold transition-colors",
-                !semuaMode ? "bg-sky-600 text-white" : "bg-white text-slate-500 hover:bg-sky-50"
+                !semuaMode ? "bg-sky-700 text-white" : "bg-white text-slate-500 hover:bg-sky-50"
               )}
             >
               <Users className="h-4 w-4" /> Berjadwal
@@ -105,7 +105,7 @@ export function AbsensiView() {
               aria-pressed={semuaMode}
               className={cn(
                 "px-3 py-2 font-bold transition-colors",
-                semuaMode ? "bg-sky-600 text-white" : "bg-white text-slate-500 hover:bg-sky-50"
+                semuaMode ? "bg-sky-700 text-white" : "bg-white text-slate-500 hover:bg-sky-50"
               )}
             >
               Semua
@@ -114,7 +114,7 @@ export function AbsensiView() {
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {hanyaJadwal ? (
-            <>Menampilkan <b>{students.length} siswa</b> yang punya jadwal les di {dayName} — sesuai menu Jadwal.</>
+            <>Menampilkan <b>{students.length} siswa</b> yang punya jadwal les di {dayName}, sesuai menu Jadwal.</>
           ) : jadwalTerisi ? (
             <>Menampilkan <b>semua siswa</b>. Isi jadwal di menu Jadwal agar absensi otomatis mengikuti jadwal harian.</>
           ) : (
@@ -137,7 +137,7 @@ export function AbsensiView() {
       ) : (
         <div className="space-y-2">
           <p className="px-1 text-xs text-muted-foreground">
-            Ketuk <b>Hadir / Izin / Alpa</b> untuk mencatat — ketuk status yang sama sekali lagi untuk <b>membatalkan</b>.
+            Ketuk <b>Hadir / Izin / Alpa</b> untuk mencatat, ketuk status yang sama sekali lagi untuk <b>membatalkan</b>.
           </p>
           {students.map((s) => {
             const slots = slotLabelsForStudent(db, dayName, s.id);
@@ -182,8 +182,8 @@ export function AbsensiView() {
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs text-slate-500">
                   <th className="py-2 pr-3 font-bold">Siswa</th>
-                  <th className="px-2 py-2 text-center font-bold text-emerald-600">Hadir</th>
-                  <th className="px-2 py-2 text-center font-bold text-sky-600">Izin</th>
+                  <th className="px-2 py-2 text-center font-bold text-emerald-700">Hadir</th>
+                  <th className="px-2 py-2 text-center font-bold text-sky-700">Izin</th>
                   <th className="px-2 py-2 text-center font-bold text-rose-600">Alpa</th>
                   <th className="px-2 py-2 text-right font-bold">% Hadir</th>
                 </tr>
@@ -201,10 +201,10 @@ export function AbsensiView() {
                   return (
                     <tr key={s.id}>
                       <td className="py-2.5 pr-3 font-semibold text-slate-700">{s.name}</td>
-                      <td className="px-2 py-2.5 text-center font-bold text-emerald-600">{h}</td>
-                      <td className="px-2 py-2.5 text-center font-bold text-sky-600">{i}</td>
+                      <td className="px-2 py-2.5 text-center font-bold text-emerald-700">{h}</td>
+                      <td className="px-2 py-2.5 text-center font-bold text-sky-700">{i}</td>
                       <td className="px-2 py-2.5 text-center font-bold text-rose-600">{a}</td>
-                      <td className="px-2 py-2.5 text-right font-bold text-slate-700">{tot ? Math.round((h / tot) * 100) + "%" : "—"}</td>
+                      <td className="px-2 py-2.5 text-right font-bold text-slate-700">{tot ? Math.round((h / tot) * 100) + "%" : ""}</td>
                     </tr>
                   );
                 })}
