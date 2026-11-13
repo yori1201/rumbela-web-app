@@ -254,10 +254,10 @@ function header(
   const by = 46, bh = 96;
   box(ctx, bx, by, bw, bh, 20, { fill: grad(ctx, bx, bw, jenis === "kunci" ? WS.bannerKunciGrad : WS.bannerGrad) });
   ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  ctx.fillStyle = "#FFFFFF";
   ctx.font = font(800, 15);
   ctx.fillText(
-    `${jenis === "kunci" ? "KUNCI JAWABAN" : "WORKSHEET"} · ${(ws.mapel || "—").toUpperCase()}`,
+    `${jenis === "kunci" ? "KUNCI JAWABAN" : "WORKSHEET"}${ws.mapel ? " · " + ws.mapel.toUpperCase() : ""}`,
     bx + bw / 2, by + 30
   );
   ctx.fillStyle = "#FFFFFF";
@@ -301,7 +301,7 @@ function header(
   star(ctx, sbx + sbw - 26, sby + 24, 11, WS.star);
   ctx.fillStyle = "#EC5F94";
   ctx.font = font(800, 15);
-  const sapaan = jenis === "kunci" ? "Khusus tutor — jangan dibocorkan, ya!" : "Ayo, kerjakan dengan teliti, ya!";
+  const sapaan = jenis === "kunci" ? "Khusus tutor, jangan dibocorkan, ya!" : "Ayo, kerjakan dengan teliti, ya!";
   wrapLines(ctx, sapaan, sbw - 34).forEach((ln, i) => ctx.fillText(ln, sbx + sbw / 2, sby + 44 + i * 22));
   ctx.textAlign = "left";
 
@@ -355,7 +355,7 @@ function footerRibbon(ctx: CanvasRenderingContext2D, y: number, kunci: boolean):
   ctx.font = font(500, 15);
   ctx.fillStyle = WS.mut;
   ctx.fillText(
-    `Rumbela — Rumah Belajar Anak · Curup · ${new Date().getFullYear()}`,
+    `Rumbela, Rumah Belajar Anak · Curup · ${new Date().getFullYear()}`,
     W / 2, y + 88
   );
   ctx.textAlign = "left";

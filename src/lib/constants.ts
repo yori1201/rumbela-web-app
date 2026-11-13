@@ -32,8 +32,8 @@ export const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sab
 export const HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export const WARNA_JADWAL = [
-  "#f97316", "#3b82f6", "#22c55e", "#eab308",
-  "#a855f7", "#ec4899", "#14b8a6", "#ef4444",
+  "#c2410c", "#1d4ed8", "#15803d", "#a16207",
+  "#7e22ce", "#be185d", "#0f766e", "#b91c1c",
 ];
 
 export const DEFAULT_SLOTS = [
@@ -89,14 +89,14 @@ export function currentMonthKey(): string {
 }
 
 export function fmtDate(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   const p = iso.split("-");
   if (p.length < 3) return iso;
   return `${Number(p[2])} ${MONTHS[Number(p[1]) - 1]} ${p[0]}`;
 }
 
 export function fmtDateShort(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   const p = iso.split("-");
   if (p.length < 3) return iso;
   return `${Number(p[2])} ${MONTHS_SHORT[Number(p[1]) - 1]}`;
@@ -121,7 +121,7 @@ export function fmtDayDateShort(d: Date): string {
 /** Template bawaan laporan harian WA (fitur Jurnal). */
 export const DEFAULT_TEMPLATE_WA = `Assalamu'alaikum Bapak/Ibu {orangtua},
 
-Berikut laporan harian ananda *{nama}* ({program}) — *{hari}, {tanggal}* di {lembaga}:
+Berikut laporan harian ananda *{nama}* ({program}), *{hari}, {tanggal}* di {lembaga}:
 
 • Kehadiran: {kehadiran}
 • Kegiatan: {kegiatan}

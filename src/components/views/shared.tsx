@@ -12,9 +12,9 @@ export function StatCard({ label, value, sub, accent = "emerald" }: { label: str
   };
   return (
     <div className={cn("rounded-2xl border p-4", accents[accent])}>
-      <p className="text-xs font-bold uppercase tracking-wide opacity-80">{label}</p>
+      <p className="text-xs font-bold uppercase tracking-wide">{label}</p>
       <p className="mt-1 text-2xl font-extrabold">{value}</p>
-      {sub && <p className="mt-0.5 text-xs opacity-75">{sub}</p>}
+      {sub && <p className="mt-0.5 text-xs">{sub}</p>}
     </div>
   );
 }
@@ -53,7 +53,7 @@ export function StarInput({ value, onChange, size = 22 }: { value: number; onCha
           role="radio"
           aria-checked={value === n}
           aria-label={`${n} bintang`}
-          className="p-0.5 transition-transform hover:scale-110"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center p-0.5 transition-transform hover:scale-110"
           onClick={() => onChange(value === n ? n - 1 : n)}
         >
           <Star
@@ -69,7 +69,7 @@ export function StarInput({ value, onChange, size = 22 }: { value: number; onCha
 export const CHIP: Record<string, string> = {
   lunas: "bg-emerald-100 text-emerald-700",
   sebagian: "bg-amber-100 text-amber-700",
-  belum: "bg-slate-100 text-slate-500",
+  belum: "bg-slate-100 text-slate-600",
   H: "bg-emerald-100 text-emerald-700",
   I: "bg-sky-100 text-sky-700",
   A: "bg-rose-100 text-rose-700",

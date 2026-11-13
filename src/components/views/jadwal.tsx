@@ -118,7 +118,7 @@ export function JadwalView() {
                     onClick={() => setActiveKelas(name)}
                     className={cn(
                       "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
-                      k === name ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-700"
+                      k === name ? "bg-sky-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-700"
                     )}
                     aria-pressed={k === name}
                   >
@@ -126,7 +126,7 @@ export function JadwalView() {
                   </button>
                   <button
                     onClick={() => removeKelas(name)}
-                    className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-slate-300 text-[9px] text-white hover:bg-red-500"
+                    className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-slate-500 text-[9px] text-white hover:bg-red-500"
                     aria-label={`Hapus kelas ${name}`}
                     title="Hapus kelas"
                   >
@@ -145,7 +145,7 @@ export function JadwalView() {
                     {slots.map((s, i) => (
                       <th key={i} className="pb-1 text-xs font-bold text-slate-500">
                         Slot {i + 1}
-                        <span className="block font-semibold text-slate-400">{s.mulai}–{s.selesai}</span>
+                        <span className="block font-semibold text-slate-500">{s.mulai}–{s.selesai}</span>
                       </th>
                     ))}
                   </tr>
@@ -162,7 +162,7 @@ export function JadwalView() {
                               onClick={() => openCell(h, si)}
                               className={cn(
                                 "grid h-16 w-full place-items-center rounded-xl border text-left transition-all hover:scale-[1.02] active:scale-95",
-                                it ? "border-transparent text-white shadow-sm" : "border-dashed border-slate-200 bg-slate-50/60 text-slate-300 hover:border-sky-300 hover:text-sky-300"
+                                it ? "border-transparent text-white shadow-sm" : "border-dashed border-slate-200 bg-slate-50/60 text-slate-400 hover:border-sky-300 hover:text-sky-300"
                               )}
                               style={it ? { backgroundColor: it.warna } : undefined}
                               aria-label={`${h} slot ${si + 1}: ${it ? it.program : "kosong"}`}
@@ -170,8 +170,8 @@ export function JadwalView() {
                               {it ? (
                                 <span className="px-2 text-center leading-tight">
                                   <span className="block truncate text-xs font-extrabold">{it.program}</span>
-                                  <span className="block truncate text-[11px] opacity-90">{it.pengajar || "—"}</span>
-                                  <span className="block truncate text-[10px] opacity-80">{labelSiswa(db, it)}</span>
+                                  <span className="block truncate text-[11px]">{it.pengajar || ""}</span>
+                                  <span className="block truncate text-[10px]">{labelSiswa(db, it)}</span>
                                 </span>
                               ) : (
                                 <Plus className="h-4 w-4" />
@@ -194,8 +194,8 @@ export function JadwalView() {
                     key={h}
                     onClick={() => setHariMobile(h)}
                     className={cn(
-                      "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-bold",
-                      hariMobile === h ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-600"
+                      "min-h-[44px] shrink-0 rounded-full px-3.5 py-1.5 text-sm font-bold",
+                      hariMobile === h ? "bg-sky-700 text-white" : "bg-slate-100 text-slate-600"
                     )}
                     aria-pressed={hariMobile === h}
                   >
@@ -220,11 +220,11 @@ export function JadwalView() {
                         {s.mulai}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className={cn("block truncate text-sm font-extrabold", !it && "text-slate-400")}>
-                          {it ? it.program : "Kosong — ketuk untuk isi"}
+                        <span className={cn("block truncate text-sm font-extrabold", !it && "text-slate-500")}>
+                          {it ? it.program : "Kosong, ketuk untuk isi"}
                         </span>
-                        {it && <span className="block truncate text-xs opacity-90">{it.pengajar || "—"} · s/d {s.selesai}</span>}
-                        {it && <span className="block truncate text-[11px] opacity-80">{labelSiswa(db, it)}</span>}
+                        {it && <span className="block truncate text-xs">{it.pengajar || ""} · s/d {s.selesai}</span>}
+                        {it && <span className="block truncate text-[11px]">{labelSiswa(db, it)}</span>}
                       </span>
                     </button>
                   );
@@ -269,7 +269,7 @@ export function JadwalView() {
           </DialogHeader>
           <Input value={newKelas} onChange={(e) => setNewKelas(e.target.value)} placeholder="Nama kelas" onKeyDown={(e) => e.key === "Enter" && addKelas()} />
           <DialogFooter>
-            <Button className="w-full bg-sky-600 hover:bg-sky-700" onClick={addKelas} disabled={!newKelas.trim()}>
+            <Button className="w-full bg-sky-700 hover:bg-sky-800" onClick={addKelas} disabled={!newKelas.trim()}>
               Tambah
             </Button>
           </DialogFooter>
@@ -336,7 +336,7 @@ function CellForm({
           </div>
         </div>
         <div className="max-h-44 space-y-1 overflow-y-auto rounded-xl border border-slate-100 p-2" aria-label="Daftar siswa peserta slot">
-          {students.length === 0 && <p className="p-2 text-xs text-muted-foreground">Belum ada siswa — tambahkan di menu Siswa.</p>}
+          {students.length === 0 && <p className="p-2 text-xs text-muted-foreground">Belum ada siswa, tambahkan di menu Siswa.</p>}
           {students.map((s) => {
             const on = dipilih.has(s.id);
             const bedaKelas = s.group && s.group !== kelasName;
@@ -354,7 +354,7 @@ function CellForm({
                 <span
                   className={cn(
                     "grid h-4.5 w-4.5 shrink-0 place-items-center rounded border",
-                    on ? "border-sky-600 bg-sky-600 text-white" : "border-slate-300 bg-white"
+                    on ? "border-sky-700 bg-sky-700 text-white" : "border-slate-300 bg-white"
                   )}
                   style={{ width: 18, height: 18 }}
                 >
@@ -376,7 +376,7 @@ function CellForm({
               key={c}
               type="button"
               onClick={() => setWarna(c)}
-              className={cn("h-8 w-8 rounded-full transition-transform", warna === c ? "scale-110 ring-2 ring-slate-700 ring-offset-2" : "hover:scale-105")}
+              className={cn("h-11 w-11 rounded-full transition-transform", warna === c ? "scale-110 ring-2 ring-slate-700 ring-offset-2" : "hover:scale-105")}
               style={{ backgroundColor: c }}
               aria-label={`Warna ${c}`}
               aria-pressed={warna === c}
@@ -390,7 +390,7 @@ function CellForm({
             <Trash2 className="h-4 w-4" /> Kosongkan
           </Button>
         ) : <span />}
-        <Button className="bg-sky-600 hover:bg-sky-700" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna, Array.from(dipilih))} disabled={!program.trim()}>
+        <Button className="bg-sky-700 hover:bg-sky-800" onClick={() => program.trim() && onSave(program.trim(), pengajar.trim(), warna, Array.from(dipilih))} disabled={!program.trim()}>
           Simpan
         </Button>
       </DialogFooter>
@@ -436,14 +436,14 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
         <div className="space-y-2">
           {draft.map((s, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="w-12 shrink-0 text-center text-xs font-bold text-slate-400">Slot {i + 1}</span>
+              <span className="w-12 shrink-0 text-center text-xs font-bold text-slate-500">Slot {i + 1}</span>
               <Input type="time" value={s.mulai} onChange={(e) => setDraft(draft.map((x, j) => (j === i ? { ...x, mulai: e.target.value } : x)))} />
-              <span className="text-slate-400">–</span>
+              <span className="text-slate-500">–</span>
               <Input type="time" value={s.selesai} onChange={(e) => setDraft(draft.map((x, j) => (j === i ? { ...x, selesai: e.target.value } : x)))} />
               <Button
                 variant="ghost"
                 size="icon"
-                className="shrink-0 text-slate-400 hover:text-red-500"
+                className="shrink-0 text-slate-500 hover:text-red-500"
                 onClick={() => setDraft(draft.filter((_, j) => j !== i))}
                 aria-label="Hapus slot"
               >
@@ -458,7 +458,7 @@ function SlotsEditor({ onOpenChange }: { onOpenChange: (o: boolean) => void }) {
           )}
         </div>
         <DialogFooter>
-          <Button className="w-full bg-sky-600 hover:bg-sky-700" onClick={apply}>Terapkan</Button>
+          <Button className="w-full bg-sky-700 hover:bg-sky-800" onClick={apply}>Terapkan</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

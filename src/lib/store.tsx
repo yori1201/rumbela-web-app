@@ -121,7 +121,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
     if (mode !== "gdrive") return; // mode cache: menunggu sambung ulang
     if (!hasValidToken()) {
-      setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir — sambung ulang untuk menyimpan." }));
+      setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir, sambung ulang untuk menyimpan." }));
       return;
     }
     if (!dirtyRef.current && !force) return;
@@ -142,7 +142,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const e = err as DriveErr;
       if (e?.status === 401) {
         tokenRef.current = null;
-        setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir — sambung ulang untuk menyimpan." }));
+        setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir, sambung ulang untuk menyimpan." }));
       } else {
         setSync((s) => ({
           ...s,
@@ -217,7 +217,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const e = err as DriveErr;
         if (e?.status === 401) {
           tokenRef.current = null;
-          setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir — sambung ulang." }));
+          setSync((s) => ({ ...s, status: "renew", message: "Sesi Google berakhir, sambung ulang." }));
           throw e;
         }
         setSync((s) => ({
@@ -226,7 +226,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           loadError:
             (e?.detail || "Gagal memuat database dari Drive.") +
             (e?.apiDisabled
-              ? " Google Drive API belum aktif — buka Google Cloud Console → APIs & Services → Library → Google Drive API → Enable."
+              ? " Google Drive API belum aktif, buka Google Cloud Console → APIs & Services → Library → Google Drive API → Enable."
               : " Auto-save dijeda agar data di Drive tidak tertimpa. Klik 'Coba muat lagi'."),
           apiDisabled: !!e?.apiDisabled,
         }));
@@ -428,7 +428,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               setAuthMode("cache");
               setEmail(sess?.email || "");
               cacheUsed = true;
-              setSync((s) => ({ ...s, status: "renew", fileId: fileIdRef.current, message: "Sesi Google berakhir — sambung ulang untuk melanjutkan auto-save." }));
+              setSync((s) => ({ ...s, status: "renew", fileId: fileIdRef.current, message: "Sesi Google berakhir, sambung ulang untuk melanjutkan auto-save." }));
             }
           }
         } catch { /* abaikan */ }

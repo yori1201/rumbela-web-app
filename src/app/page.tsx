@@ -44,7 +44,7 @@ function Inner() {
       <div className="grid min-h-screen place-items-center bg-[#fdf8f3]">
         <div className="animate-pulse text-center">
           <Image src="/logo.webp" alt="Rumbela" width={96} height={96} className="mx-auto" priority />
-          <p className="mt-2 text-sm font-bold text-sky-600">Memuat Rumbela…</p>
+          <p className="mt-2 text-sm font-bold text-sky-700">Memuat Rumbela…</p>
         </div>
       </div>
     );

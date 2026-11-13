@@ -31,17 +31,17 @@ export const WS = {
   pageBg: "#FFFFFF",
   kunciBg: "#FFFFFF",
   ink: "#25406B",
-  bannerGrad: ["#1E88E9", "#39A7F0"],
-  bannerKunciGrad: ["#1F9D55", "#43C680"],
+  bannerGrad: ["#1565C0", "#0D47A1"],
+  bannerKunciGrad: ["#1B7A43", "#15803D"],
   pillYellow: "#FFC93D",
-  pillYellowInk: "#8A5A00",
+  pillYellowInk: "#6B4300",
   idBoxBg: "#FFFFFF",
   idBoxBorder: "#A9BCD4",
   petunjukBg: "#FFFFFF",
   petunjukBorder: "#D5DDE9",
   petunjukInk: "#44557A",
   footerGrad: ["#1E88E9", "#2FA968"],
-  mut: "#7C93B5",
+  mut: "#5A6B8A",
   star: "#FFC93D",
   cloud: "#FFFFFF",
 } as const;
@@ -110,12 +110,12 @@ export function isEquationLike(q: WorksheetQ): boolean {
 
 /** kunci ringkas satu soal (dipakai lembar kunci) */
 export function answerOf(q: WorksheetQ): string {
-  if (q.kind === "pg" && q.options?.length) return q.answer.toUpperCase() || "—";
+  if (q.kind === "pg" && q.options?.length) return q.answer.toUpperCase() || "";
   if (q.kind === "jodoh" && q.pairs?.length) {
     const order = shuffledOrder(q.pairs.length, q.id);
     return q.pairs
       .map((p, i) => `${i + 1}-${LETTERS[order.indexOf(i)]}`)
       .join(" · ");
   }
-  return q.answer || "—";
+  return q.answer || "";
 }

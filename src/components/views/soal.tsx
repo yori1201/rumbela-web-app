@@ -274,15 +274,15 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
 
       {/* ===== kop ===== */}
       <div className="relative flex items-start justify-between gap-3">
-        <Image src="/logo.webp" alt="Rumbela — Rumah Belajar Anak" width={150} height={138} className="h-auto w-[150px] shrink-0" priority />
+        <Image src="/logo.webp" alt="Rumbela, Rumah Belajar Anak" width={150} height={138} className="h-auto w-[150px] shrink-0" priority />
 
         <div className="min-w-0 flex-1 text-center">
           <div
             className="rounded-2xl px-6 py-3 text-white shadow"
             style={{ background: `linear-gradient(90deg, ${(kunci ? WS.bannerKunciGrad : WS.bannerGrad).join(", ")})` }}
           >
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/85">
-              {kunci ? "Kunci Jawaban" : "Worksheet"} · {ws.mapel || "—"}
+            <p className="text-[11px] font-extrabold uppercase tracking-wide text-white">
+              {kunci ? "Kunci Jawaban" : "Worksheet"}{ws.mapel ? ` · ${ws.mapel}` : ""}
             </p>
             <h3 className="truncate text-[26px] font-black leading-tight">{ws.topik || "Latihan"}</h3>
           </div>
@@ -300,7 +300,7 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
             style={{ borderColor: "#F2A0BE", color: "#EC5F94" }}
           >
             <Bintang size={15} className="absolute -right-1.5 -top-2" />
-            {kunci ? "Khusus tutor — jangan dibocorkan, ya!" : "Ayo, kerjakan dengan teliti, ya!"}
+            {kunci ? "Khusus tutor, jangan dibocorkan, ya!" : "Ayo, kerjakan dengan teliti, ya!"}
           </div>
           <div
             className="absolute -bottom-[9px] left-6 h-4 w-4 rotate-45 border-b-[2.5px] border-r-[2.5px] bg-white"
@@ -390,7 +390,7 @@ function SheetHTML({ ws, jenis }: { ws: Worksheet; jenis: "soal" | "kunci" }) {
           <Hati />
         </div>
         <p className="mt-3 text-[12px] font-medium" style={{ color: WS.mut }}>
-          Rumbela — Rumah Belajar Anak · Curup · {tahun}
+          Rumbela, Rumah Belajar Anak · Curup · {tahun}
         </p>
       </div>
     </div>
@@ -432,7 +432,7 @@ function SoalEditor({ qs, onChange }: { qs: WorksheetQ[]; onChange: (qs: Workshe
             <button
               type="button"
               aria-label="Hapus soal"
-              className="ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+              className="ml-auto rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600"
               onClick={() => onChange(qs.length > 1 ? qs.filter((x) => x.id !== q.id) : qs)}
             >
               <Trash2 className="h-4 w-4" />
@@ -453,8 +453,8 @@ function SoalEditor({ qs, onChange }: { qs: WorksheetQ[]; onChange: (qs: Workshe
                     type="button"
                     onClick={() => ubah(q.id, (x) => ({ ...x, answer: x.answer === LETTERS[oi] ? "" : LETTERS[oi] }))}
                     className={cn(
-                      "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
-                      q.answer === LETTERS[oi] ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white text-slate-400 hover:border-emerald-300"
+                      "grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 text-xs font-black transition-colors",
+                      q.answer === LETTERS[oi] ? "border-emerald-700 bg-emerald-700 text-white" : "border-slate-300 bg-white text-slate-500 hover:border-emerald-300"
                     )}
                     title={q.answer === LETTERS[oi] ? "Kunci jawaban" : "Tandai sebagai kunci"}
                   >
@@ -503,13 +503,13 @@ function SoalEditor({ qs, onChange }: { qs: WorksheetQ[]; onChange: (qs: Workshe
                 onChange={(e) =>
                   ubah(q.id, (x) => ({ ...x, words: e.target.value.split(",").map((w) => w.trim()) }))
                 }
-                placeholder="Kata acak, pisahkan koma — cth. am, I, student, a"
+                placeholder="Kata acak, pisahkan koma: cth. am, I, student, a"
                 className="h-8 bg-white text-sm"
               />
               <Input
                 value={q.answer}
                 onChange={(e) => ubah(q.id, (x) => ({ ...x, answer: e.target.value }))}
-                placeholder="Kunci: kalimat utuh — cth. I am a student"
+                placeholder="Kunci: kalimat utuh: cth. I am a student"
                 className="h-8 bg-white text-sm"
               />
             </div>
@@ -751,7 +751,7 @@ export function SoalView() {
         <div className="space-y-4">
           <SectionCard
             title="Susun worksheet"
-            desc="Penggunaan internal Rumbela — lembar latihan ceria khusus"
+            desc="Penggunaan internal Rumbela, lembar latihan ceria khusus"
           >
             {/* mode */}
             <div className="grid grid-cols-2 gap-2">
@@ -764,7 +764,7 @@ export function SoalView() {
                 )}
               >
                 <Wand2 className="mb-1 h-4 w-4" /> Otomatis
-                <span className="block text-[11px] font-semibold opacity-75">5 bank generator mapel</span>
+                <span className="block text-[11px] font-semibold">5 bank generator mapel</span>
               </button>
               <button
                 type="button"
@@ -775,7 +775,7 @@ export function SoalView() {
                 )}
               >
                 <BookPlus className="mb-1 h-4 w-4" /> Tulis sendiri
-                <span className="block text-[11px] font-semibold opacity-75">Semua mata pelajaran</span>
+                <span className="block text-[11px] font-semibold">Semua mata pelajaran</span>
               </button>
             </div>
 
@@ -787,7 +787,7 @@ export function SoalView() {
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {GEN_MAPEL.map((g) => (
-                      <SelectItem key={g.id} value={g.id}>{g.label} — {g.rentang}</SelectItem>
+                      <SelectItem key={g.id} value={g.id}>{g.label}, {g.rentang}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -816,7 +816,7 @@ export function SoalView() {
                         onClick={() => gantiJenjangKelas(j)}
                         className={cn(
                           "flex-1 py-2 text-sm font-bold transition-colors",
-                          jenjang === j ? "bg-sky-600 text-white" : tersedia ? "bg-white text-slate-500 hover:bg-sky-50" : "cursor-not-allowed bg-slate-100 text-slate-300"
+                          jenjang === j ? "bg-sky-700 text-white" : tersedia ? "bg-white text-slate-500 hover:bg-sky-50" : "cursor-not-allowed bg-slate-100 text-slate-300"
                         )}
                       >
                         {j}
@@ -844,7 +844,7 @@ export function SoalView() {
                 <Label>Topik soal</Label>
                 {campuran ? (
                   <div className="rounded-lg border-2 border-dashed border-emerald-200 bg-emerald-50/60 px-3 py-2.5 text-xs font-semibold text-emerald-700">
-                    Paket campuran aktif — semua topik kelas {jenjang} {kelas} digabung jadi seksi A, B, C…
+                    Paket campuran aktif, semua topik kelas {jenjang} {kelas} digabung jadi seksi A, B, C…
                   </div>
                 ) : (
                   <Select value={topikId} onValueChange={gantiTopik}>
@@ -858,17 +858,17 @@ export function SoalView() {
                 )}
                 {genMapel === "kiddo" && (
                   <p className="flex flex-wrap items-center gap-1 text-[11px] leading-relaxed text-muted-foreground">
-                    <BookPlus className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    <BookPlus className="h-3.5 w-3.5 shrink-0 text-emerald-700" />
                     Materi bank Kiddo mengikuti kategori worksheet
                     <a
                       href={KIDDO_SOURCE}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-0.5 font-bold text-sky-600 underline decoration-dotted underline-offset-2 hover:text-sky-700"
+                      className="inline-flex items-center gap-0.5 font-bold text-sky-700 underline decoration-dotted underline-offset-2 hover:text-sky-700"
                     >
                       kiddoworksheets.com <ExternalLink className="h-3 w-3" />
                     </a>
-                    — alphabet, angka, berhitung, kosakata, bentuk, pola, bagian tubuh.
+                    alphabet, angka, berhitung, kosakata, bentuk, pola, bagian tubuh.
                   </p>
                 )}
               </div>
@@ -908,7 +908,7 @@ export function SoalView() {
                         onClick={() => setKesulitan(Number(v) as Kesulitan)}
                         className={cn(
                           "flex-1 py-2 text-xs font-bold transition-colors",
-                          kesulitan === Number(v) ? "bg-emerald-500 text-white" : "bg-white text-slate-500 hover:bg-emerald-50"
+                          kesulitan === Number(v) ? "bg-emerald-700 text-white" : "bg-white text-slate-500 hover:bg-emerald-50"
                         )}
                       >
                         {l}
@@ -951,7 +951,7 @@ export function SoalView() {
             </div>
 
             <div className="mt-4 flex gap-2">
-              <Button onClick={buat} className="flex-1 gap-2 rounded-xl bg-sky-600 font-bold hover:bg-sky-700">
+              <Button onClick={buat} className="flex-1 gap-2 rounded-xl bg-sky-700 font-bold hover:bg-sky-800">
                 <Sparkles className="h-4 w-4" /> {sheet ? "Perbarui worksheet" : "Buat worksheet"}
               </Button>
               {sheet && (
@@ -990,13 +990,13 @@ export function SoalView() {
         <div className="space-y-4">
           <SectionCard
             title={editMode ? "Edit worksheet" : "Pratinjau & cetak"}
-            desc={editMode ? "Ubah soal, topik, atau petunjuk sebelum dicetak" : "Template ceria Rumbela — ukuran A4"}
+            desc={editMode ? "Ubah soal, topik, atau petunjuk sebelum dicetak" : "Template ceria Rumbela, ukuran A4"}
             action={
               sheet ? (
                 <div className="flex flex-wrap gap-2">
                   {editMode ? (
                     <>
-                      <Button size="sm" className="gap-1.5 rounded-lg bg-emerald-600 font-bold hover:bg-emerald-700" onClick={simpanEdit}>
+                      <Button size="sm" className="gap-1.5 rounded-lg bg-emerald-700 font-bold hover:bg-emerald-800" onClick={simpanEdit}>
                         <Save className="h-4 w-4" /> Simpan perubahan
                       </Button>
                       <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={batalEdit}>
@@ -1008,7 +1008,7 @@ export function SoalView() {
                       <Button size="sm" variant="outline" className="gap-1.5 rounded-lg border-sky-300 text-sky-700 hover:bg-sky-50" onClick={mulaiEdit}>
                         <Pencil className="h-4 w-4" /> Edit
                       </Button>
-                      <Button size="sm" className="gap-1.5 rounded-lg bg-sky-600 font-bold hover:bg-sky-700" onClick={cetak}>
+                      <Button size="sm" className="gap-1.5 rounded-lg bg-sky-700 font-bold hover:bg-sky-800" onClick={cetak}>
                         <Printer className="h-4 w-4" /> Cetak / PDF
                       </Button>
                       <Button size="sm" variant="outline" className="gap-1.5 rounded-lg" onClick={() => void unduhPng("soal")} disabled={busy}>
@@ -1082,7 +1082,7 @@ export function SoalView() {
           {/* arsip */}
           <SectionCard
             title={`Arsip worksheet (${db.worksheets.length})`}
-            desc="Tersimpan otomatis di Google Drive — buka kembali kapan saja"
+            desc="Tersimpan otomatis di Google Drive, buka kembali kapan saja"
           >
             {!db.worksheets.length ? (
               <EmptyState title="Arsip masih kosong">

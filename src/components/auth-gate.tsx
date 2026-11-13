@@ -19,24 +19,24 @@ export function AuthGate() {
       <div className="w-full max-w-sm text-center">
         <Image
           src="/logo.webp"
-          alt="Rumbela — Rumah Belajar Anak"
+          alt="Rumbela, Rumah Belajar Anak"
           width={210}
           height={193}
           className="mx-auto h-auto w-[210px] drop-shadow-sm"
           priority
         />
-        <p className="mt-1 text-sm font-bold tracking-wide text-sky-600">
+        <p className="mt-1 text-sm font-bold tracking-wide text-sky-700">
           Rumah Belajar Anak · Curup
         </p>
         <p className="mt-4 text-sm leading-relaxed text-slate-500">
-          Aplikasi admin bimbel. Login dengan akun Google pemilik Rumbela — seluruh data
+          Aplikasi admin bimbel. Login dengan akun Google pemilik Rumbela, seluruh data
           tersimpan otomatis sebagai satu file di Google Drive Anda.
         </p>
 
         <div className="mt-6 space-y-2.5">
           <Button
             size="lg"
-            className="w-full gap-2 rounded-xl bg-sky-600 text-base font-bold hover:bg-sky-700"
+            className="w-full gap-2 rounded-xl bg-sky-700 text-base font-bold hover:bg-sky-800"
             onClick={() => void loginGoogle()}
             disabled={connecting}
           >
@@ -61,15 +61,15 @@ export function AuthGate() {
         )}
 
         {nonProd && (
-          <p className="mt-4 text-xs leading-relaxed text-slate-400">
+          <p className="mt-4 text-xs leading-relaxed text-slate-500">
             Catatan: login Google hanya aktif di domain yang terdaftar di Google
             Cloud (mis. rumbela.netlify.app atau alamat Vercel Anda). Untuk
             melihat-lihat aplikasi ini, gunakan <b>Mode Demo</b>.
           </p>
         )}
 
-        <ul className="mt-6 space-y-1.5 text-xs text-slate-400">
-          <li>✓ Login cukup sekali — sesi tersimpan di perangkat</li>
+        <ul className="mt-6 space-y-1.5 text-xs text-slate-500">
+          <li>✓ Login cukup sekali, sesi tersimpan di perangkat</li>
           <li>✓ Auto-save setiap perubahan ke Google Drive</li>
           <li>✓ Laporan perkembangan siswa siap kirim ke orang tua</li>
         </ul>
