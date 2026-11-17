@@ -69,6 +69,7 @@ export function PengaturanView() {
         delete d.payments[id];
         delete d.payDates[id];
         delete d.payAmounts[id];
+        delete d.kwitansiNo?.[id];
         Object.keys(d.reports).forEach((k) => k.startsWith(id + "@") && delete d.reports[k]);
         Object.keys(d.attendance).forEach((t) => delete d.attendance[t][id]);
         Object.values(d.journal).forEach((e) => e.siswa && delete e.siswa[id]);

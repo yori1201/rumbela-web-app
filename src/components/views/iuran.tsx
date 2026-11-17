@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarClock, Copy, Download, MessageCircle, Pencil, Receipt, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { payAmount, payDate, payEffective, payStatus, progresSiklus, statusTagihan, waIngatkanIuran } from "@/lib/laporan";
+import { kwitansiNoTersimpan, payAmount, payDate, payEffective, payStatus, progresSiklus, stempelKwitansiNo, statusTagihan, waIngatkanIuran } from "@/lib/laporan";
 import { kwitansiWaLink, kwitansiWaText, renderKwitansi } from "@/lib/renderKwitansi";
 import {
   MONTHS, MONTHS_SHORT, monthKey, monthLabel, rp, rpShort, todayStr,
@@ -102,6 +102,9 @@ export function IuranView() {
           d.payAmounts[sid][mk] = next === "lunas" ? editStudent?.fee ?? 0 : Math.round((editStudent?.fee ?? 0) / 2);
         }
       }
+      /* Fase 1: bekukan nomor kwitansi saat pembayaran dicatat (atau
+       *  hapus bila pembayaran dibatalkan ke "belum"). */
+      stempelKwitansiNo(d, sid, mk);
     });
   };
 
@@ -133,6 +136,8 @@ export function IuranView() {
       d.payAmounts[sid][mk] = n;
       d.payments[sid][mk] = n >= editStudent.fee ? "lunas" : "sebagian";
       if (!d.payDates[sid][mk]) d.payDates[sid][mk] = todayStr();
+      /* Fase 1: bekukan nomor kwitansi saat pembayaran dicatat. */
+      stempelKwitansiNo(d, sid, mk);
     });
     toast({
       title: `Pembayaran ${rp(n)} tercatat`,
@@ -185,6 +190,14 @@ export function IuranView() {
         description: `Catat bayaran ${monthLabel(mk)} dulu untuk membuat kwitansi.`,
       });
       return;
+    }
+    /* Fase 1: pembayaran lama (sebelum nomor kwitansi disimpan) ikut
+     *  dibekukan nomornya saat kwitansi pertama kali dibuka, supaya
+     *  nomornya tidak berubah lagi dan cermin bisa menampilkan yang asli. */
+    if (!kwitansiNoTersimpan(db, sid, mk)) {
+      mutate((d) => {
+        stempelKwitansiNo(d, sid, mk);
+      });
     }
     setKuitCanvas(null);
     setKuit({ sid, mk });

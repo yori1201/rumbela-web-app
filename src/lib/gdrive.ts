@@ -172,6 +172,30 @@ export async function updateDb(token: string, id: string, json: string): Promise
   });
 }
 
+/** Tulis database dengan fetch keepalive (untuk flush saat tab ditutup).
+ *  `navigator.sendBeacon` tidak bisa dipakai: Drive butuh header
+ *  Authorization, dan beacon tidak membawa header kustom. Mengembalikan
+ *  true bila server menjawab 2xx. Batas keepalive ±64 KB: bila body
+ *  lebih besar, kembalikan false — antrean persisten yang menanggungnya
+ *  (perubahan tidak hilang, dicoba lagi saat aplikasi dibuka). */
+export async function updateDbKeepalive(token: string, id: string, json: string): Promise<boolean> {
+  try {
+    if (new Blob([json]).size > 60_000) return false;
+    const res = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: json,
+        keepalive: true,
+      }
+    );
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function fetchUserEmail(token: string): Promise<string> {
   try {
     const res = await driveFetch(

@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { Loader2, PlayCircle, ShieldAlert } from "lucide-react";
+import { CloudAlert, Loader2, PlayCircle, ShieldAlert } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 
@@ -73,6 +74,75 @@ export function AuthGate() {
           <li>✓ Auto-save setiap perubahan ke Google Drive</li>
           <li>✓ Laporan perkembangan siswa siap kirim ke orang tua</li>
         </ul>
+      </div>
+    </div>
+  );
+}
+
+/** Layar peringatan bila file database tidak ditemukan di Drive (R2,
+ *  Fase 1). Aplikasi TIDAK membuat database kosong diam-diam: pemilik
+ *  memilih sendiri — buat baru, coba lagi, atau pulihkan dari backup. */
+export function MissingDbScreen() {
+  const { createNewDb, enterRestoreMode, reloadFromDrive, logout, sync, connecting } = useApp();
+  const [busy, setBusy] = useState(false);
+  const run = async (fn: () => Promise<void> | void) => {
+    setBusy(true);
+    try {
+      await fn();
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="grid min-h-screen place-items-center bg-[#fdf8f3] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-amber-200 bg-white p-6 text-center shadow-sm">
+        <CloudAlert className="mx-auto h-10 w-10 text-amber-500" />
+        <h1 className="mt-3 text-xl font-extrabold text-slate-800">Database tidak ditemukan</h1>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">
+          File <b>rumbela-database.json</b> tidak ditemukan di Google Drive akun ini.
+          Mungkin file terhapus, atau Anda masuk dengan akun Google yang berbeda.
+          <b> Tidak ada database baru yang dibuat</b> — pilih salah satu:
+        </p>
+        <div className="mt-5 space-y-2.5">
+          <Button
+            className="w-full rounded-xl bg-amber-600 font-bold hover:bg-amber-700"
+            onClick={() => void run(createNewDb)}
+            disabled={busy || connecting}
+          >
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Buat database baru yang kosong
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full rounded-xl font-semibold"
+            onClick={() => void run(reloadFromDrive)}
+            disabled={busy || connecting}
+          >
+            Coba lagi
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full rounded-xl font-semibold"
+            onClick={enterRestoreMode}
+            disabled={busy || connecting}
+          >
+            Pulihkan dari backup
+          </Button>
+          <Button variant="ghost" className="w-full rounded-xl" onClick={logout}>
+            Keluar
+          </Button>
+        </div>
+        {sync.message && (
+          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-left text-xs leading-relaxed text-red-700">
+            {sync.message}
+          </p>
+        )}
+        <p className="mt-4 text-left text-xs leading-relaxed text-slate-500">
+          Untuk memulihkan: unduh file JSON terbaru dari folder{" "}
+          <b>RUMBELA_BACKUP</b> di Google Drive, lalu setelah masuk aplikasi,
+          impor lewat Pengaturan → Impor JSON. Data hasil impor disimpan
+          sebagai file database baru.
+        </p>
       </div>
     </div>
   );

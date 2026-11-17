@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   Home, Users, Wallet, CalendarCheck2, NotebookPen, ClipboardList,
   CalendarDays, BookOpen, FileQuestion, Settings, MoreHorizontal, CheckCircle2,
-  Loader2, CloudAlert, RotateCcw, LogOut, Save, ChevronDown, PlayCircle,
+  Loader2, CloudAlert, RotateCcw, LogOut, Save, ChevronDown, PlayCircle, Clock,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -49,12 +49,35 @@ function SyncChip() {
   const onRetry = async () => {
     setBusy(true);
     try {
-      if (sync.status === "renew") await reconnect();
+      /* Di mode cache (sesi berakhir), tombol status berarti sambung ulang
+       * dulu — simpan baru bisa jalan setelah tersambung. */
+      if (sync.status === "renew" || authMode === "cache") await reconnect();
       else await saveNow();
     } finally {
       setBusy(false);
     }
   };
+  /* R5: selama debounce / menunggu sambung ulang, tampilkan status yang
+   *  jujur ("Belum tersimpan") — bukan "Tersimpan". Ketuk untuk simpan
+   *  sekarang. */
+  if (sync.status === "pending") {
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        className="gap-1.5 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+        onClick={onRetry}
+        disabled={busy}
+        title="Perubahan belum tersimpan ke Drive — ketuk untuk simpan sekarang"
+      >
+        <Clock className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">
+          Belum tersimpan{sync.pending > 1 ? ` (${sync.pending})` : ""}
+        </span>
+        <span className="sm:hidden">{sync.pending > 1 ? sync.pending : "•"}</span>
+      </Button>
+    );
+  }
   if (sync.status === "saving") {
     return (
       <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -158,6 +181,20 @@ export function AppShell({ view, setView, children }: { view: ViewId; setView: (
             <span className="min-w-0 flex-1">{sync.message || "Sesi Google berakhir."}</span>
             <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => void reconnect()}>
               Sambung ulang
+            </Button>
+          </div>
+        </div>
+      )}
+      {sync.restoreMode && (
+        <div className="border-b border-amber-200 bg-amber-50">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-4 py-2.5 text-sm text-amber-900">
+            <CloudAlert className="h-4 w-4 shrink-0" />
+            <span className="min-w-0 flex-1">
+              Mode pemulihan: impor file backup dari Pengaturan → Impor JSON. Setelah impor,
+              data disimpan sebagai file database baru di Drive.
+            </span>
+            <Button size="sm" className="bg-amber-600 hover:bg-amber-700" onClick={() => setView("pengaturan")}>
+              Buka Pengaturan
             </Button>
           </div>
         </div>

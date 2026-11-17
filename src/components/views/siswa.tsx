@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { MoreVertical, Pencil, Phone, Search, Trash2, UserPlus } from "lucide-react";
 import { useApp } from "@/lib/store";
+import { stempelKwitansiNo } from "@/lib/laporan";
 import { uid, LEVELS, PROGRAMS, monthKey, rp, todayStr, waLink } from "@/lib/constants";
 import type { ViewId } from "@/components/app-shell";
 import { Switch } from "@/components/ui/switch";
@@ -92,6 +93,10 @@ export function SiswaView({ setView }: { setView?: (v: ViewId) => void }) {
           d.payDates[id][mkBayar] = tglBayar;
           d.payAmounts[id] ??= {};
           d.payAmounts[id][mkBayar] = amtBayar;
+          /* Fase 1: bekukan nomor kwitansi pembayaran pertama di depan,
+           *  supaya kwitansi yang terbuka otomatis memakai nomor ini dan
+           *  nomornya tersimpan di database (bukan rekonstruksi). */
+          stempelKwitansiNo(d, id, mkBayar);
         }
       }
       if (form.group && !d.jadwal.kelas.includes(form.group)) d.jadwal.kelas.push(form.group);
@@ -120,6 +125,7 @@ export function SiswaView({ setView }: { setView?: (v: ViewId) => void }) {
       delete d.payments[s.id];
       delete d.payDates[s.id];
       delete d.payAmounts[s.id];
+      delete d.kwitansiNo?.[s.id];
       delete d.reports[`${s.id}@`];
       Object.keys(d.reports).forEach((k) => k.startsWith(s.id + "@") && delete d.reports[k]);
       Object.keys(d.attendance).forEach((t) => delete d.attendance[t][s.id]);

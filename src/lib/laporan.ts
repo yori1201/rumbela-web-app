@@ -41,6 +41,39 @@ export function payAmount(db: Database, siswaId: string, mk: string): number | n
   return typeof v === "number" && v > 0 ? v : null;
 }
 
+/** Nomor kwitansi yang tersimpan untuk satu pembayaran, bila ada. */
+export function kwitansiNoTersimpan(db: Database, siswaId: string, mk: string): string | null {
+  const v = db.kwitansiNo?.[siswaId]?.[mk];
+  return typeof v === "string" && v ? v : null;
+}
+
+/** Nomor kwitansi hasil hitung (tanpa melihat nomor tersimpan):
+ *  KWIT/{n}/{4 huruf akhir id siswa} — n = nomor siklus pembayaran.
+ *  Satu-satunya sumber rumus; dipakai renderKwitansi bila belum ada
+ *  nomor tersimpan, dan dipakai stempel saat pembayaran dicatat. */
+export function hitungKwitansiNo(db: Database, siswa: Siswa, mk: string): string {
+  const prog = progresSiklus(db, siswa, mk);
+  return `KWIT/${prog.siklusKe}/${(siswa.id.slice(-4) || "0000").toUpperCase()}`;
+}
+
+/** Bekukan nomor kwitansi di dalam mutate (setelah payments/payDates/
+ *  payAmounts diisi). Nomor dihitung dari state draf supaya siklusKe
+ *  sudah memperhitungkan pembayaran yang baru dicatat. Bila nomor sudah
+ *  tersimpan, jangan ditimpa. Bila pembayaran dihapus (status "belum"),
+ *  nomor ikut dihapus karena kwitansinya tidak berlaku lagi. */
+export function stempelKwitansiNo(d: Database, sid: string, mk: string): void {
+  const siswa = d.students.find((s) => s.id === sid);
+  if (!siswa) return;
+  if (d.payments[sid]?.[mk] !== "lunas" && d.payments[sid]?.[mk] !== "sebagian") {
+    if (d.kwitansiNo?.[sid]) delete d.kwitansiNo[sid][mk];
+    return;
+  }
+  if (kwitansiNoTersimpan(d, sid, mk)) return;
+  d.kwitansiNo ??= {};
+  d.kwitansiNo[sid] ??= {};
+  d.kwitansiNo[sid][mk] = hitungKwitansiNo(d, siswa, mk);
+}
+
 /** Jumlah terkumpul efektif seorang siswa pada suatu bulan: pakai jumlah riil bila ada,
  *  selain itu setengah iuran untuk status "sebagian" (perilaku lama). */
 export function payEffective(db: Database, siswa: Siswa, mk: string): number {

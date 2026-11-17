@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AppProvider, useApp } from "@/lib/store";
 import { AppShell, NAV, type ViewId } from "@/components/app-shell";
-import { AuthGate, BlockedScreen } from "@/components/auth-gate";
+import { AuthGate, BlockedScreen, MissingDbScreen } from "@/components/auth-gate";
 import { BerandaView } from "@/components/views/beranda";
 import { SiswaView } from "@/components/views/siswa";
 import { IuranView } from "@/components/views/iuran";
@@ -19,7 +19,7 @@ import { PengaturanView } from "@/components/views/pengaturan";
 const VALID: ViewId[] = NAV.map((n) => n.id);
 
 function Inner() {
-  const { authMode, bootDone, blocked } = useApp();
+  const { authMode, bootDone, blocked, sync } = useApp();
   const [view, setViewState] = useState<ViewId>("beranda");
 
   // sinkron dengan hash URL agar refresh/back tetap di menu yang sama
@@ -50,6 +50,9 @@ function Inner() {
     );
   }
   if (blocked) return <BlockedScreen />;
+  /* File database tidak ditemukan: tampilkan layar peringatan (R2),
+   *  jangan membuat database kosong diam-diam. */
+  if (sync.dbMissing && authMode === "gdrive") return <MissingDbScreen />;
   if (!authMode) return <AuthGate />;
 
   return (

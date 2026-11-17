@@ -7,7 +7,7 @@
 
 import { DEFAULT_KWITANSI_LABELS, fillTemplate, fmtDate, monthLabel, rp, terbilang, todayStr, waLink } from "./constants";
 import type { Database, Siswa } from "./types";
-import { payAmount, payDate, payEffective, payStatus, progresSiklus } from "./laporan";
+import { hitungKwitansiNo, kwitansiNoTersimpan, payAmount, payDate, payEffective, payStatus, progresSiklus } from "./laporan";
 
 const W = 1000;
 const H = 660;
@@ -42,10 +42,12 @@ function fitWidth(ctx: CanvasRenderingContext2D, text: string, weight: number, p
 }
 
 /** Nomor kwitansi per pembayaran (Bulan ke-N): KWIT/1/5S72 (Bulan ke-1, akhir id siswa).
- *  Nomor dihitung dari pembayaran lunas sebelumnya, bukan dari tanggal bulan. */
+ *  Nomor dihitung dari pembayaran lunas sebelumnya, bukan dari tanggal bulan.
+ *  Bila nomor sudah dibekukan saat pembayaran dicatat (Fase 1), nomor
+ *  tersimpan itu yang dipakai — nomor lama tidak berubah walau perhitungan
+ *  berubah. Data lama tanpa nomor tersimpan tetap dihitung seperti dulu. */
 export function kwitansiNo(db: Database, siswa: Siswa, mk: string): string {
-  const prog = progresSiklus(db, siswa, mk);
-  return `KWIT/${prog.siklusKe}/${(siswa.id.slice(-4) || "0000").toUpperCase()}`;
+  return kwitansiNoTersimpan(db, siswa.id, mk) ?? hitungKwitansiNo(db, siswa, mk);
 }
 
 /** Teks kwitansi untuk dikirim via WhatsApp (gambar PNG dilampirkan manual).

@@ -165,6 +165,13 @@ export interface Database {
   payDates: Record<string, Record<string, string>>;
   /** jumlah uang dibayar (rupiah) per siswa per bulan — sejajar dgn payments */
   payAmounts: Record<string, Record<string, number>>;
+  /** nomor kwitansi ASLI per pembayaran ("KWIT/{n}/{kode}") — sejajar dgn
+   *  payments. Ditulis saat pembayaran dicatat (Fase 1, 17 Nov 2026) supaya
+   *  nomor tidak berubah bila perhitungan berubah, dan supaya cermin
+   *  Sheets bisa menampilkan nomor asli, bukan rekonstruksi dari id siswa.
+   *  Opsional: data lama tanpa field ini tetap terbaca; bila kosong,
+   *  nomor dihitung seperti sebelumnya (lihat kwitansiNo). */
+  kwitansiNo?: Record<string, Record<string, string>>;
   attendance: Record<string, Record<string, AttStatus>>;
   reports: Record<string, ReportRec>;
   materials: Materi[];
@@ -202,6 +209,7 @@ export function emptyDB(): Database {
     payments: {},
     payDates: {},
     payAmounts: {},
+    kwitansiNo: {},
     attendance: {},
     reports: {},
     materials: [],
@@ -269,6 +277,25 @@ export function normalizeDB(raw: unknown): Database {
                   .filter(([, v]) => v > 0)
               ),
             ])
+        )
+      : {},
+    /* nomor kwitansi tersimpan: hanya string "KWIT/{n}/{1-4 karakter}"
+     * yang lolos (suffix = 4 huruf akhir id siswa; id pendek menghasilkan
+     * suffix lebih pendek — persis seperti rumus hitung). Sisanya dibuang
+     * (data lama tanpa field ini → {}). */
+    kwitansiNo: isObj(d.kwitansiNo)
+      ? Object.fromEntries(
+          Object.entries(d.kwitansiNo as Record<string, unknown>)
+            .filter(([, mm]) => isObj(mm))
+            .map(([sid, mm]) => [
+              sid,
+              Object.fromEntries(
+                Object.entries(mm as Record<string, unknown>)
+                  .filter(([, v]) => typeof v === "string" && /^KWIT\/\d+\/[A-Za-z0-9]{1,4}$/i.test(v as string))
+                  .map(([mk, v]) => [mk, (v as string).toUpperCase()])
+              ),
+            ])
+            .filter(([, mm]) => Object.keys(mm as Record<string, string>).length > 0)
         )
       : {},
     attendance: isObj(d.attendance) ? (d.attendance as Database["attendance"]) : {},
