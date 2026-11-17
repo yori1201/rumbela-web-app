@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { MoreVertical, Pencil, Phone, Search, Trash2, UserPlus } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { uid, LEVELS, PROGRAMS, rp, waLink } from "@/lib/constants";
+import { uid, LEVELS, PROGRAMS, monthKey, rp, todayStr, waLink } from "@/lib/constants";
+import type { ViewId } from "@/components/app-shell";
+import { Switch } from "@/components/ui/switch";
 import type { Siswa } from "@/lib/types";
 import { EmptyState, SectionCard } from "./shared";
 import { Button } from "@/components/ui/button";
@@ -30,7 +32,7 @@ export const FEE_PRIVAT = 250000;
 export const feeForProgram = (program: string): number =>
   program === "Privat" ? FEE_PRIVAT : FEE_GRUP;
 
-export function SiswaView() {
+export function SiswaView({ setView }: { setView?: (v: ViewId) => void }) {
   const { db, mutate } = useApp();
   const [q, setQ] = useState("");
   const [fProgram, setFProgram] = useState("all");
@@ -38,6 +40,9 @@ export function SiswaView() {
   const [open, setOpen] = useState(false);
   const [del, setDel] = useState<Siswa | null>(null);
   const [form, setForm] = useState<{ name: string; level: string; grade: string; program: string; parent: string; wa: string; start: string; group: string; fee: number; meet: number }>({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: "", group: "", fee: FEE_GRUP, meet: 12 });
+  /** Pembayaran pertama di depan (hanya untuk siswa baru): begitu dicatat,
+   *  periode pertama langsung Lunas dan kwitansinya bisa dibuka. */
+  const [pay0, setPay0] = useState({ bayar: true, tanggal: todayStr(), jumlah: FEE_GRUP });
 
   const groups = useMemo(() => Array.from(new Set(db.students.map((s) => s.group).filter(Boolean))), [db.students]);
   const programs = useMemo(() => Array.from(new Set([...PROGRAMS, ...db.students.map((s) => s.program)])), [db.students]);
@@ -51,6 +56,7 @@ export function SiswaView() {
   const openNew = () => {
     setEditing(null);
     setForm({ name: "", level: "SD", grade: "", program: PROGRAMS[0], parent: "", wa: "", start: new Date().toISOString().slice(0, 10), group: groups[0] || "Grup A", fee: feeForProgram(PROGRAMS[0]), meet: 12 });
+    setPay0({ bayar: true, tanggal: todayStr(), jumlah: feeForProgram(PROGRAMS[0]) });
     setOpen(true);
   };
 
@@ -65,17 +71,47 @@ export function SiswaView() {
       toast({ title: "Nama anak, orang tua, dan nomor WA wajib diisi.", variant: "destructive" });
       return;
     }
+    const isNew = !editing;
+    const id = editing ? editing.id : uid();
+    /* pembayaran pertama di depan (siswa baru saja): bulan tagihan mengikuti
+     * tanggal bayar; jumlah < iuran → tercatat "sebagian". */
+    const tglBayar = /^\d{4}-\d{2}-\d{2}$/.test(pay0.tanggal) ? pay0.tanggal : todayStr();
+    const [by, bm] = tglBayar.split("-").map(Number);
+    const mkBayar = monthKey(by, bm - 1);
+    const amtBayar = isNew && pay0.bayar ? Math.max(0, Math.round(pay0.jumlah)) : 0;
     mutate((d) => {
       if (editing) {
         const t = d.students.find((x) => x.id === editing.id);
         if (t) Object.assign(t, form);
       } else {
-        d.students.push({ ...form, id: uid() });
+        d.students.push({ ...form, id });
+        if (amtBayar > 0) {
+          d.payments[id] ??= {};
+          d.payments[id][mkBayar] = amtBayar >= form.fee ? "lunas" : "sebagian";
+          d.payDates[id] ??= {};
+          d.payDates[id][mkBayar] = tglBayar;
+          d.payAmounts[id] ??= {};
+          d.payAmounts[id][mkBayar] = amtBayar;
+        }
       }
       if (form.group && !d.jadwal.kelas.includes(form.group)) d.jadwal.kelas.push(form.group);
     });
     setOpen(false);
-    toast({ title: editing ? "Data siswa diperbarui." : "Siswa ditambahkan." });
+    if (isNew && amtBayar > 0) {
+      toast({
+        title: amtBayar >= form.fee ? "Siswa ditambahkan — periode pertama lunas." : "Siswa ditambahkan — dibayar sebagian.",
+        description: "Kwitansi dibuka di menu Iuran.",
+      });
+      /* minta IuranView membuka dialog kwitansi pembayaran ini */
+      try {
+        sessionStorage.setItem("rumbela-buka-kwitansi", JSON.stringify({ sid: id, mk: mkBayar }));
+      } catch {
+        /* abaikan */
+      }
+      setView?.("iuran");
+    } else {
+      toast({ title: editing ? "Data siswa diperbarui." : "Siswa ditambahkan." });
+    }
   };
 
   const doDelete = (s: Siswa) => {
@@ -210,7 +246,10 @@ export function SiswaView() {
             </div>
             <div className="grid gap-1.5">
               <Label>Program</Label>
-              <Select value={form.program} onValueChange={(v) => setForm({ ...form, program: v, fee: feeForProgram(v) })}>
+              <Select value={form.program} onValueChange={(v) => {
+                setForm({ ...form, program: v, fee: feeForProgram(v) });
+                if (!editing) setPay0((p) => ({ ...p, jumlah: feeForProgram(v) }));
+              }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {programs.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
@@ -243,13 +282,41 @@ export function SiswaView() {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label htmlFor="fs-fee">Iuran / bulan (Rp)</Label>
-                <Input id="fs-fee" type="number" min={0} step={10000} value={form.fee} onChange={(e) => setForm({ ...form, fee: Number(e.target.value) })} />
+                <Input id="fs-fee" type="number" min={0} step={10000} value={form.fee} onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setForm({ ...form, fee: v });
+                  if (!editing) setPay0((p) => ({ ...p, jumlah: v }));
+                }} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="fs-meet">Pertemuan / pembayaran</Label>
                 <Input id="fs-meet" type="number" min={1} max={31} value={form.meet} onChange={(e) => setForm({ ...form, meet: Number(e.target.value) })} />
               </div>
             </div>
+            {/* Pembayaran pertama di depan — hanya saat tambah siswa baru */}
+            {!editing && (
+              <div className="grid gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="fs-bayar" className="font-bold text-emerald-900">Pembayaran pertama (di depan)</Label>
+                  <Switch id="fs-bayar" checked={pay0.bayar} onCheckedChange={(v) => setPay0({ ...pay0, bayar: v })} />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Iuran dibayar di depan: begitu dicatat, periode pertama langsung <b>Lunas</b> dan kwitansinya bisa dibuka di menu Iuran.
+                </p>
+                {pay0.bayar && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="fs-bayar-tanggal">Tanggal bayar</Label>
+                      <Input id="fs-bayar-tanggal" type="date" value={pay0.tanggal} onChange={(e) => setPay0({ ...pay0, tanggal: e.target.value })} />
+                    </div>
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="fs-bayar-jumlah">Jumlah dibayar (Rp)</Label>
+                      <Input id="fs-bayar-jumlah" type="number" min={0} step={10000} value={pay0.jumlah} onChange={(e) => setPay0({ ...pay0, jumlah: Number(e.target.value) })} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Batal</Button>

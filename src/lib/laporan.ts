@@ -3,7 +3,7 @@
 /* Perhitungan statistik untuk Laporan Perkembangan Siswa. */
 
 import type { Database, JadwalItem, PayStatus, ReportRec, Siswa } from "./types";
-import { dueDateOf, pad2 } from "./constants";
+import { dueDateOf, fmtDate, monthKey, nextMonthKey, pad2, rp, waLink } from "./constants";
 
 export interface AttStats {
   h: number;
@@ -51,39 +51,131 @@ export function payEffective(db: Database, siswa: Siswa, mk: string): number {
   return amt ?? Math.round(siswa.fee / 2);
 }
 
-/** Progres iuran berbasis pertemuan (v2.3.2, diperbaiki v2.3.4): satu pembayaran
- *  mencakup `meet` pertemuan (bawaan 12). Hadir (H) dihitung KUMULATIF dari
- *  semua tanggal tercatat, bukan sejak tanggal pembayaran terakhir: di data
- *  nyata tanggal bayar sering diisi belakangan (mis. bayar Oktober dicatat
- *  12 Nov), sehingga jendela berbasis payDate bisa membuang semua absensi
- *  dan mengunci kwitansi (kasus Al Hafizhan 12 Nov 2026: 17x hadir tapi
- *  terhitung 0 karena payDate Oktober 2026-11-12). Kwitansi boleh terbit
- *  saat hadir mencapai target, bukan hitungan 30 hari atau bulan kalender. */
+/** Progres iuran berbasis pertemuan — model BAYAR DI DEPAN (17 Nov 2026).
+ *  Satu pembayaran mencakup `meet` pertemuan (bawaan 12). Siswa membayar
+ *  dulu, lalu menjalani pertemuannya; kwitansi terbit saat pembayaran
+ *  tercatat, tanpa menunggu pertemuan selesai (kasus Al Hafizhan 12 Nov
+ *  2026: 17x hadir tapi kwitansi terkunci karena jendela berbasis payDate).
+ *  - `hadir`: pertemuan (H) yang sudah dijalani pada siklus BERBAYAR
+ *    terakhir — bukan kumulatif semua pertemuan. Satu pembayaran lunas
+ *    menggeser jendela hitung sejauh `target` pertemuan, sehingga setelah
+ *    bayar berikutnya penghitung mulai lagi dari 0.
+ *  - `selesai`: true bila pertemuan siklus berbayar terakhir sudah habis
+ *    (hadir mencapai target) → tagihan berikutnya jatuh tempo.
+ *  - `siklusKe`: nomor siklus pembayaran. Tanpa `mk`: siklus BERIKUTNYA
+ *    yang harus dibayar (lunas + 1). Dengan `mk`: nomor siklus dari
+ *    pembayaran pada bulan `mk` (lunas sebelum `mk` + 1) — dipakai nomor
+ *    kwitansi KWIT/{n}/{id}. */
 export interface ProgresSiklus {
-  /** jumlah pertemuan dihadiri (H) kumulatif, semua tanggal tercatat */
+  /** jumlah pertemuan dihadiri (H) pada siklus berbayar terakhir */
   hadir: number;
   /** pertemuan per pembayaran (siswa.meet, bawaan 12) */
   target: number;
-  /** true bila hadir mencapai target → iuran jatuh tempo, kwitansi boleh terbit */
+  /** true bila pertemuan siklus berbayar terakhir sudah habis → tagihan berikutnya jatuh tempo */
   selesai: boolean;
-  /** nomor pembayaran yang sedang berjalan (1 = pembayaran pertama) */
+  /** nomor siklus pembayaran (lihat keterangan di atas) */
   siklusKe: number;
 }
 
 export function progresSiklus(db: Database, siswa: Siswa, mk?: string): ProgresSiklus {
   const target = siswa.meet > 0 ? siswa.meet : 12;
   const pays = db.payments[siswa.id] ?? {};
-  let lunasCount = 0;
-  for (const m of Object.keys(pays)) {
-    if (pays[m] !== "lunas") continue;
-    if (mk && m >= mk) continue;
-    lunasCount++;
-  }
-  let hadir = 0;
+  const lunasTotal = Object.values(pays).filter((s) => s === "lunas").length;
+  const lunasBefore = mk
+    ? Object.entries(pays).filter(([m, s]) => s === "lunas" && m < mk).length
+    : lunasTotal;
+  let hadirTotal = 0;
   for (const day of Object.values(db.attendance)) {
-    if (day[siswa.id] === "H") hadir++;
+    if (day[siswa.id] === "H") hadirTotal++;
   }
-  return { hadir, target, selesai: hadir >= target, siklusKe: lunasCount + 1 };
+  const hadir =
+    lunasTotal > 0
+      ? Math.min(Math.max(hadirTotal - (lunasTotal - 1) * target, 0), target)
+      : Math.min(hadirTotal, target);
+  return { hadir, target, selesai: hadir >= target, siklusKe: lunasBefore + 1 };
+}
+
+/** Status tagihan iuran berikutnya seorang siswa — model bayar di depan.
+ *  Tagihan berikutnya jatuh tempo pada yang LEBIH DULU terjadi:
+ *  (a) bulan kalender berikutnya setelah pembayaran terakhir, atau
+ *  (b) setelah pertemuan pada siklus berbayar terakhir selesai.
+ *  Pengingat muncul saat siswa mencapai pertemuan ke-(target-1)
+ *  (mis. ke-11 dari 12): satu pertemuan tersisa sebelum tagihan jatuh tempo. */
+export interface StatusTagihan {
+  /** nomor siklus berikutnya yang harus dibayar (1 = pembayaran pertama) */
+  siklusBerikutnya: number;
+  /** bulan ("YYYY-MM") tempat tagihan berikutnya dicatat: bulan berjalan bila belum lunas, atau bulan setelah pembayaran lunas terakhir */
+  bulanTagihan: string;
+  /** true bila tagihan berikutnya sudah jatuh tempo sekarang */
+  jatuhTempo: boolean;
+  /** penyebab jatuh tempo: "kalender" (bulan berganti) atau "pertemuan" (pertemuan siklus habis) */
+  sebabJatuhTempo: "kalender" | "pertemuan" | null;
+  /** true bila siswa mencapai pertemuan ke-(target-1) dan tagihan berikutnya belum jatuh tempo */
+  peringatanPertemuan: boolean;
+  /** bulan ("YYYY-MM") pembayaran lunas terakhir, null bila belum pernah lunas */
+  bayarTerakhirMk: string | null;
+}
+
+export function statusTagihan(db: Database, siswa: Siswa, now: Date = new Date()): StatusTagihan {
+  const thisMk = monthKey(now.getFullYear(), now.getMonth());
+  const prog = progresSiklus(db, siswa);
+  const pays = db.payments[siswa.id] ?? {};
+  const lunasList = Object.keys(pays).filter((m) => pays[m] === "lunas").sort();
+  const bayarTerakhirMk = lunasList.length ? lunasList[lunasList.length - 1] : null;
+  const stThis = pays[thisMk] ?? "belum";
+  const bulanTagihan = stThis !== "lunas" ? thisMk : nextMonthKey(bayarTerakhirMk ?? thisMk);
+  const jatuhTempoKalender =
+    bayarTerakhirMk !== null && stThis !== "lunas" && bayarTerakhirMk < thisMk;
+  const belumPernahBayar = bayarTerakhirMk === null && stThis !== "lunas";
+  const jatuhTempo = prog.selesai || jatuhTempoKalender || belumPernahBayar;
+  const sebabJatuhTempo: StatusTagihan["sebabJatuhTempo"] = !jatuhTempo
+    ? null
+    : prog.selesai
+      ? "pertemuan"
+      : "kalender";
+  const peringatanPertemuan =
+    !jatuhTempo && prog.target > 1 && prog.hadir === prog.target - 1;
+  return {
+    siklusBerikutnya: prog.siklusKe,
+    bulanTagihan,
+    jatuhTempo,
+    sebabJatuhTempo,
+    peringatanPertemuan,
+    bayarTerakhirMk,
+  };
+}
+
+/** Tautan WA pengingat iuran berikutnya — dipakai halaman Iuran & Beranda
+ *  (satu sumber, supaya isi pesannya tidak berbeda-beda). Isinya mengikuti
+ *  status tagihan baru: jatuh tempo (kalender/pertemuan), pengingat
+ *  pertemuan ke-(target-1), atau progres berjalan. */
+export function waIngatkanIuran(db: Database, siswa: Siswa, now: Date = new Date()): string {
+  const prog = progresSiklus(db, siswa);
+  const tag = statusTagihan(db, siswa, now);
+  const st = payStatus(db, siswa.id, tag.bulanTagihan);
+  const pd = payDate(db, siswa.id, tag.bulanTagihan);
+  const amt = payAmount(db, siswa.id, tag.bulanTagihan);
+  let kabar: string;
+  if (tag.jatuhTempo) {
+    kabar =
+      tag.sebabJatuhTempo === "pertemuan"
+        ? `\nAnanda sudah menyelesaikan ${prog.target} pertemuan pada periode berjalan. Iuran berikutnya (Bulan ke-${tag.siklusBerikutnya}) jatuh tempo, mohon segera dilunasi.`
+        : tag.bayarTerakhirMk === null
+          ? `\nIuran pertama (Bulan ke-1) belum dibayar, mohon segera dilunasi.`
+          : `\nIuran berikutnya (Bulan ke-${tag.siklusBerikutnya}) jatuh tempo bulan ini, mohon segera dilunasi.`;
+  } else if (tag.peringatanPertemuan) {
+    kabar = `\nAnanda sudah ${prog.hadir} dari ${prog.target} pertemuan pada periode berjalan. Iuran berikutnya (Bulan ke-${tag.siklusBerikutnya}) segera jatuh tempo setelah pertemuan ke-${prog.target} — mohon disiapkan.`;
+  } else {
+    kabar = `\nProgres pertemuan ananda: ${prog.hadir} dari ${prog.target} pada periode berjalan. Iuran berikutnya (Bulan ke-${tag.siklusBerikutnya}) jatuh tempo bulan berikutnya atau setelah ${prog.target} pertemuan selesai.`;
+  }
+  const statusBayar =
+    st === "sebagian"
+      ? `Sudah dibayar sebagian${amt ? ` sebesar *${rp(amt)}* dari ${rp(siswa.fee)}` : ""}${pd ? ` (diterima ${fmtDate(pd)})` : ""}`
+      : "Belum lunas";
+  return waLink(
+    siswa.wa,
+    `Assalamu'alaikum Bapak/Ibu ${siswa.parent},\n\nKami dari *${db.pengaturan.namaLembaga}, ${db.pengaturan.tagline}* (Curup) mengingatkan iuran Bulan ke-${tag.siklusBerikutnya} (${prog.target} pertemuan) untuk ananda *${siswa.name}* (${siswa.program}) sebesar *${rp(siswa.fee)}*.${kabar}\n\nStatus saat ini: *${statusBayar}*.\nTerima kasih atas perhatian dan kepercayaannya 🙏`
+  );
 }
 
 /** LEGACY (v2.3.2): jatuh tempo berbasis tanggal kalender. Tidak lagi dipakai

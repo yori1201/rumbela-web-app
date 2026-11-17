@@ -55,7 +55,7 @@ function Inner() {
   return (
     <AppShell view={view} setView={setView}>
       {view === "beranda" && <BerandaView setView={setView} />}
-      {view === "siswa" && <SiswaView />}
+      {view === "siswa" && <SiswaView setView={setView} />}
       {view === "iuran" && <IuranView />}
       {view === "absensi" && <AbsensiView />}
       {view === "jurnal" && <JurnalView />}

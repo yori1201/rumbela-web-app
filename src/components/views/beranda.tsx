@@ -2,11 +2,11 @@
 
 import { BookOpen, CalendarCheck2, CalendarClock, ClipboardList, Clock, UserPlus, Wallet } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { attStatsInMonth, itemsOnDay, namaSiswaOfItem, payEffective, payStatus, siswaIdsOnDay } from "@/lib/laporan";
+import { attStatsInMonth, itemsOnDay, namaSiswaOfItem, payEffective, payStatus, progresSiklus, siswaIdsOnDay, statusTagihan, waIngatkanIuran } from "@/lib/laporan";
 import {
-  currentMonthKey, greeting, MONTHS, rp, todayStr, waLink, DAYS,
-  dueDateOf, fmtDayDate,
+  currentMonthKey, greeting, MONTHS, rp, todayStr, DAYS,
 } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { EmptyState, SectionCard, StatCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import type { ViewId } from "@/components/app-shell";
@@ -23,7 +23,6 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
   const hadir = Object.values(day).filter((v) => v === "H").length;
   const lunas = db.students.filter((s) => payStatus(db, s.id, mk) === "lunas").length;
   const terkumpul = db.students.reduce((acc, s) => acc + payEffective(db, s, mk), 0);
-  const belumLunas = db.students.filter((s) => payStatus(db, s.id, mk) !== "lunas");
   const jurnalHariIni = db.journal[today];
 
   /* Jadwal les hari ini (siapa saja yang les) */
@@ -32,14 +31,14 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
   const scheduledToday = siswaIdsOnDay(db, todayName);
   const adaJadwal = db.jadwal.items.length > 0;
 
-  /* jatuh tempo iuran berikutnya (tanggal tiap bulan bisa diatur di menu Iuran) */
-  const jt = Math.min(31, Math.max(1, db.pengaturan.iuran?.jatuhTempo ?? 5));
-  const today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const due =
-    belumLunas.length > 0
-      ? dueDateOf(now.getFullYear(), now.getMonth(), jt)
-      : dueDateOf(now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), (now.getMonth() + 1) % 12, jt);
-  const dueInDays = Math.round((due.getTime() - today0.getTime()) / 86400000);
+  /* Tagihan iuran berikutnya (model bayar di depan): jatuh tempo bulan
+   *  berikutnya atau setelah 12 pertemuan selesai — mana yang lebih dulu.
+   *  Pengingat muncul di pertemuan ke-11. */
+  const tagihanList = db.students
+    .map((s) => ({ s, tag: statusTagihan(db, s, now), prog: progresSiklus(db, s) }))
+    .filter(({ tag }) => tag.jatuhTempo || tag.peringatanPertemuan);
+  const dueList = tagihanList.filter(({ tag }) => tag.jatuhTempo);
+  const warnList = tagihanList.filter(({ tag }) => tag.peringatanPertemuan);
 
   return (
     <div className="space-y-5">
@@ -69,7 +68,7 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
           accent="teal"
         />
         <StatCard label="Iuran bulan ini" value={`${lunas}/${totalSiswa}`} sub={`${rp(terkumpul)} terkumpul`} accent="emerald" />
-        <StatCard label="Perlu perhatian" value={String(belumLunas.length)} sub="iuran belum lunas" accent="rose" />
+        <StatCard label="Perlu perhatian" value={String(tagihanList.length)} sub="tagihan jatuh tempo & pertemuan ke-11" accent="rose" />
       </div>
 
       <SectionCard
@@ -115,8 +114,8 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SectionCard
-          title="Iuran belum lunas"
-          desc={`${MONTHS[now.getMonth()]} ${now.getFullYear()} · jatuh tempo ${fmtDayDate(due)}`}
+          title="Tagihan iuran berikutnya"
+          desc={`${MONTHS[now.getMonth()]} ${now.getFullYear()} · bayar di depan, 12 pertemuan per pembayaran`}
           action={
             <Button size="sm" variant="ghost" className="text-sky-700" onClick={() => setView("iuran")}>
               Kelola <Wallet className="ml-1 h-4 w-4" />
@@ -125,40 +124,35 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
         >
           <p className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-sky-800">
             <CalendarClock className="h-3.5 w-3.5" />
-            {dueInDays < 0
-              ? `Terlambat ${-dueInDays} hari dari ${fmtDayDate(due)}`
-              : dueInDays === 0
-                ? "Jatuh tempo hari ini"
-                : `Pembayaran berikutnya ${dueInDays} hari lagi`}
+            {tagihanList.length === 0
+              ? "Semua iuran berjalan"
+              : `${dueList.length} jatuh tempo · ${warnList.length} di pertemuan ke-11`}
           </p>
-          {belumLunas.length === 0 ? (
-            <p className="text-sm text-emerald-700">Semua iuran bulan ini sudah lunas</p>
+          {tagihanList.length === 0 ? (
+            <p className="text-sm text-emerald-700">Semua iuran berjalan, belum ada tagihan berikutnya</p>
           ) : (
             <ul className="divide-y divide-slate-100">
-              {belumLunas.slice(0, 5).map((s) => {
-                const st = payStatus(db, s.id, mk);
-                return (
-                  <li key={s.id} className="flex items-center gap-3 py-2.5">
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-slate-700">{s.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {s.program} · {rp(s.fee)}/Bulan · {st === "sebagian" ? "sebagian" : "belum bayar"}
-                      </p>
-                    </div>
-                    <a
-                      href={waLink(
-                        s.wa,
-                        `Assalamu'alaikum Bapak/Ibu ${s.parent},\n\nKami dari *${db.pengaturan.namaLembaga}, ${db.pengaturan.tagline}* mengingatkan iuran bulan *${MONTHS[now.getMonth()]} ${now.getFullYear()}* untuk ananda *${s.name}* (${s.program}) sebesar *${rp(s.fee)}*.\n\nBatas pembayaran: *${fmtDayDate(due)}*${dueInDays < 0 ? `, telah terlewat ${-dueInDays} hari, mohon segera dilunasi` : dueInDays === 0 ? " (hari ini)" : ""}. Terima kasih atas perhatiannya 🙏`
-                      )}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="shrink-0 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
-                    >
-                      Ingatkan WA
-                    </a>
-                  </li>
-                );
-              })}
+              {tagihanList.slice(0, 5).map(({ s, tag, prog }) => (
+                <li key={s.id} className="flex items-center gap-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-slate-700">{s.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {s.program} · {rp(s.fee)}/Bulan · {prog.hadir}/{prog.target} pertemuan
+                    </p>
+                  </div>
+                  <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold", tag.jatuhTempo ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700")}>
+                    {tag.jatuhTempo ? "jatuh tempo" : "pertemuan ke-11"}
+                  </span>
+                  <a
+                    href={waIngatkanIuran(db, s, now)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
+                  >
+                    Ingatkan WA
+                  </a>
+                </li>
+              ))}
             </ul>
           )}
         </SectionCard>

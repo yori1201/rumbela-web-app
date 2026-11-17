@@ -88,6 +88,13 @@ export function currentMonthKey(): string {
   return monthKey(n.getFullYear(), n.getMonth());
 }
 
+/** Bulan berikutnya dari "YYYY-MM" ("2026-12" → "2027-01"). */
+export function nextMonthKey(mk: string): string {
+  const [y, m] = mk.split("-").map(Number);
+  const d = new Date(y, m, 1); // m 1-based → indeks bulan berikutnya
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+}
+
 export function fmtDate(iso?: string): string {
   if (!iso) return "";
   const p = iso.split("-");
