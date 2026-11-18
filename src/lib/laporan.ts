@@ -92,7 +92,15 @@ export function payEffective(db: Database, siswa: Siswa, mk: string): number {
  *  - `hadir`: pertemuan (H) yang sudah dijalani pada siklus BERBAYAR
  *    terakhir — bukan kumulatif semua pertemuan. Satu pembayaran lunas
  *    menggeser jendela hitung sejauh `target` pertemuan, sehingga setelah
- *    bayar berikutnya penghitung mulai lagi dari 0.
+ *    bayar berikutnya penghitung mulai lagi dari 0. Pertemuan dihitung
+ *    hanya sejak BULAN lunas pertama (tanggal 1 bulan itu): pertemuan di
+ *    bulan-bulan sebelum bulan pertama yang dibayar tidak masuk hitung
+ *    siklus berbayar (kasus Al Hafizhan 18 Nov 2026: 12x hadir Oktober
+ *    terjadi sebelum bulan pertama yang dibayar (November), jadi siklus
+ *    November hanya menghitung 6 pertemuan November). Iuran dicatat per
+ *    bulan, jadi pertemuan di bulan yang sama tetap dihitung walau tanggal
+ *    bayarnya di tengah bulan. Siswa yang belum pernah lunas tetap
+ *    menghitung semua pertemuan, dibatasi target (perilaku lama).
  *  - `selesai`: true bila pertemuan siklus berbayar terakhir sudah habis
  *    (hadir mencapai target) → tagihan berikutnya jatuh tempo.
  *  - `siklusKe`: nomor siklus pembayaran. Tanpa `mk`: siklus BERIKUTNYA
@@ -117,8 +125,22 @@ export function progresSiklus(db: Database, siswa: Siswa, mk?: string): ProgresS
   const lunasBefore = mk
     ? Object.entries(pays).filter(([m, s]) => s === "lunas" && m < mk).length
     : lunasTotal;
+  /* Awal siklus berbayar pertama: tanggal 1 bulan lunas paling awal.
+   * Pertemuan di bulan-bulan sebelum bulan itu terjadi di luar siklus
+   * berbayar dan tidak dihitung. Sengaja per bulan (bukan tanggal bayar):
+   * iuran dicatat per bulan, jadi pertemuan di bulan yang sama tetap
+   * dihitung walau tanggal bayarnya di tengah bulan. Tanpa pembayaran
+   * lunas, awalSiklus tetap null → perilaku lama (hitung semua). */
+  let awalSiklus: string | null = null;
+  if (lunasTotal > 0) {
+    const bulanLunasPertama = Object.keys(pays)
+      .filter((m) => pays[m] === "lunas")
+      .sort()[0];
+    awalSiklus = `${bulanLunasPertama}-01`;
+  }
   let hadirTotal = 0;
-  for (const day of Object.values(db.attendance)) {
+  for (const [date, day] of Object.entries(db.attendance)) {
+    if (awalSiklus && date < awalSiklus) continue;
     if (day[siswa.id] === "H") hadirTotal++;
   }
   const hadir =

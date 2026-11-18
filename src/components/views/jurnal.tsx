@@ -55,10 +55,16 @@ export function JurnalView() {
   const siswaTerpilih = db.students.find((s) => s.id === sid) || null;
   const progresSiswaTersimpan = sid ? db.journal[date]?.siswa?.[sid] || "" : "";
   const progresSiswa = progDraft ?? progresSiswaTersimpan;
-  /** siswa yang sudah punya progres tersimpan pada tanggal ini */
+  /** Entri progres dianggap tersimpan bila ada di jurnal tanggal ini, walau
+   *  teksnya kosong (pemilik boleh menyimpan progres kosong). Penanda ini
+   *  memakai keberadaan entri, bukan isi teks — supaya tidak bertentangan
+   *  dengan toast "tersimpan" setelah simpan kosong. */
+  const adaProgresTersimpan = !!sid && db.journal[date]?.siswa?.[sid] !== undefined;
+  /** siswa yang sudah punya progres tersimpan pada tanggal ini (teks kosong
+   *  tetap terhitung: entrinya ada) */
   const tersimpanHariIni = Object.entries(db.journal[date]?.siswa ?? {})
     .map(([id, teks]) => ({ s: db.students.find((x) => x.id === id), teks }))
-    .filter((x) => x.s && x.teks.trim());
+    .filter((x) => x.s);
 
   const tpl = db.pengaturan.jurnal?.templateWa || DEFAULT_TEMPLATE_WA;
   const tplValue = tplDraft ?? tpl;
@@ -76,11 +82,18 @@ export function JurnalView() {
     setProgDraft(null);
   };
 
-  /** simpan progres khusus siswa terpilih ke jurnal tanggal ini */
+  /** simpan progres khusus siswa terpilih ke jurnal tanggal ini.
+   *  Simpan manual (tombol) boleh kosong: bila belum ada entri sama sekali,
+   *  menekan Simpan tetap menulis entri kosong sebagai penanda progres
+   *  sudah dicatat. Auto-save diam-diam (senyap) tetap melewati teks
+   *  kosong, supaya berpindah tanggal/siswa tidak membuat entri kosong
+   *  tanpa sengaja. */
   const simpanProgres = (senyap = false) => {
     if (!siswaTerpilih) return;
     const txt = progresSiswa.trim();
-    if (!txt || txt === progresSiswaTersimpan.trim()) return;
+    // Entri sudah tersimpan dengan isi yang sama → tidak perlu tulis ulang.
+    if (adaProgresTersimpan && txt === progresSiswaTersimpan.trim()) return;
+    if (!txt && senyap) return;
     const nama = siswaTerpilih.name;
     mutate((d) => {
       const cur = d.journal[date] ?? { activity: "", progress: "" };
@@ -183,7 +196,9 @@ export function JurnalView() {
 
   const dailyText = (sid: string) => fillTemplate(tpl, dailyVars(sid));
 
-  const previewSid = waSid || db.students[0]?.id || "";
+  /** Pratinjau mengikuti siswa yang dipilih di "Catat progres untuk" dulu,
+   *  lalu siswa bagian kirim WA, lalu siswa pertama. */
+  const previewSid = sid || waSid || db.students[0]?.id || "";
 
   return (
     <div className="space-y-4">
@@ -251,7 +266,7 @@ export function JurnalView() {
                   <Save className="h-4 w-4" /> Simpan progres {siswaTerpilih.name.split(" ")[0]}
                 </Button>
                 <span className="text-xs text-muted-foreground">
-                  {progresSiswaTersimpan ? "sudah ada catatan tersimpan" : "belum ada catatan untuk tanggal ini"}
+                  {adaProgresTersimpan ? "sudah ada catatan tersimpan" : "belum ada catatan untuk tanggal ini"}
                 </span>
               </div>
             )}
@@ -392,7 +407,8 @@ export function JurnalView() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {recent.map(([dstr, e]) => {
-              const jumlahSiswa = Object.values(e.siswa ?? {}).filter((t) => t.trim()).length;
+              // hitung entri siswa yang tersimpan, teks kosong tetap terhitung
+              const jumlahSiswa = Object.keys(e.siswa ?? {}).length;
               return (
                 <li key={dstr}>
                   <button

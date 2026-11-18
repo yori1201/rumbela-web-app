@@ -98,9 +98,9 @@ export function BerandaView({ setView }: { setView: (v: ViewId) => void }) {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-slate-700">{it.program}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {it.pengajar || ""} · {it.kelas}
-                    </p>
+                    {it.pengajar && (
+                      <p className="truncate text-xs text-muted-foreground">{it.pengajar}</p>
+                    )}
                     <p className="mt-0.5 truncate text-xs font-semibold text-emerald-700">
                       {nama.length ? nama.join(", ") : "Belum ada peserta"}
                     </p>

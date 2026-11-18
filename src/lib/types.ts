@@ -54,13 +54,19 @@ export interface SlotJam {
 
 export interface JadwalItem {
   id: string;
+  /** Nama kelas/grup lama. Legacy sejak revisi 18 Nov 2026 (jadwal per nama
+   *  anak, bukan per kelas): tetap dibaca dan disimpan demi kompatibilitas,
+   *  tapi tidak lagi dipakai untuk menampilkan atau menyaring jadwal.
+   *  Item baru menyimpan "". */
   kelas: string;
   hari: string;
   slot: number;
   program: string;
   pengajar: string;
   warna: string;
-  /** siswa peserta slot ini (id). Kosong/tak ada = seluruh siswa dengan grup = kelas item. */
+  /** siswa peserta slot ini (id). Kosong/tak ada = seluruh siswa dengan grup
+   *  = kelas item (perilaku lama, dipakai tampilan bila item belum punya
+   *  daftar eksplisit). */
   siswaIds?: string[];
 }
 
@@ -325,9 +331,15 @@ export function normalizeDB(raw: unknown): Database {
                   progress: STR(e.progress),
                   ...(isObj(e.siswa)
                     ? {
+                        // Progres per siswa: teks kosong SENGAJA dipertahankan
+                        // (revisi Jurnal 18 Nov 2026 — pemilik boleh menyimpan
+                        // progres kosong sebagai penanda sudah dicatat).
+                        // Dulu filter ini membuang teks kosong, sehingga
+                        // progres kosong yang sudah tersimpan hilang saat
+                        // database dimuat ulang dari Drive.
                         siswa: Object.fromEntries(
                           Object.entries(e.siswa as Record<string, unknown>)
-                            .filter(([, t]) => typeof t === "string" && t.trim())
+                            .filter(([, t]) => typeof t === "string")
                             .map(([sid, t]) => [sid, t as string])
                         ),
                       }

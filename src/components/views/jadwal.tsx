@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Check, Clock, Plus, Trash2, Users } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { kelasList, namaSiswaOfItem } from "@/lib/laporan";
+import { namaSiswaOfItem } from "@/lib/laporan";
 import { HARI, PROGRAMS, uid, WARNA_JADWAL } from "@/lib/constants";
 import type { JadwalItem, Siswa } from "@/lib/types";
-import { EmptyState, SectionCard } from "./shared";
+import { SectionCard } from "./shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,6 @@ import {
 import { cn } from "@/lib/utils";
 
 interface CellRef {
-  kelas: string;
   hari: string;
   slot: number;
   item?: JadwalItem;
@@ -31,33 +30,28 @@ function labelSiswa(db: ReturnType<typeof useApp>["db"], it: JadwalItem): string
 
 export function JadwalView() {
   const { db, mutate } = useApp();
-  const kelas = useMemo(() => kelasList(db), [db]);
-  const [activeKelas, setActiveKelas] = useState("");
   const [hariMobile, setHariMobile] = useState(HARI[0]);
   const [cell, setCell] = useState<CellRef | null>(null);
   const [slotsOpen, setSlotsOpen] = useState(false);
-  const [newKelas, setNewKelas] = useState("");
-  const [addOpen, setAddOpen] = useState(false);
 
-  const k = activeKelas || kelas[0] || "";
   const slots = db.jadwal.slots;
   const programs = Array.from(new Set([...PROGRAMS, ...db.students.map((s) => s.program)]));
   const studentsSorted = useMemo(
     () => [...db.students].sort((a, b) => a.name.localeCompare(b.name)),
     [db.students]
   );
-  const items = db.jadwal.items.filter((i) => i.kelas === k);
+  /* Jadwal tidak lagi per kelas: satu sel (hari, slot) untuk semua anak. */
+  const items = db.jadwal.items;
   const itemAt = (hari: string, slot: number) => items.find((i) => i.hari === hari && i.slot === slot);
 
-  const openCell = (hari: string, slot: number) => setCell({ kelas: k, hari, slot, item: itemAt(hari, slot) });
+  const openCell = (hari: string, slot: number) => setCell({ hari, slot, item: itemAt(hari, slot) });
 
   const saveItem = (program: string, pengajar: string, warna: string, siswaIds: string[]) => {
     if (!cell) return;
     mutate((d) => {
-      d.jadwal.items = d.jadwal.items.filter(
-        (i) => !(i.kelas === cell.kelas && i.hari === cell.hari && i.slot === cell.slot)
-      );
-      d.jadwal.items.push({ id: uid(), kelas: cell.kelas, hari: cell.hari, slot: cell.slot, program, pengajar, warna, siswaIds });
+      /* Ganti item apa pun yang menempati sel (hari, slot) ini. */
+      d.jadwal.items = d.jadwal.items.filter((i) => !(i.hari === cell.hari && i.slot === cell.slot));
+      d.jadwal.items.push({ id: uid(), kelas: "", hari: cell.hari, slot: cell.slot, program, pengajar, warna, siswaIds });
     });
     setCell(null);
   };
@@ -70,73 +64,18 @@ export function JadwalView() {
     setCell(null);
   };
 
-  const addKelas = () => {
-    const name = newKelas.trim();
-    if (!name) return;
-    mutate((d) => {
-      if (!d.jadwal.kelas.includes(name)) d.jadwal.kelas.push(name);
-    });
-    setActiveKelas(name);
-    setNewKelas("");
-    setAddOpen(false);
-  };
-
-  const removeKelas = (name: string) => {
-    mutate((d) => {
-      d.jadwal.kelas = d.jadwal.kelas.filter((x) => x !== name);
-      d.jadwal.items = d.jadwal.items.filter((i) => i.kelas !== name);
-    });
-    if (activeKelas === name) setActiveKelas("");
-  };
-
   return (
     <div className="space-y-4">
       <SectionCard
         title="Jadwal mingguan"
         desc="Ketuk kotak untuk mengisi/mengubah jadwal"
         action={
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => setSlotsOpen(true)}>
-              <Clock className="h-4 w-4" /> Jam pelajaran
-            </Button>
-            <Button size="sm" variant="outline" className="border-sky-200 text-sky-700" onClick={() => setAddOpen(true)}>
-              <Plus className="h-4 w-4" /> Kelas
-            </Button>
-          </div>
+          <Button size="sm" variant="outline" onClick={() => setSlotsOpen(true)}>
+            <Clock className="h-4 w-4" /> Jam pelajaran
+          </Button>
         }
       >
-        {kelas.length === 0 ? (
-          <EmptyState title="Belum ada kelas">
-            Tambahkan kelas (mis. <b>Grup A</b>) atau isi kolom “Kelas / grup” pada data siswa.
-          </EmptyState>
-        ) : (
-          <>
-            <div className="mb-3 flex flex-wrap items-center gap-1.5">
-              {kelas.map((name) => (
-                <span key={name} className="relative">
-                  <button
-                    onClick={() => setActiveKelas(name)}
-                    className={cn(
-                      "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
-                      k === name ? "bg-sky-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-sky-100 hover:text-sky-700"
-                    )}
-                    aria-pressed={k === name}
-                  >
-                    {name}
-                  </button>
-                  <button
-                    onClick={() => removeKelas(name)}
-                    className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-slate-500 text-[9px] text-white hover:bg-red-500"
-                    aria-label={`Hapus kelas ${name}`}
-                    title="Hapus kelas"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-
-            {/* Desktop: grid lengkap */}
+        {/* Desktop: grid lengkap */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[760px] border-separate border-spacing-1.5">
                 <thead>
@@ -231,8 +170,6 @@ export function JadwalView() {
                 })}
               </div>
             </div>
-          </>
-        )}
       </SectionCard>
 
       {/* Dialog isi sel */}
@@ -243,14 +180,13 @@ export function JadwalView() {
               <CalendarDays className="h-4 w-4 text-sky-600" />
               {cell?.hari} · Slot {(cell?.slot ?? 0) + 1} ({cell ? slots[cell.slot]?.mulai : ""}–{cell ? slots[cell.slot]?.selesai : ""})
             </DialogTitle>
-            <DialogDescription>Kelas {cell?.kelas}</DialogDescription>
+            <DialogDescription>Pilih anak yang les di hari dan jam ini.</DialogDescription>
           </DialogHeader>
           <CellForm
             key={`${cell?.hari}-${cell?.slot}-${cell?.item?.id ?? "new"}`}
             initial={cell?.item}
             programs={programs}
             students={studentsSorted}
-            kelasName={cell?.kelas ?? ""}
             onSave={saveItem}
             onDelete={cell?.item ? removeItem : undefined}
           />
@@ -259,42 +195,25 @@ export function JadwalView() {
 
       {/* Dialog jam pelajaran */}
       {slotsOpen && <SlotsEditor onOpenChange={setSlotsOpen} />}
-
-      {/* Dialog kelas baru */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="sm:max-w-xs">
-          <DialogHeader>
-            <DialogTitle>Tambah kelas</DialogTitle>
-            <DialogDescription>cth. Grup C, Kelas 3 SD, Privat Anak…</DialogDescription>
-          </DialogHeader>
-          <Input value={newKelas} onChange={(e) => setNewKelas(e.target.value)} placeholder="Nama kelas" onKeyDown={(e) => e.key === "Enter" && addKelas()} />
-          <DialogFooter>
-            <Button className="w-full bg-sky-700 hover:bg-sky-800" onClick={addKelas} disabled={!newKelas.trim()}>
-              Tambah
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
 
 function CellForm({
-  initial, programs, students, kelasName, onSave, onDelete,
+  initial, programs, students, onSave, onDelete,
 }: {
   initial?: JadwalItem;
   programs: string[];
   students: Siswa[];
-  kelasName: string;
   onSave: (program: string, pengajar: string, warna: string, siswaIds: string[]) => void;
   onDelete?: () => void;
 }) {
   const [program, setProgram] = useState(initial?.program || "");
   const [pengajar, setPengajar] = useState(initial?.pengajar || "");
   const [warna, setWarna] = useState(initial?.warna || WARNA_JADWAL[0]);
-  // siswa peserta: bila item lama tak punya daftar → anggap seluruh siswa kelas ini
+  // siswa peserta: daftar eksplisit item bila mengedit, kosong bila sel baru
   const [dipilih, setDipilih] = useState<Set<string>>(
-    () => new Set(initial?.siswaIds ?? students.filter((s) => s.group === kelasName).map((s) => s.id))
+    () => new Set(initial?.siswaIds ?? [])
   );
 
   const toggle = (id: string) =>
@@ -304,7 +223,6 @@ function CellForm({
       else next.add(id);
       return next;
     });
-  const pilihSiswaKelas = () => setDipilih(new Set(students.filter((s) => s.group === kelasName).map((s) => s.id)));
   const bersihkan = () => setDipilih(new Set());
 
   return (
@@ -327,9 +245,6 @@ function CellForm({
             Siswa yang les ({dipilih.size})
           </Label>
           <div className="flex gap-1">
-            <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={pilihSiswaKelas}>
-              Siswa kelas ini
-            </Button>
             <Button type="button" size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={bersihkan}>
               Bersihkan
             </Button>
@@ -339,7 +254,6 @@ function CellForm({
           {students.length === 0 && <p className="p-2 text-xs text-muted-foreground">Belum ada siswa, tambahkan di menu Siswa.</p>}
           {students.map((s) => {
             const on = dipilih.has(s.id);
-            const bedaKelas = s.group && s.group !== kelasName;
             return (
               <button
                 key={s.id}
@@ -361,7 +275,6 @@ function CellForm({
                   {on && <Check className="h-3 w-3" />}
                 </span>
                 <span className="min-w-0 flex-1 truncate font-semibold">{s.name}</span>
-                {bedaKelas && <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500">{s.group}</span>}
               </button>
             );
           })}
