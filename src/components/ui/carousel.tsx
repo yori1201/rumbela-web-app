@@ -67,6 +67,16 @@ function Carousel({
     setCanScrollNext(api.canScrollNext())
   }, [])
 
+  // Sinkronisasi nilai awal saat render (pola adjusting state during
+  // render); pembaruan saat geser/refresh datang dari subscription
+  // select/reInit di bawah, bukan dari effect.
+  if (api) {
+    const nextPrev = api.canScrollPrev()
+    const nextNext = api.canScrollNext()
+    if (nextPrev !== canScrollPrev) setCanScrollPrev(nextPrev)
+    if (nextNext !== canScrollNext) setCanScrollNext(nextNext)
+  }
+
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev()
   }, [api])
@@ -88,14 +98,17 @@ function Carousel({
     [scrollPrev, scrollNext]
   )
 
-  React.useEffect(() => {
-    if (!api || !setApi) return
-    setApi(api)
-  }, [api, setApi])
+  // Beri tahu parent saat instance embla berubah. Pola "adjusting state
+  // during render" dari React: setState saat render, bukan di effect,
+  // supaya tidak ada cascading render saat commit.
+  const [prevApi, setPrevApi] = React.useState(api)
+  if (api !== prevApi) {
+    setPrevApi(api)
+    if (api && setApi) setApi(api)
+  }
 
   React.useEffect(() => {
     if (!api) return
-    onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)
 

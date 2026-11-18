@@ -116,7 +116,8 @@ function star(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, 
     const a = rot + (i * Math.PI) / 5;
     const x = cx + Math.cos(a) * rad;
     const y = cy + Math.sin(a) * rad;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   }
   ctx.closePath();
   ctx.fillStyle = color;

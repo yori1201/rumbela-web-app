@@ -41,13 +41,14 @@ export function LaporanView() {
   }).concat([`${new Date().getFullYear() - 1}-12`]).sort().reverse();
 
   // muat data report yang tersimpan saat siswa/bulan berubah
-  useEffect(() => {
-    if (!siswa) return;
-    const r = getReport(db, siswa.id, mk);
-    setScores({ ...r.scores });
-    setNote(r.note || suggestNote(db, siswa, mk));
-     
-  }, [sid, mk]);
+  const [prevReportKey, setPrevReportKey] = useState("")
+  const reportKey = `${sid}@${mk}`
+  if (siswa && reportKey !== prevReportKey) {
+    setPrevReportKey(reportKey)
+    const r = getReport(db, siswa.id, mk)
+    setScores({ ...r.scores })
+    setNote(r.note || suggestNote(db, siswa, mk))
+  }
 
   const saveReport = useCallback(
     (patch: { scores?: Record<string, number>; note?: string }) => {
@@ -59,15 +60,18 @@ export function LaporanView() {
         if (patch.note !== undefined) d.reports[key].note = patch.note;
       });
     },
-    [siswa, mk, mutate]
+    // Bergantung pada id siswa (string stabil), bukan objek siswa yang
+    // referensinya bisa berubah saat db dimutasi.
+    [siswa?.id, mk, mutate]
   );
 
   // render preview (debounce ringan)
   useEffect(() => {
     if (!siswa) return;
     let alive = true;
-    setRendering(true);
     const t = setTimeout(async () => {
+      if (!alive) return;
+      setRendering(true);
       try {
         const canvas = await renderReportCanvas(db, siswa, mk, {
           template,

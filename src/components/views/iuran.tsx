@@ -248,8 +248,12 @@ export function IuranView() {
       }
       return;
     }
-    if (!db.students.some((s) => s.id === parsed!.sid)) return;
-    if (payStatus(db, parsed.sid, parsed.mk || thisMk) === "belum") return;
+    // Tangkap nilai yang sudah dipersempit tipenya ke const, supaya tetap
+    // bertipe string di dalam callback queueMicrotask di bawah.
+    const sid = parsed.sid;
+    const mk = parsed.mk || thisMk;
+    if (!db.students.some((s) => s.id === sid)) return;
+    if (payStatus(db, sid, mk) === "belum") return;
     try {
       sessionStorage.removeItem("rumbela-buka-kwitansi");
     } catch {
@@ -257,7 +261,7 @@ export function IuranView() {
     }
     queueMicrotask(() => {
       setKuitCanvas(null);
-      setKuit({ sid: parsed!.sid, mk: parsed!.mk || thisMk });
+      setKuit({ sid, mk });
     });
   }, [db]);
 
