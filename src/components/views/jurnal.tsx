@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Check, Copy, MessageCircle, RotateCcw, Save, Settings2 } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { attStatsInMonth } from "@/lib/laporan";
 import {
   DAYS, MONTHS, DEFAULT_TEMPLATE_WA, fillTemplate, fmtDate, todayStr, waLink,
 } from "@/lib/constants";
@@ -28,7 +27,6 @@ const TPL_VARS: [string, string][] = [
   ["kehadiran", "Hadir / Izin / Alpa"],
   ["kegiatan", "isi kolom Kegiatan hari ini"],
   ["progres", "isi kolom Progres perkembangan"],
-  ["rekap", "rekap kehadiran bulan ini (kosong bila belum ada)"],
   ["lembaga", "nama lembaga"],
 ];
 
@@ -178,7 +176,6 @@ export function JurnalView() {
     const s = db.students.find((x) => x.id === targetSid);
     if (!s) return {};
     const att = db.attendance[date]?.[targetSid];
-    const stats = attStatsInMonth(db, targetSid, date.slice(0, 7));
     const progresKhusus = db.journal[date]?.siswa?.[targetSid]?.trim();
     return {
       nama: s.name,
@@ -189,7 +186,6 @@ export function JurnalView() {
       kehadiran: att === "H" ? "Hadir" : att === "I" ? "Izin" : att === "A" ? "Alpa" : "Belum dicatat",
       kegiatan: activity.trim() || "",
       progres: progresKhusus || progress.trim() || "",
-      rekap: stats.pct !== null ? `Rekap kehadiran bulan ini: ${stats.pct}%.` : "",
       lembaga: db.pengaturan.namaLembaga,
     };
   };

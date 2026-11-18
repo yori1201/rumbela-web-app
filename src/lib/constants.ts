@@ -133,7 +133,6 @@ Berikut laporan harian ananda *{nama}* ({program}), *{hari}, {tanggal}* di {lemb
 • Kehadiran: {kehadiran}
 • Kegiatan: {kegiatan}
 • Catatan progres: {progres}
-{rekap}
 Terima kasih atas dukungannya di rumah 🙏`;
 
 /** Label bawaan yang tampil di kanvas kwitansi. Desain kanvas tidak berubah,
